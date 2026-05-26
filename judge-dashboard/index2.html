@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Judge Dashboard · BTSSFF</title>
+<link rel="stylesheet" href="../assets/css/btssff.css">
+<style>
+  .page-header {
+    background: var(--navy);
+    padding: 2rem 2rem 1.5rem;
+    border-bottom: 3px solid var(--denim);
+  }
+  .page-header .overline {
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--denim);
+    margin-bottom: 0.4rem;
+  }
+  .page-header h1 { color: var(--offwhite); font-size: 1.6rem; }
+  .page-header .judge-name {
+    color: var(--rose);
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    font-family: var(--font-body);
+  }
+
+  .controls {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .filter-group { display: flex; gap: 4px; align-items: center; }
+  .filter-group label {
+    font-family: var(--font-display);
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--slate);
+    margin-right: 4px;
+  }
+
+  .filter-btn {
+    font-family: var(--font-display);
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: white;
+    cursor: pointer;
+    color: var(--slate);
+    transition: all 0.12s;
+  }
+  .filter-btn:hover { border-color: var(--denim); color: var(--navy); }
+  .filter-btn.active { background: var(--navy); color: white; border-color: var(--navy); }
+  .filter-btn.active.micro { background: var(--denim); color: var(--navy); border-color: var(--denim); }
+  .filter-btn.active.small { background: var(--slate); color: white; border-color: var(--slate); }
+
+  .controls-right { margin-left: auto; display: flex; align-items: center; gap: 0.75rem; }
+  .progress-wrap { font-family: var(--font-body); font-size: 0.75rem; color: var(--slate); white-space: nowrap; }
+  .progress-wrap strong { color: var(--navy); }
+
+  .film-grid {
+    padding: 1.5rem 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+  }
+
+  .film-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.15s;
+  }
+  .film-card.scored { border-left: 3px solid var(--denim); }
+
+  .card-header {
+    background: var(--navy);
+    padding: 0.85rem 1rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .card-title {
+    font-family: var(--font-title);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--offwhite);
+    line-height: 1.3;
+    flex: 1;
+  }
+  .overall-badge {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    background: var(--rose);
+    border-radius: var(--radius-sm);
+    min-width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .overall-badge.empty {
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.35);
+    font-size: 0.6rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* Watch link right under header */
+  .card-watch {
+    padding: 0.6rem 1rem;
+    background: #f0f4f6;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .watch-link {
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--navy);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .watch-link:hover { color: var(--rose); }
+  .watch-pw {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    color: var(--slate);
+    margin-left: auto;
+  }
+  .watch-pw span { font-weight: 700; color: var(--navy); }
+
+  .card-meta {
+    padding: 0.7rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-director { font-size: 0.8rem; color: var(--slate); }
+  .card-director strong { display: block; color: var(--navy); font-size: 0.82rem; }
+  .card-duration { font-family: var(--font-display); font-size: 0.6rem; letter-spacing: 0.06em; color: var(--slate); text-align: right; }
+
+  .card-synopsis {
+    padding: 0.7rem 1rem;
+    font-size: 0.8rem;
+    color: var(--slate);
+    line-height: 1.5;
+    border-bottom: 1px solid var(--border);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-score-area { padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); background: #fafaf8; }
+  .score-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .score-row:last-child { margin-bottom: 0; }
+  .score-label {
+    font-family: var(--font-display);
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--slate);
+    width: 120px;
+    flex-shrink: 0;
+  }
+  .score-buttons { display: flex; gap: 3px; }
+  .score-btn {
+    width: 28px; height: 28px;
+    border: 1px solid var(--border);
+    background: white;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--slate);
+    transition: all 0.1s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .score-btn:hover { border-color: var(--navy); color: var(--navy); }
+  .score-btn[data-val="8"].active,
+  .score-btn[data-val="9"].active,
+  .score-btn[data-val="10"].active { background: var(--rose); color: white; border-color: var(--rose); }
+  .score-btn[data-val="6"].active,
+  .score-btn[data-val="7"].active  { background: var(--denim); color: var(--navy); border-color: var(--denim); }
+  .score-btn.active                { background: var(--navy); color: white; border-color: var(--navy); }
+  .score-avg { font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; color: var(--navy); min-width: 28px; text-align: right; }
+
+  /* Notes always visible */
+  .card-notes { padding: 0.75rem 1rem; }
+  .card-notes textarea {
+    width: 100%;
+    min-height: 60px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    padding: 8px;
+    resize: vertical;
+    outline: none;
+    color: var(--navy);
+    background: white;
+  }
+  .card-notes textarea:focus { border-color: var(--denim); }
+  .notes-label {
+    font-family: var(--font-display);
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--slate);
+    margin-bottom: 5px;
+    display: block;
+  }
+
+  .card-save {
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fafaf8;
+    border-top: 1px solid var(--border);
+  }
+  .save-status {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    color: var(--slate);
+  }
+  .save-status.saved { color: #2a7a4b; }
+  .save-status.saving { color: var(--denim); }
+  .save-status.error { color: var(--rose); }
+
+  .save-toast {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    background: var(--navy); color: var(--denim);
+    font-family: var(--font-display); font-size: 0.6rem;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 10px 16px; border-radius: var(--radius);
+    border: 1px solid var(--denim);
+    opacity: 0; transform: translateY(8px);
+    transition: all 0.2s; z-index: 200;
+  }
+  .save-toast.show { opacity: 1; transform: translateY(0); }
+
+  .status-bar {
+    background: var(--navy); color: var(--denim);
+    font-family: var(--font-body); font-size: 0.75rem;
+    padding: 6px 2rem; display: flex; align-items: center; gap: 1.5rem;
+  }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #3dffc0; display: inline-block; margin-right: 4px; }
+
+  .empty-state { text-align: center; padding: 4rem 2rem; color: var(--slate); font-family: var(--font-display); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* Gate */
+  .gate-overlay {
+    position: fixed; inset: 0; background: var(--navy);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 1.5rem; z-index: 9999;
+  }
+  .gate-overlay h1 { color: var(--offwhite); font-size: 1.4rem; }
+  .gate-subtitle { color: var(--denim); font-family: var(--font-body); font-size: 0.9rem; text-transform: none; letter-spacing: 0; }
+  .gate-overlay input[type="password"] {
+    background: rgba(255,255,255,0.08); border: 1px solid var(--denim);
+    color: white; font-family: var(--font-body); font-size: 1rem;
+    padding: 10px 16px; border-radius: var(--radius); width: 280px; outline: none;
+  }
+  .gate-overlay input[type="password"]:focus { border-color: var(--offwhite); }
+  .gate-error { color: var(--rose); font-size: 0.8rem; font-family: var(--font-body); }
+
+  .setup-banner {
+    background: #fff8e1; border-bottom: 2px solid #f0c040;
+    padding: 0.75rem 2rem; font-family: var(--font-body); font-size: 0.8rem; color: #5a3d00;
+    display: none;
+  }
+  .setup-banner.show { display: block; }
+  .setup-banner strong { font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- Gate -->
+<div class="gate-overlay" id="gate">
+  <div style="text-align:center">
+    <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.2em;color:var(--denim);margin-bottom:1rem;text-transform:uppercase">Big Teeth Small Shorts Film Fest</div>
+    <h1>Judge Dashboard</h1>
+    <p class="gate-subtitle" style="margin-top:0.5rem">Enter your judge access code to continue</p>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;width:100%;max-width:280px">
+    <input type="password" id="gateInput" placeholder="Access code" autocomplete="off">
+    <button class="btn btn-denim" style="width:100%;justify-content:center" onclick="checkGate()">Enter →</button>
+    <div class="gate-error" id="gateError" style="display:none">Incorrect code — try again</div>
+  </div>
+  <div style="font-size:0.7rem;color:var(--slate);font-family:var(--font-body)">bigteethsmallshorts.com</div>
+</div>
+
+<!-- Setup banner (shows if Google Form URL not configured) -->
+<div class="setup-banner" id="setupBanner">
+  <strong>Setup needed:</strong> To save scores to Google Sheets, add your Google Form URL to the FORM_URL config at the top of this file. Scores are saving to your browser only until then.
+</div>
+
+<header class="page-header">
+  <div class="overline">Big Teeth Small Shorts Film Fest · Internal</div>
+  <h1>Judge Dashboard</h1>
+  <div class="judge-name" id="judgeNameDisplay"></div>
+</header>
+
+<div class="controls">
+  <div class="filter-group">
+    <label>Category</label>
+    <button class="filter-btn active" data-filter="all"   onclick="setFilter('all',   this)">All Films</button>
+    <button class="filter-btn micro"  data-filter="Micro" onclick="setFilter('Micro', this)">Micro</button>
+    <button class="filter-btn small"  data-filter="Small" onclick="setFilter('Small', this)">Small</button>
+  </div>
+  <div class="filter-group">
+    <label>Scored</label>
+    <button class="filter-btn active" data-scored="all" onclick="setScoredFilter('all', this)">All</button>
+    <button class="filter-btn"        data-scored="no"  onclick="setScoredFilter('no',  this)">Not yet</button>
+    <button class="filter-btn"        data-scored="yes" onclick="setScoredFilter('yes', this)">Done</button>
+  </div>
+  <div class="controls-right">
+    <div class="progress-wrap" id="progressText"></div>
+    <button class="btn btn-ghost" onclick="loadData()" style="font-size:0.55rem">↻ Refresh</button>
+    <button class="btn btn-navy" onclick="exportScores()">Export CSV</button>
+  </div>
+</div>
+
+<div class="status-bar">
+  <span><span class="status-dot"></span> Connected to Google Sheets</span>
+  <span id="saveMethodLabel">Scores saving to browser</span>
+</div>
+
+<main class="film-grid" id="filmGrid">
+  <div class="loading-spinner">Loading films from Google Sheets…</div>
+</main>
+
+<div class="save-toast" id="saveToast">Saved</div>
+
+<script>
+// ─── CONFIG — edit these ──────────────────────────────────────────────────────
+const SHEET_ID = "1i-iCDCzVr_BuxHTu3pMVCvjEfpSLew7-Z3LkErpT-Uc";
+
+// Google Form URL for saving scores to Sheets.
+// See README for setup instructions. Leave empty to save to browser only.
+const FORM_URL = "";
+
+// Google Form field entry IDs (fill these in after creating the form)
+const FORM_FIELDS = {
+  filmId:        "entry.XXXXXXXXX",
+  filmTitle:     "entry.XXXXXXXXX",
+  judge:         "entry.XXXXXXXXX",
+  production:    "entry.XXXXXXXXX",
+  entertainment: "entry.XXXXXXXXX",
+  notes:         "entry.XXXXXXXXX",
+};
+
+const GATE_PASSWORDS = {
+  "judges2026": "Judges",
+  "team2026":   "Team",
+};
+
+const SCORE_CATEGORIES = [
+  { key: "production",    label: "Production quality" },
+  { key: "entertainment", label: "Entertainment value" },
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let allFilms    = [];
+let scores      = {};
+let notes       = {};
+let judgeLabel  = "";
+let filterCat   = "all";
+let filterScore = "all";
+
+// ─── GATE ─────────────────────────────────────────────────────────────────────
+function checkGate() {
+  const val   = document.getElementById("gateInput").value.trim().toLowerCase();
+  const match = Object.entries(GATE_PASSWORDS).find(([k]) => k === val);
+  if (match) {
+    judgeLabel = match[1];
+    document.getElementById("gate").style.display = "none";
+    document.getElementById("judgeNameDisplay").textContent = `Scoring as: ${judgeLabel}`;
+    loadScoresFromStorage();
+    loadData();
+    if (!FORM_URL) document.getElementById("setupBanner").classList.add("show");
+    else document.getElementById("saveMethodLabel").textContent = "Scores saving to Google Sheets ✓";
+  } else {
+    document.getElementById("gateError").style.display = "block";
+    document.getElementById("gateInput").value = "";
+  }
+}
+document.getElementById("gateInput").addEventListener("keydown", e => { if (e.key === "Enter") checkGate(); });
+
+// ─── DATA LOADING ─────────────────────────────────────────────────────────────
+async function loadData() {
+  document.getElementById("filmGrid").innerHTML = '<div class="loading-spinner">Loading films…</div>';
+  try {
+    allFilms = await fetchFilms();
+    render();
+  } catch (err) {
+    document.getElementById("filmGrid").innerHTML =
+      `<div class="empty-state">Could not load films.<br><small style="font-size:0.8rem;text-transform:none;letter-spacing:0;font-family:var(--font-body)">${err.message}</small><br><br><button class="btn btn-navy" onclick="loadData()">Try again</button></div>`;
+  }
+}
+
+async function fetchFilms() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Films`;
+  const res  = await fetch(url);
+  if (!res.ok) throw new Error(`Sheet returned ${res.status}. Make sure the sheet is shared publicly (view only).`);
+  const text = await res.text();
+  const rows = parseCSV(text);
+  if (rows.length < 2) return [];
+  const headers = rows[0];
+  return rows.slice(1).map((row, idx) => {
+    const get = col => (row[headers.indexOf(col)] || "").trim();
+    const catRaw    = get("Submission Categories");
+    const size      = /micro/i.test(catRaw) ? "Micro" : "Small";
+    const genre     = catRaw.replace(/^(micro|small)\s+short\s*/i, "").trim();
+    const durRaw    = get("Duration");
+    const dirCredit = get("Please list all person(s) that should get a director's credit on our programming and promotional listings, should your film be selected. ");
+    const director  = dirCredit || `${get("First Name")} ${get("Last Name")}`.trim();
+    const parts     = durRaw.split(":").map(Number);
+    const dispMin   = parts.length === 3 ? (parts[0]>0?`${parts[0]}:`:"") + `${parts[1]}:${String(parts[2]).padStart(2,"0")}` : durRaw;
+    const city      = get("City");
+    const state     = get("State");
+    const country   = get("Country");
+    // Abbreviate United States → US
+    const countryDisplay = country === "United States" ? "US" : country;
+    const location  = [city, state, countryDisplay].filter(Boolean).join(", ");
+    return {
+      id:        get("Tracking Number") || `f${idx}`,
+      title:     get("Project Title") || "Untitled",
+      director, location, size, genre, dispMin,
+      logLine:   get('Please include a one sentence "log line" of your film that will be included in the program if your film is selected.') || get("Synopsis"),
+      synopsis:  get("Synopsis"),
+      vimeoLink: get("Submission Link"),
+      password:  get("Submission Password"),
+    };
+  }).filter(f => f.title && f.title !== "Untitled");
+}
+
+// ─── SCORES ───────────────────────────────────────────────────────────────────
+const STORAGE_KEY = () => `btssff-scores-${judgeLabel}`;
+
+function loadScoresFromStorage() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY());
+    if (saved) { const p = JSON.parse(saved); scores = p.scores||{}; notes = p.notes||{}; }
+  } catch {}
+}
+
+function saveToStorage() {
+  try { localStorage.setItem(STORAGE_KEY(), JSON.stringify({ scores, notes, ts: Date.now() })); } catch {}
+}
+
+async function saveScore(filmId, film) {
+  saveToStorage();
+  if (!FORM_URL) { flashToast("Saved locally"); return; }
+
+  // Send to Google Form
+  const s = scores[filmId] || {};
+  const params = new URLSearchParams({
+    [FORM_FIELDS.filmId]:        filmId,
+    [FORM_FIELDS.filmTitle]:     film.title,
+    [FORM_FIELDS.judge]:         judgeLabel,
+    [FORM_FIELDS.production]:    s.production    !== undefined ? s.production    : "",
+    [FORM_FIELDS.entertainment]: s.entertainment !== undefined ? s.entertainment : "",
+    [FORM_FIELDS.notes]:         notes[filmId] || "",
+  });
+
+  const statusEl = document.querySelector(`.film-card[data-id="${filmId}"] .save-status`);
+  if (statusEl) { statusEl.textContent = "Saving…"; statusEl.className = "save-status saving"; }
+
+  try {
+    await fetch(`${FORM_URL}?${params}`, { method: "GET", mode: "no-cors" });
+    if (statusEl) { statusEl.textContent = "Saved to sheet ✓"; statusEl.className = "save-status saved"; }
+    flashToast("Saved to Google Sheets");
+  } catch {
+    if (statusEl) { statusEl.textContent = "Save failed — stored locally"; statusEl.className = "save-status error"; }
+  }
+}
+
+function setScore(filmId, cat, val, film) {
+  if (!scores[filmId]) scores[filmId] = {};
+  scores[filmId][cat] = val;
+  saveScore(filmId, film);
+  updateCard(filmId);
+  updateProgress();
+}
+
+function setNote(filmId, val, film) {
+  notes[filmId] = val;
+  saveToStorage();
+}
+
+function getAvg(filmId) {
+  const s = scores[filmId];
+  if (!s) return null;
+  const vals = SCORE_CATEGORIES.map(c => s[c.key]).filter(v => v !== undefined && v !== null);
+  if (!vals.length) return null;
+  return (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
+}
+
+function isFullyScored(filmId) {
+  const s = scores[filmId];
+  if (!s) return false;
+  return SCORE_CATEGORIES.every(c => s[c.key] !== undefined && s[c.key] !== null);
+}
+
+// ─── FILTERS ──────────────────────────────────────────────────────────────────
+function setFilter(val, btn) {
+  filterCat = val;
+  document.querySelectorAll("[data-filter]").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  render();
+}
+function setScoredFilter(val, btn) {
+  filterScore = val;
+  document.querySelectorAll("[data-scored]").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  render();
+}
+function filteredFilms() {
+  return allFilms.filter(f => {
+    if (filterCat !== "all" && f.size !== filterCat) return false;
+    if (filterScore === "yes" && !isFullyScored(f.id)) return false;
+    if (filterScore === "no"  &&  isFullyScored(f.id)) return false;
+    return true;
+  });
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  const films = filteredFilms();
+  updateProgress();
+  if (!films.length) { document.getElementById("filmGrid").innerHTML = '<div class="empty-state">No films match this filter</div>'; return; }
+  document.getElementById("filmGrid").innerHTML = films.map(filmCard).join("");
+
+  document.querySelectorAll(".score-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+      const card  = this.closest(".film-card");
+      const filmId = card.dataset.id;
+      const film  = allFilms.find(f => f.id === filmId);
+      setScore(filmId, this.dataset.cat, Number(this.dataset.val), film);
+    });
+  });
+
+  document.querySelectorAll(".card-notes textarea").forEach(ta => {
+    const filmId = ta.closest(".film-card").dataset.id;
+    const film   = allFilms.find(f => f.id === filmId);
+    ta.value = notes[filmId] || "";
+    let noteTimer;
+    ta.addEventListener("input", function() {
+      notes[filmId] = this.value;
+      clearTimeout(noteTimer);
+      noteTimer = setTimeout(() => saveScore(filmId, film), 1500);
+    });
+  });
+}
+
+function filmCard(film) {
+  const avg    = getAvg(film.id);
+  const scored = isFullyScored(film.id);
+  const s      = scores[film.id] || {};
+
+  const badgeHtml = avg !== null
+    ? `<div class="overall-badge">${avg}</div>`
+    : `<div class="overall-badge empty">Score</div>`;
+
+  const watchHtml = film.vimeoLink
+    ? `<a class="watch-link" href="${film.vimeoLink}" target="_blank" rel="noopener">▶ Watch film</a>
+       ${film.password ? `<span class="watch-pw">Password: <span>${esc(film.password)}</span></span>` : ""}`
+    : `<span class="watch-link" style="opacity:0.4;cursor:default">No link provided</span>`;
+
+  const scoreRowsHtml = SCORE_CATEGORIES.map(c => {
+    const curVal = s[c.key];
+    const btns   = [1,2,3,4,5,6,7,8,9,10].map(n =>
+      `<button class="score-btn ${curVal === n ? "active" : ""}" data-cat="${c.key}" data-val="${n}">${n}</button>`
+    ).join("");
+    return `<div class="score-row">
+      <span class="score-label">${c.label}</span>
+      <div class="score-buttons">${btns}</div>
+      <span class="score-avg">${curVal !== undefined ? curVal : "—"}</span>
+    </div>`;
+  }).join("");
+
+  const saveStatusText = FORM_URL ? "Not yet saved to sheet" : "Saving to browser";
+
+  return `<div class="film-card ${scored ? "scored" : ""}" data-id="${film.id}">
+    <div class="card-header">
+      <div class="card-title">${esc(film.title)}</div>
+      ${badgeHtml}
+    </div>
+    <div class="card-watch">${watchHtml}</div>
+    <div class="card-meta">
+      <div class="card-director">
+        <strong>${esc(film.director)}</strong>
+        ${esc(film.location)}
+      </div>
+      <div style="text-align:right">
+        <span class="pill pill-${film.size.toLowerCase()}">${film.size} Short</span>
+        <div class="card-duration" style="margin-top:4px">${film.dispMin}</div>
+      </div>
+    </div>
+    ${film.logLine ? `<div class="card-synopsis">${esc(film.logLine)}</div>` : ""}
+    <div class="card-score-area">${scoreRowsHtml}</div>
+    <div class="card-notes">
+      <span class="notes-label">Notes</span>
+      <textarea placeholder="Add notes about this film…" rows="3"></textarea>
+    </div>
+    <div class="card-save">
+      <span class="save-status">${saveStatusText}</span>
+      <button class="btn btn-ghost" style="font-size:0.5rem;padding:4px 10px" onclick="forceSave('${film.id}')">Save notes</button>
+    </div>
+  </div>`;
+}
+
+function forceSave(filmId) {
+  const film = allFilms.find(f => f.id === filmId);
+  if (film) saveScore(filmId, film);
+}
+
+function updateCard(filmId) {
+  const card = document.querySelector(`.film-card[data-id="${filmId}"]`);
+  if (!card) return;
+  const avg = getAvg(filmId);
+  const badge = card.querySelector(".overall-badge");
+  if (avg !== null) { badge.textContent = avg; badge.classList.remove("empty"); }
+  SCORE_CATEGORIES.forEach(c => {
+    const val = scores[filmId]?.[c.key];
+    card.querySelectorAll(`.score-btn[data-cat="${c.key}"]`).forEach(btn => {
+      btn.classList.toggle("active", Number(btn.dataset.val) === val);
+    });
+    const row = card.querySelector(`.score-btn[data-cat="${c.key}"]`)?.closest(".score-row");
+    if (row) { const span = row.querySelector(".score-avg"); if (span) span.textContent = val !== undefined ? val : "—"; }
+  });
+  card.classList.toggle("scored", isFullyScored(filmId));
+}
+
+function updateProgress() {
+  const total  = allFilms.length;
+  const done   = allFilms.filter(f => isFullyScored(f.id)).length;
+  const micro  = allFilms.filter(f => f.size === "Micro");
+  const small  = allFilms.filter(f => f.size === "Small");
+  document.getElementById("progressText").innerHTML =
+    `<strong>${done}/${total}</strong> scored · Micro: ${micro.filter(f=>isFullyScored(f.id)).length}/${micro.length} · Small: ${small.filter(f=>isFullyScored(f.id)).length}/${small.length}`;
+}
+
+function flashToast(msg) {
+  const el = document.getElementById("saveToast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove("show"), 2000);
+}
+
+// ─── EXPORT ───────────────────────────────────────────────────────────────────
+function exportScores() {
+  const headers = ["Film Title","Director","Size","Duration","Category","Production Quality","Entertainment Value","Average","Notes"];
+  const rows = allFilms.map(f => {
+    const s   = scores[f.id] || {};
+    const avg = getAvg(f.id) || "";
+    return [f.title, f.director, f.size, f.dispMin, f.genre,
+      s.production !== undefined ? s.production : "",
+      s.entertainment !== undefined ? s.entertainment : "",
+      avg, notes[f.id] || ""
+    ].map(v => `"${String(v).replace(/"/g,'""')}"`);
+  });
+  const csv  = [headers, ...rows].map(r=>r.join(",")).join("\n");
+  const blob = new Blob([csv], {type:"text/csv"});
+  const a    = document.createElement("a");
+  a.href     = URL.createObjectURL(blob);
+  a.download = `btssff-scores-${judgeLabel}-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function parseCSV(text) {
+  const rows=[];let row=[],field="",inQ=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i],n=text[i+1];
+    if(inQ){if(c==='"'&&n==='"'){field+='"';i++;}else if(c==='"'){inQ=false;}else{field+=c;}}
+    else{if(c==='"'){inQ=true;}else if(c===','){row.push(field);field="";}else if(c==='\n'){row.push(field);rows.push(row);row=[];field="";}else if(c!=='\r'){field+=c;}}
+  }
+  if(field||row.length){row.push(field);rows.push(row);}
+  return rows;
+}
+</script>
+</body>
+</html>
