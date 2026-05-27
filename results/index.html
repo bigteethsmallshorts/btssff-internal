@@ -9,8 +9,11 @@
   body { display: flex; flex-direction: column; min-height: 100vh; background: var(--offwhite); }
 
   .page-header {
-    background: var(--navy); padding: 1.25rem 2rem; border-bottom: 3px solid var(--denim);
+    background: var(--navy); padding: 1rem 2rem; border-bottom: 3px solid var(--denim);
     display: flex; align-items: center; justify-content: space-between;
+    border-bottom: none;
+    background: linear-gradient(135deg, #011632 0%, #0a2040 100%);
+    box-shadow: 0 2px 0 var(--denim), 0 4px 0 rgba(201,84,106,0.4);
   }
   .page-header-left .overline {
     font-family: var(--font-display); font-size: 0.52rem;
@@ -342,19 +345,14 @@
 </div>
 
 <header class="page-header">
-  <div class="page-header-left" style="display:flex;align-items:center;gap:1.25rem">
-    <!-- BTSSFF Logo mark -->
-    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="44" height="44" rx="6" fill="#9EC7D5"/>
-      <text x="22" y="16" text-anchor="middle" font-family="'Arial Black',sans-serif" font-weight="900" font-size="9" fill="#011632" letter-spacing="1">BIG</text>
-      <text x="22" y="26" text-anchor="middle" font-family="'Arial Black',sans-serif" font-weight="900" font-size="9" fill="#011632" letter-spacing="1">TEETH</text>
-      <rect x="6" y="29" width="32" height="2" fill="#C9546A"/>
-      <text x="22" y="39" text-anchor="middle" font-family="'Arial Black',sans-serif" font-weight="700" font-size="7" fill="#011632" letter-spacing="0.5">FILM FEST</text>
-    </svg>
+  <div class="page-header-left" style="display:flex;align-items:center;gap:1.5rem">
+    <img src="https://greggjaffe.com/brand-guide/images/BTSSFF_shorts-nolegs-logo_2025.png"
+         alt="BTSSFF Logo" style="height:52px;width:auto;flex-shrink:0">
     <div>
-      <div style="font-family:var(--font-display);font-size:0.52rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--denim);margin-bottom:3px">Big Teeth Small Shorts</div>
-      <h1 style="font-size:1.7rem;letter-spacing:0.04em">Results</h1>
+      <div style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--denim);margin-bottom:4px">Big Teeth Small Shorts Film Fest</div>
+      <h1 style="font-size:1.8rem;letter-spacing:0.06em;color:var(--offwhite);line-height:1">Results</h1>
     </div>
+    <div style="width:2px;height:40px;background:var(--rose);margin-left:0.25rem;flex-shrink:0"></div>
   </div>
   <div class="header-actions">
     <div id="searchWrap" style="position:relative">
@@ -391,6 +389,7 @@
         <option value="avg">Overall avg</option>
         <option value="prod">Production avg</option>
         <option value="ent">Entertainment avg</option>
+        <option value="judges">Judges scored</option>
         <option value="title">Title A–Z</option>
         <option value="runtime">Runtime</option>
       </select>
@@ -688,6 +687,7 @@ function filteredSorted(){
     if(sortBy==="avg"){va=getOverall(a.id)??-1;vb=getOverall(b.id)??-1;}
     else if(sortBy==="prod"){va=getAvg(a.id,"production")??-1;vb=getAvg(b.id,"production")??-1;}
     else if(sortBy==="ent"){va=getAvg(a.id,"entertainment")??-1;vb=getAvg(b.id,"entertainment")??-1;}
+    else if(sortBy==="judges"){va=Object.keys(getFilmScores(a.id)).length;vb=Object.keys(getFilmScores(b.id)).length;}
     else if(sortBy==="runtime"){va=parseDurToSeconds(a.dispMin);vb=parseDurToSeconds(b.dispMin);}
     else{return sortDir==="asc"?a.title.localeCompare(b.title):b.title.localeCompare(a.title);}
     return sortDir==="desc"?vb-va:va-vb;
@@ -910,12 +910,12 @@ function renderPanel(id){
     ? `<span style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;background:var(--rose);color:white;padding:3px 10px;border-radius:var(--radius-sm);font-weight:700">✕ Rejected</span>`
     : "";
   document.getElementById("detailPanel").innerHTML=`
-    <div class="panel-header">
-      <div>
-        <div class="panel-title">${esc(f.title)}</div>
-        ${decBadge?`<div style="margin-top:5px">${decBadge}</div>`:""}
+    <div class="panel-header" style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem">
+      <div style="display:flex;align-items:center;gap:0.75rem;flex:1;min-width:0">
+        <div class="panel-title" style="flex-shrink:1;min-width:0">${esc(f.title)}</div>
+        ${decBadge}
       </div>
-      <div style="display:flex;gap:6px;align-items:flex-start;flex-shrink:0">
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
         <button class="edit-btn" style="padding:4px 10px;font-size:0.48rem" onclick="toggleEditMode('${esc(id)}')">✎ Edit fields</button>
         <button class="panel-close" onclick="closePanel()">✕</button>
       </div>
