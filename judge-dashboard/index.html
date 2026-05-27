@@ -582,7 +582,9 @@ async function loadScoresFromSheet() {
     const rows = parseCSV(await res.text());
     if (rows.length < 2) return;
     const h = rows[0];
-    const getCol = (row, name) => (row[h.indexOf(name)] || "").trim();
+    // Trim headers to handle any trailing spaces from Google Forms
+    const hTrimmed = h.map(x => x.trim());
+    const getCol = (row, name) => (row[hTrimmed.indexOf(name.trim())] || "").trim();
 
     // Group by judge+filmId, keep only most recent per combo
     const latest = {};
@@ -733,16 +735,18 @@ function render() {
     const filmId=ta.closest(".film-card").dataset.id;
     ta.value=notes[filmId]||"";
     let t;
-   ta.addEventListener("input", function(){
-    notes[filmId] = this.value;
-    persist();
-});
-ta.addEventListener("blur", function(){
-    setNote(filmId, this.value);
-});
+    // Save to localStorage on every keystroke (fast, no form submit)
+    ta.addEventListener("input", function(){
+      notes[filmId] = this.value;
+      persist();
       const st=this.closest(".film-card").querySelector(".save-status");
-      if(st){st.textContent="Notes saved ✓";st.className="save-status saved";}
-      clearTimeout(t); t=setTimeout(()=>{if(st){st.textContent=isFullyScored(filmId)?"All scores saved ✓":"Auto-saves as you score";st.className="save-status"+(isFullyScored(filmId)?" saved":"");}},2000);
+      if(st){st.textContent="Typing…";st.className="save-status";}
+    });
+    // Only submit to Google Form when judge stops typing (on blur)
+    ta.addEventListener("blur", function(){
+      setNote(filmId, this.value);
+      const st=this.closest(".film-card").querySelector(".save-status");
+      if(st){st.textContent=isFullyScored(filmId)?"All scores saved ✓":"Auto-saves as you score";st.className="save-status"+(isFullyScored(filmId)?" saved":"");}
     });
   });
 }
