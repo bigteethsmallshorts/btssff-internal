@@ -272,10 +272,10 @@
   .btn-maybe     { background:#fef3cd;color:#7a5700;border-color:#f5d97a; }
   .btn-reject    { background:#fde8ec;color:#8b1a2e;border-color:#f5b8c4; }
   .btn-undecided { background:#f0f0f0;color:var(--slate);border-color:var(--border); }
-  .btn-select.active    { background:#2a7a4b;color:white;border-color:#2a7a4b; }
-  .btn-maybe.active     { background:#b8860b;color:white;border-color:#b8860b; }
-  .btn-reject.active    { background:var(--rose);color:white;border-color:var(--rose); }
-  .btn-undecided.active { background:var(--slate);color:white;border-color:var(--slate); }
+  .btn-select.active    { background:#2a7a4b;color:white;border-color:#2a7a4b;box-shadow:0 0 0 3px rgba(42,122,75,0.25);font-size:0.65rem; }
+  .btn-maybe.active     { background:#b8860b;color:white;border-color:#b8860b;box-shadow:0 0 0 3px rgba(184,134,11,0.25);font-size:0.65rem; }
+  .btn-reject.active    { background:var(--rose);color:white;border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,84,106,0.25);font-size:0.65rem; }
+  .btn-undecided.active { background:var(--slate);color:white;border-color:var(--slate);box-shadow:0 0 0 3px rgba(84,110,133,0.25);font-size:0.65rem; }
 
   .export-summary { padding:0.75rem 1.25rem;background:#fafaf8;font-family:var(--font-body);font-size:0.75rem;color:var(--slate); }
 
@@ -342,11 +342,18 @@
 </div>
 
 <header class="page-header">
-  <div class="page-header-left">
-    <div class="overline">Internal Tools · Season Review</div>
-    <div style="display:flex;align-items:baseline;gap:0.75rem">
-      <h1 style="font-size:1.6rem">Results</h1>
-      <span style="font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.08em;color:var(--denim);text-transform:uppercase">Big Teeth Small Shorts Film Fest</span>
+  <div class="page-header-left" style="display:flex;align-items:center;gap:1.25rem">
+    <!-- BTSSFF Logo mark -->
+    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="44" height="44" rx="6" fill="#9EC7D5"/>
+      <text x="22" y="16" text-anchor="middle" font-family="'Arial Black',sans-serif" font-weight="900" font-size="9" fill="#011632" letter-spacing="1">BIG</text>
+      <text x="22" y="26" text-anchor="middle" font-family="'Arial Black',sans-serif" font-weight="900" font-size="9" fill="#011632" letter-spacing="1">TEETH</text>
+      <rect x="6" y="29" width="32" height="2" fill="#C9546A"/>
+      <text x="22" y="39" text-anchor="middle" font-family="'Arial Black',sans-serif" font-weight="700" font-size="7" fill="#011632" letter-spacing="0.5">FILM FEST</text>
+    </svg>
+    <div>
+      <div style="font-family:var(--font-display);font-size:0.52rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--denim);margin-bottom:3px">Big Teeth Small Shorts</div>
+      <h1 style="font-size:1.7rem;letter-spacing:0.04em">Results</h1>
     </div>
   </div>
   <div class="header-actions">
@@ -405,24 +412,26 @@
   <span class="tally-label" id="maybeLabel" style="color:var(--slate)">Maybe</span>
   <span class="tally-stat" id="tallyMaybe">—</span>
   <div class="tally-divider"></div>
+  <div class="tally-divider"></div>
   <span class="tally-label">Total runtime</span>
   <span class="tally-stat" id="tallyRuntime">—</span>
-  <button class="tally-toggle" id="tallyToggle" onclick="toggleMaybe()">+ Include Maybe</button>
-  <button class="tally-toggle" onclick="showGenreTally()">Genre breakdown</button>
+  <button class="tally-toggle" id="tallyToggle" onclick="toggleMaybe()" style="margin-left:4px">+ Include Maybe</button>
+  <div style="margin-left:auto">
+    <button class="tally-toggle" id="genreToggle" onclick="toggleGenreTally()">Genre breakdown</button>
+  </div>
 </div>
 
-<!-- Judge coverage -->
+<!-- Judge coverage + genre tally -->
 <div class="judge-coverage" id="judgeCoverage">
   <span class="coverage-label">Judge coverage</span>
   <div class="coverage-judges" id="coverageJudges">Loading…</div>
+  <div id="genreTallyInline" style="display:none;margin-left:auto;display:none;align-items:center;gap:0.5rem;flex-wrap:wrap">
+    <span class="coverage-label" style="white-space:nowrap">Selected genres</span>
+    <div id="genreTallyContent" style="display:flex;gap:0.4rem;flex-wrap:wrap;font-family:var(--font-display);font-size:0.5rem;letter-spacing:0.06em;text-transform:uppercase"></div>
+  </div>
 </div>
 
-<!-- Genre tally (selected films) -->
-<div class="judge-coverage" id="genreTallyBar" style="display:none">
-  <span class="coverage-label">Selected genres</span>
-  <div id="genreTallyContent" style="display:flex;gap:0.75rem;flex-wrap:wrap;font-family:var(--font-display);font-size:0.52rem;letter-spacing:0.06em;text-transform:uppercase"></div>
-  <button class="tally-toggle" style="margin-left:auto" onclick="document.getElementById('genreTallyBar').style.display='none'">✕</button>
-</div>
+
 
 <div class="main-layout">
   <div class="film-table-wrap" id="tableWrap">
@@ -626,7 +635,7 @@ function saveDecision(filmId,dec){
   decisions[filmId]=dec;
   try{localStorage.setItem("btssff-decisions",JSON.stringify(decisions));}catch{}
   renderRow(filmId);
-  if(selectedId===filmId)renderPanel(filmId);
+  if(selectedId===filmId){renderPanel(filmId);}
   updateCount();
   updateTally();
   flashToast(`Marked as ${dec}`);
@@ -893,15 +902,31 @@ function renderPanel(id){
   const ab=(d)=>dec===d?"active":"";
 
   const hasOverrides = f._overrides && Object.keys(f._overrides).length > 0;
+  const decBadge = dec==="selected"
+    ? `<span style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;background:#2a7a4b;color:white;padding:3px 10px;border-radius:var(--radius-sm);font-weight:700">✓ Selected</span>`
+    : dec==="maybe"
+    ? `<span style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;background:#b8860b;color:white;padding:3px 10px;border-radius:var(--radius-sm);font-weight:700">? Maybe</span>`
+    : dec==="rejected"
+    ? `<span style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;background:var(--rose);color:white;padding:3px 10px;border-radius:var(--radius-sm);font-weight:700">✕ Rejected</span>`
+    : "";
   document.getElementById("detailPanel").innerHTML=`
     <div class="panel-header">
-      <div class="panel-title">${esc(f.title)}</div>
-      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+      <div>
+        <div class="panel-title">${esc(f.title)}</div>
+        ${decBadge?`<div style="margin-top:5px">${decBadge}</div>`:""}
+      </div>
+      <div style="display:flex;gap:6px;align-items:flex-start;flex-shrink:0">
         <button class="edit-btn" style="padding:4px 10px;font-size:0.48rem" onclick="toggleEditMode('${esc(id)}')">✎ Edit fields</button>
         <button class="panel-close" onclick="closePanel()">✕</button>
       </div>
     </div>
     <div class="panel-watch">${watch}</div>
+    <div style="background:#f0f4f6;padding:0.5rem 1.25rem;border-bottom:1px solid var(--border);display:flex;gap:1.5rem;align-items:center">
+      <div style="font-family:var(--font-display);font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate)">Avg scores</div>
+      <span style="font-family:var(--font-display);font-weight:700;font-size:0.85rem;color:var(--rose)">${fmt(getOverall(id))}</span>
+      <span style="font-family:var(--font-body);font-size:0.72rem;color:var(--slate)">Production: <strong style="color:var(--navy)">${fmt(getAvg(id,"production"))}</strong></span>
+      <span style="font-family:var(--font-body);font-size:0.72rem;color:var(--slate)">Entertainment: <strong style="color:var(--navy)">${fmt(getAvg(id,"entertainment"))}</strong></span>
+    </div>
     <div class="panel-meta" id="panel-meta-${esc(id)}">
       ${renderMetaFields(f, false)}
     </div>
@@ -917,11 +942,7 @@ function renderPanel(id){
       <button class="decision-btn btn-reject ${ab('rejected')}"   onclick="saveDecision('${esc(id)}','rejected')">✕ Reject</button>
       <button class="decision-btn btn-undecided ${ab('undecided')}" onclick="saveDecision('${esc(id)}','undecided')">↺ Undecided</button>
     </div>
-    <div class="export-summary">
-      Overall: <strong>${fmt(getOverall(id))}</strong> &nbsp;·&nbsp;
-      Production: <strong>${fmt(getAvg(id,"production"))}</strong> &nbsp;·&nbsp;
-      Entertainment: <strong>${fmt(getAvg(id,"entertainment"))}</strong>
-    </div>`;
+`;
 }
 
 function toggleStatement(btn){
@@ -1031,19 +1052,30 @@ function updateCoverage() {
   document.getElementById("coverageJudges").innerHTML = html;
 }
 
-function showGenreTally(){
-  const selFilms = allFilms.filter(f=>(decisions[f.id]||"undecided")==="selected");
-  const counts = {};
-  selFilms.forEach(f=>{
-    // Use genre (end of category) as the key
-    const g = (f.genre||"unknown").trim();
-    counts[g] = (counts[g]||0)+1;
-  });
-  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
-  document.getElementById("genreTallyContent").innerHTML = sorted.map(([g,n])=>
-    `<span style="background:var(--border);color:var(--navy);padding:3px 8px;border-radius:var(--radius-sm)">${esc(g)}: <strong>${n}</strong></span>`
-  ).join("");
-  document.getElementById("genreTallyBar").style.display="flex";
+function toggleGenreTally(){
+  const el = document.getElementById("genreTallyInline");
+  const btn = document.getElementById("genreToggle");
+  const isOn = el.style.display === "flex";
+  if(isOn){
+    el.style.display = "none";
+    btn.classList.remove("active");
+    btn.textContent = "Genre breakdown";
+  } else {
+    // Build genre counts from selected films
+    const selFilms = allFilms.filter(f=>(decisions[f.id]||"undecided")==="selected");
+    const counts = {};
+    selFilms.forEach(f=>{
+      const g = (f.genre||"unknown").trim();
+      counts[g] = (counts[g]||0)+1;
+    });
+    const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+    document.getElementById("genreTallyContent").innerHTML = sorted.length
+      ? sorted.map(([g,n])=>`<span style="background:rgba(1,22,50,0.08);color:var(--navy);padding:2px 7px;border-radius:var(--radius-sm)">${esc(g)}: <strong>${n}</strong></span>`).join("")
+      : "<span style='color:var(--slate);font-style:italic'>No films selected yet</span>";
+    el.style.display = "flex";
+    btn.classList.add("active");
+    btn.textContent = "Genre breakdown ✕";
+  }
 }
 
 function flashToast(msg){
