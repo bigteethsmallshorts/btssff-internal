@@ -7,9 +7,10 @@
 <link rel="stylesheet" href="../assets/css/btssff.css">
 <style>
   .page-header {
-    background: var(--navy);
-    padding: 1.5rem 2rem;
-    border-bottom: 3px solid var(--denim);
+    background: linear-gradient(135deg, #011632 0%, #0a2040 100%);
+    padding: 1rem 2rem;
+    border-bottom: none;
+    box-shadow: 0 2px 0 var(--denim), 0 4px 0 rgba(201,84,106,0.4);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -32,8 +33,8 @@
   }
   .judge-badge .judge-label {
     font-family: var(--font-display);
-    font-size: 0.5rem;
-    letter-spacing: 0.12em;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--denim);
     display: block;
@@ -63,8 +64,8 @@
   .filter-group { display: flex; gap: 4px; align-items: center; }
   .filter-group label {
     font-family: var(--font-display);
-    font-size: 0.5rem;
-    letter-spacing: 0.1em;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--slate);
     margin-right: 4px;
@@ -74,7 +75,7 @@
     font-size: 0.5rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    padding: 4px 9px;
+    padding: 5px 11px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
     background: white;
@@ -87,12 +88,12 @@
   .filter-btn.active.micro { background: var(--denim); color: var(--navy); border-color: var(--denim); }
   .filter-btn.active.small { background: var(--slate); color: white; border-color: var(--slate); }
   .controls-right { margin-left: auto; display: flex; align-items: center; gap: 0.75rem; }
-  .progress-wrap { font-family: var(--font-body); font-size: 0.72rem; color: var(--slate); white-space: nowrap; }
+  .progress-wrap { font-family: var(--font-body); font-size: 0.78rem; color: var(--slate); white-space: nowrap; }
   .progress-wrap strong { color: var(--navy); }
 
   .status-bar {
     background: var(--navy); color: var(--denim);
-    font-family: var(--font-body); font-size: 0.72rem;
+    font-family: var(--font-body); font-size: 0.78rem;
     padding: 5px 2rem; display: flex; align-items: center; gap: 1.5rem;
   }
   .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #3dffc0; display: inline-block; margin-right: 4px; }
@@ -125,15 +126,15 @@
   }
   .card-title {
     font-family: var(--font-title);
-    font-size: 0.9rem;
-    font-weight: 700;
+    font-size: 1.05rem;
+    font-weight: 500;
     color: var(--offwhite);
     line-height: 1.3;
     flex: 1;
   }
   .overall-badge {
     font-family: var(--font-display);
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: white;
     background: var(--rose);
@@ -219,8 +220,8 @@
   .score-row:last-child { margin-bottom: 0; }
   .score-row-label {
     font-family: var(--font-display);
-    font-size: 0.52rem;
-    letter-spacing: 0.1em;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--slate);
     margin-bottom: 5px;
@@ -297,8 +298,8 @@
   }
   .half-label {
     font-family: var(--font-display);
-    font-size: 0.48rem;
-    letter-spacing: 0.08em;
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--slate);
     white-space: nowrap;
@@ -324,8 +325,8 @@
   .card-notes { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); }
   .notes-label {
     font-family: var(--font-display);
-    font-size: 0.52rem;
-    letter-spacing: 0.1em;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--slate);
     margin-bottom: 5px;
@@ -396,10 +397,14 @@
 
 <!-- Gate -->
 <div class="gate-overlay" id="gate">
-  <div style="text-align:center">
-    <div class="gate-logo">Big Teeth Small Shorts Film Fest</div>
-    <h1>Judge Dashboard</h1>
-    <p class="gate-subtitle">Enter your details to start scoring</p>
+  <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:1rem">
+    <img src="https://greggjaffe.com/brand-guide/images/BTSSFF_shorts-nolegs-logo_2025.png"
+         alt="BTSSFF" style="height:90px;width:auto;">
+    <div>
+      <div style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.2em;color:var(--denim);text-transform:uppercase;margin-bottom:6px">Big Teeth Small Shorts Film Fest</div>
+      <h1 style="font-size:2rem;letter-spacing:-0.02em;color:var(--offwhite)">Judge Dashboard</h1>
+      <p style="color:var(--denim);font-family:var(--font-body);font-size:0.9rem;margin-top:4px">Enter your details to start scoring</p>
+    </div>
   </div>
   <div class="gate-form">
     <div>
@@ -413,13 +418,18 @@
     <button class="btn btn-denim" style="width:100%;justify-content:center;margin-top:0.25rem" onclick="checkGate()">Start scoring →</button>
     <div class="gate-error" id="gateError"></div>
   </div>
-  <div style="font-size:0.68rem;color:var(--slate);font-family:var(--font-body)">bigteethsmallshorts.com</div>
+  <div style="font-size:0.72rem;color:var(--slate);font-family:var(--font-body)">bigteethsmallshorts.com</div>
 </div>
 
 <header class="page-header">
-  <div class="page-header-left">
-    <div class="overline">Big Teeth Small Shorts Film Fest · Internal</div>
-    <h1>Judge Dashboard</h1>
+  <div class="page-header-left" style="display:flex;align-items:center;gap:1.5rem">
+    <img src="https://greggjaffe.com/brand-guide/images/BTSSFF_shorts-nolegs-logo_2025.png"
+         alt="BTSSFF Logo" style="height:52px;width:auto;flex-shrink:0">
+    <div>
+      <div style="font-family:var(--font-display);font-size:0.75rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--denim);margin-bottom:4px">Big Teeth Small Shorts Film Fest</div>
+      <h1 style="font-size:1.8rem;letter-spacing:-0.02em;color:var(--offwhite);line-height:1">Judge Dashboard</h1>
+    </div>
+    <div style="width:2px;height:40px;background:var(--rose);margin-left:0.25rem;flex-shrink:0"></div>
   </div>
   <div class="judge-badge">
     <span class="judge-label">Scoring as</span>
