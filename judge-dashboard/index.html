@@ -733,8 +733,13 @@ function render() {
     const filmId=ta.closest(".film-card").dataset.id;
     ta.value=notes[filmId]||"";
     let t;
-    ta.addEventListener("input", function(){
-      setNote(filmId,this.value);
+   ta.addEventListener("input", function(){
+    notes[filmId] = this.value;
+    persist();
+});
+ta.addEventListener("blur", function(){
+    setNote(filmId, this.value);
+});
       const st=this.closest(".film-card").querySelector(".save-status");
       if(st){st.textContent="Notes saved ✓";st.className="save-status saved";}
       clearTimeout(t); t=setTimeout(()=>{if(st){st.textContent=isFullyScored(filmId)?"All scores saved ✓":"Auto-saves as you score";st.className="save-status"+(isFullyScored(filmId)?" saved":"");}},2000);
