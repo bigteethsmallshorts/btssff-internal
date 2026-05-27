@@ -151,6 +151,18 @@
 
   td { padding: 9px 12px; vertical-align: middle; color: var(--navy); }
   td.title-cell { font-family: var(--font-title); font-weight: 700; font-size: 0.82rem; max-width: 200px; }
+  td.truncate-cell {
+    max-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  td { max-height: 52px; overflow: hidden; }
+  tbody tr td {
+    overflow: hidden;
+    display: table-cell;
+    max-height: 52px;
+  }
   td.muted { color: var(--slate); font-size: 0.72rem; }
   .score-cell { font-family: var(--font-display); font-weight: 700; font-size: 0.82rem; text-align: center; }
   .score-high { color: var(--rose); }
@@ -331,10 +343,19 @@
 
 <header class="page-header">
   <div class="page-header-left">
-    <div class="overline">Big Teeth Small Shorts Film Fest · Internal</div>
-    <h1>Results</h1>
+    <div class="overline">Internal Tools · Season Review</div>
+    <div style="display:flex;align-items:baseline;gap:0.75rem">
+      <h1 style="font-size:1.6rem">Results</h1>
+      <span style="font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.08em;color:var(--denim);text-transform:uppercase">Big Teeth Small Shorts Film Fest</span>
+    </div>
   </div>
   <div class="header-actions">
+    <div id="searchWrap" style="position:relative">
+      <input type="text" id="searchInput" placeholder="Search films, directors, locations…"
+        style="font-family:var(--font-body);font-size:0.78rem;padding:6px 12px 6px 30px;border-radius:var(--radius);border:1px solid rgba(158,199,213,0.4);background:rgba(255,255,255,0.1);color:white;outline:none;width:240px;"
+        oninput="filterSearch(this.value)">
+      <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--denim);font-size:0.7rem">⌕</span>
+    </div>
     <button class="btn btn-ghost" onclick="loadAll()" style="font-size:0.5rem">↻ Refresh</button>
     <button class="btn btn-denim" onclick="exportToRunOfShow()">Export to Run of Show →</button>
   </div>
@@ -385,8 +406,9 @@
   <span class="tally-stat" id="tallyMaybe">—</span>
   <div class="tally-divider"></div>
   <span class="tally-label">Total runtime</span>
-  <button class="tally-toggle" id="tallyToggle" onclick="toggleMaybe()">+ Include Maybe</button>
   <span class="tally-stat" id="tallyRuntime">—</span>
+  <button class="tally-toggle" id="tallyToggle" onclick="toggleMaybe()">+ Include Maybe</button>
+  <button class="tally-toggle" onclick="showGenreTally()">Genre breakdown</button>
 </div>
 
 <!-- Judge coverage -->
@@ -395,20 +417,27 @@
   <div class="coverage-judges" id="coverageJudges">Loading…</div>
 </div>
 
+<!-- Genre tally (selected films) -->
+<div class="judge-coverage" id="genreTallyBar" style="display:none">
+  <span class="coverage-label">Selected genres</span>
+  <div id="genreTallyContent" style="display:flex;gap:0.75rem;flex-wrap:wrap;font-family:var(--font-display);font-size:0.52rem;letter-spacing:0.06em;text-transform:uppercase"></div>
+  <button class="tally-toggle" style="margin-left:auto" onclick="document.getElementById('genreTallyBar').style.display='none'">✕</button>
+</div>
+
 <div class="main-layout">
   <div class="film-table-wrap" id="tableWrap">
     <table>
       <thead>
         <tr>
-          <th style="min-width:180px">Title</th>
-          <th>Category</th>
-          <th style="width:46px">Run</th>
-          <th style="width:140px">Director</th>
-          <th class="sortable sort-active" data-col="avg"  onclick="clickSort('avg',this)"  style="width:56px;text-align:center">Avg ↓</th>
-          <th class="sortable"             data-col="prod" onclick="clickSort('prod',this)" style="width:52px;text-align:center">Prod</th>
-          <th class="sortable"             data-col="ent"  onclick="clickSort('ent',this)"  style="width:52px;text-align:center">Ent</th>
-          <th style="width:70px">Judges</th>
-          <th style="width:88px">Status</th>
+          <th style="width:22%">Title</th>
+          <th style="width:14%">Category</th>
+          <th style="width:5%;text-align:center">Run</th>
+          <th style="width:18%">Director</th>
+          <th style="width:7%;text-align:center">Judges</th>
+          <th class="sortable sort-active" data-col="avg"  onclick="clickSort('avg',this)"  style="width:6%;text-align:center">Avg ↓</th>
+          <th class="sortable"             data-col="prod" onclick="clickSort('prod',this)" style="width:6%;text-align:center">Prod</th>
+          <th class="sortable"             data-col="ent"  onclick="clickSort('ent',this)"  style="width:6%;text-align:center">Ent</th>
+          <th style="width:10%">Status</th>
         </tr>
       </thead>
       <tbody id="filmTbody">
@@ -436,7 +465,7 @@ const OVERRIDES_FIELDS  = {
   note:        "entry.1404313224",
 };
 
-let allFilms=[], judgeScores={}, decisions={}, overrides={}, selectedId=null;
+let allFilms=[], judgeScores={}, decisions={}, overrides={}, selectedId=null, searchQuery='';
 let filterCat="all", filterSt="all", sortBy="avg", sortDir="desc";
 
 // Gate
@@ -630,10 +659,19 @@ function clickSort(col,btn){
 }
 function toggleSortDir(){sortDir=sortDir==="desc"?"asc":"desc";document.getElementById("sortDirBtn").textContent=sortDir==="desc"?"↓":"↑";render();}
 
+function filterSearch(q){
+  searchQuery=q.toLowerCase().trim();
+  render();
+}
+
 function filteredSorted(){
   let films=allFilms.filter(f=>{
     if(filterCat!=="all"&&f.size!==filterCat)return false;
     if(filterSt!=="all"&&(decisions[f.id]||"undecided")!==filterSt)return false;
+    if(searchQuery){
+      const haystack=(f.title+' '+f.director+' '+f.location+' '+f.category+' '+f.genre).toLowerCase();
+      if(!haystack.includes(searchQuery))return false;
+    }
     return true;
   });
   films.sort((a,b)=>{
@@ -668,14 +706,14 @@ function filmRow(f){
              dec==="rejected"?`<span class="status-pill sp-rejected">Rejected</span>`:
              `<span class="status-pill sp-undecided">Undecided</span>`;
   return`<tr data-id="${esc(f.id)}" class="${rowCls} ${activeCls}">
-    <td class="title-cell">${esc(f.title)}</td>
-    <td class="muted">${esc(f.size)} · ${esc(f.genre)}</td>
+    <td class="title-cell truncate-cell" style="max-width:1px" title="${esc(f.title)}">${esc(f.title)}</td>
+    <td class="muted truncate-cell" style="max-width:1px" title="${esc(f.size+' · '+f.genre)}">${esc(f.size)} · ${esc(f.genre)}</td>
     <td class="muted" style="white-space:nowrap">${f.dispMin}</td>
-    <td class="muted">${esc(f.director)}</td>
+    <td class="muted truncate-cell" style="max-width:1px" title="${esc(f.director)}">${esc(f.director)}</td>
+    <td class="muted" style="font-size:0.68rem;text-align:center">${jCount} judge${jCount!==1?"s":""}</td>
     <td class="score-cell ${sClass(avg)}">${fmt(avg)}</td>
     <td class="score-cell ${sClass(prod)}">${fmt(prod)}</td>
     <td class="score-cell ${sClass(ent)}">${fmt(ent)}</td>
-    <td class="muted" style="font-size:0.68rem">${jCount} judge${jCount!==1?"s":""}</td>
     <td>${pill}</td>
   </tr>`;
 }
@@ -753,6 +791,70 @@ function commitEdit(filmId, field){
   saveOverride(filmId, field, newVal, note);
 }
 
+function renderMetaFields(f, editMode){
+  const fields = [
+    {key:'director',       label:'Director',           val:f.director},
+    {key:'category',       label:'Category',           val:f.category},
+    {key:'dispMin',        label:'Runtime',            val:f.dispMin},
+    {key:'genres',         label:'Additional genres',  val:f.genres||''},
+    {key:'location',       label:'Location',           val:f.location, full:true},
+  ];
+  return fields.map(fd=>{
+    const isOverridden = f._overrides?.[fd.key];
+    const badge = isOverridden ? `<span class="corrected-badge">Corrected</span>` : "";
+    if(editMode){
+      return `<div class="meta-item ${fd.full?'full':''}">
+        <div class="meta-label">${fd.label} ${badge}</div>
+        <input class="edit-input" id="ef-${f.id}-${fd.key}" value="${esc(fd.val)}" placeholder="${fd.label}…">
+        <input class="edit-note-input" id="en-${f.id}-${fd.key}" placeholder="Reason for correction (optional)" style="margin-top:3px">
+      </div>`;
+    } else {
+      return `<div class="meta-item ${fd.full?'full':''}">
+        <div class="meta-label">${fd.label} ${badge}</div>
+        <div class="meta-value">${esc(fd.val||'—')}</div>
+      </div>`;
+    }
+  }).join("");
+}
+
+function toggleEditMode(filmId){
+  const f = allFilms.find(x=>x.id===filmId); if(!f) return;
+  const metaEl = document.getElementById(`panel-meta-${filmId}`);
+  if(!metaEl) return;
+  const isEditing = metaEl.dataset.editing === "true";
+  if(isEditing){
+    // Save all changed fields
+    const fields = ['director','category','dispMin','genres','location'];
+    fields.forEach(field => {
+      const input = document.getElementById(`ef-${filmId}-${field}`);
+      const note  = document.getElementById(`en-${filmId}-${field}`);
+      if(!input) return;
+      const newVal = input.value.trim();
+      const origVal = field==='genres'?(f._origValues?.[field]||''):(f._origValues?.[field]||'');
+      if(newVal && newVal !== (f[field]||'')) {
+        saveOverride(filmId, field, newVal, note?.value||'');
+        // If category changed, update size too
+        if(field==='category'){
+          const newSize = /micro/i.test(newVal) ? 'Micro' : 'Small';
+          const newGenre = newVal.replace(/^(micro|small)\s+short\s*/i,'').trim();
+          f.size = newSize;
+          f.genre = newGenre;
+        }
+      }
+    });
+    metaEl.dataset.editing = "false";
+    metaEl.innerHTML = renderMetaFields(f, false);
+    const editBtn = document.querySelector(`[onclick="toggleEditMode('${filmId}')"]`);
+    if(editBtn) editBtn.textContent = "✎ Edit fields";
+    updateTally(); render();
+  } else {
+    metaEl.dataset.editing = "true";
+    metaEl.innerHTML = renderMetaFields(f, true);
+    const editBtn = document.querySelector(`[onclick="toggleEditMode('${filmId}')"]`);
+    if(editBtn) editBtn.textContent = "✓ Save edits";
+  }
+}
+
 function renderPanel(id){
   const f=allFilms.find(x=>x.id===id);if(!f)return;
   const dec=decisions[id]||"undecided";
@@ -790,18 +892,18 @@ function renderPanel(id){
 
   const ab=(d)=>dec===d?"active":"";
 
+  const hasOverrides = f._overrides && Object.keys(f._overrides).length > 0;
   document.getElementById("detailPanel").innerHTML=`
     <div class="panel-header">
       <div class="panel-title">${esc(f.title)}</div>
-      <button class="panel-close" onclick="closePanel()">✕</button>
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+        <button class="edit-btn" style="padding:4px 10px;font-size:0.48rem" onclick="toggleEditMode('${esc(id)}')">✎ Edit fields</button>
+        <button class="panel-close" onclick="closePanel()">✕</button>
+      </div>
     </div>
     <div class="panel-watch">${watch}</div>
-    <div class="panel-meta">
-      <div class="meta-item"><div class="meta-label">Director</div><div class="meta-value">${esc(f.director)}</div></div>
-      <div class="meta-item"><div class="meta-label">Category</div><div class="meta-value">${esc(f.category)}</div></div>
-      <div class="meta-item"><div class="meta-label">Runtime</div><div class="meta-value">${f.dispMin}</div></div>
-      <div class="meta-item"><div class="meta-label">Additional genres</div><div class="meta-value">${f.genres||"—"}</div></div>
-      <div class="meta-item full"><div class="meta-label">Location</div><div class="meta-value">${esc(f.location)}</div></div>
+    <div class="panel-meta" id="panel-meta-${esc(id)}">
+      ${renderMetaFields(f, false)}
     </div>
     ${f.logLine?`<div class="panel-logline"><span class="logline-label">Log line</span><div class="logline-text">${esc(f.logLine)}</div></div>`:""}
     ${f.statement?statHtml:""}
@@ -927,6 +1029,21 @@ function updateCoverage() {
       </div>`;
     }).join("");
   document.getElementById("coverageJudges").innerHTML = html;
+}
+
+function showGenreTally(){
+  const selFilms = allFilms.filter(f=>(decisions[f.id]||"undecided")==="selected");
+  const counts = {};
+  selFilms.forEach(f=>{
+    // Use genre (end of category) as the key
+    const g = (f.genre||"unknown").trim();
+    counts[g] = (counts[g]||0)+1;
+  });
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  document.getElementById("genreTallyContent").innerHTML = sorted.map(([g,n])=>
+    `<span style="background:var(--border);color:var(--navy);padding:3px 8px;border-radius:var(--radius-sm)">${esc(g)}: <strong>${n}</strong></span>`
+  ).join("");
+  document.getElementById("genreTallyBar").style.display="flex";
 }
 
 function flashToast(msg){
