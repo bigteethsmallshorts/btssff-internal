@@ -581,12 +581,18 @@ function setScore(filmId, cat, val) {
   if (!scores[filmId]) scores[filmId] = {};
   scores[filmId][cat] = val;
   persist();
-  submitToForm(filmId);
+  // Only submit to form when fully scored — avoids duplicate rows
+  if (isFullyScored(filmId)) submitToForm(filmId);
   updateCardScoring(filmId);
   updateProgress();
   flashToast(`${judgeName} — saved ✓`);
 }
-function setNote(filmId, val) { notes[filmId] = val; persist(); submitToForm(filmId); }
+function setNote(filmId, val) {
+  notes[filmId] = val;
+  persist();
+  // Only submit notes to form if film is already fully scored
+  if (isFullyScored(filmId)) submitToForm(filmId);
+}
 
 function getAvg(filmId) {
   const s = scores[filmId]; if (!s) return null;
