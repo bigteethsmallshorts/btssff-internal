@@ -462,6 +462,7 @@
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 const SHEET_ID       = "1i-iCDCzVr_BuxHTu3pMVCvjEfpSLew7-Z3LkErpT-Uc";
 const JUDGE_PASSWORD = "judges2026";
+const SCORES_SHEET_ID = "1TYGNvemzVl05R4wSxxiMZVcUx77UpG--gOJotq-cvIA"; // Responses sheet
 
 // Google Form — scores save here automatically across all devices
 const FORM_ID = "1FAIpQLSfLKwg2M5DKHMx_qPoTgO-8slHTbj3327P9CRQTxXKEuWdXXw";
@@ -500,8 +501,9 @@ function checkGate() {
   judgeName = rawName.charAt(0).toUpperCase() + rawName.slice(1).toLowerCase();
   document.getElementById("gate").style.display = "none";
   document.getElementById("judgeNameDisplay").textContent = judgeName;
-  loadScoresFromStorage();
-  loadData();
+  loadScoresFromStorage(); // load from browser first (instant)
+  loadData();              // load films
+  loadScoresFromSheet();   // then sync from Google Sheet (overwrites with latest)
 }
 document.getElementById("gatePassInput").addEventListener("keydown", e => { if (e.key === "Enter") checkGate(); });
 document.getElementById("gateNameInput").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("gatePassInput").focus(); });
@@ -569,6 +571,48 @@ function loadScoresFromStorage() {
 }
 function persist() {
   try { localStorage.setItem(storageKey(), JSON.stringify({scores, notes, judge: judgeName, ts: Date.now()})); } catch {}
+}
+
+// Load scores from the Google Form responses sheet
+async function loadScoresFromSheet() {
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/${SCORES_SHEET_ID}/gviz/tq?tqx=out:csv`;
+    const res  = await fetch(url);
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text());
+    if (rows.length < 2) return;
+    const h = rows[0];
+    const getCol = (row, name) => (row[h.indexOf(name)] || "").trim();
+
+    // Group by judge+filmId, keep only most recent per combo
+    const latest = {};
+    rows.slice(1).forEach(row => {
+      const judge = getCol(row, "Judge Name").toLowerCase();
+      const filmId = getCol(row, "Film ID");
+      if (!filmId || judge !== judgeName.toLowerCase()) return;
+      const key = `${judge}__${filmId}`;
+      // rows are chronological so last one wins
+      latest[key] = {
+        production:    parseFloat(getCol(row, "Production Quality"))  || undefined,
+        entertainment: parseFloat(getCol(row, "Entertainment Value")) || undefined,
+        notes:         getCol(row, "Notes"),
+        filmId,
+      };
+    });
+
+    // Merge into local scores — sheet takes precedence
+    Object.values(latest).forEach(entry => {
+      if (!scores[entry.filmId]) scores[entry.filmId] = {};
+      if (entry.production    !== undefined) scores[entry.filmId].production    = entry.production;
+      if (entry.entertainment !== undefined) scores[entry.filmId].entertainment = entry.entertainment;
+      if (entry.notes) notes[entry.filmId] = entry.notes;
+    });
+
+    persist();
+    render(); // re-render with updated scores
+  } catch (err) {
+    console.log("Could not sync scores from sheet:", err.message);
+  }
 }
 
 // Submit score to Google Form via hidden iframe (bypasses CORS)
