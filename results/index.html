@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Results · BTSSFF</title>
+<link rel="stylesheet" href="../assets/css/btssff.css">
+<style>
+  body { display: flex; flex-direction: column; min-height: 100vh; background: var(--offwhite); }
+
+  .page-header {
+    background: var(--navy); padding: 1.25rem 2rem; border-bottom: 3px solid var(--denim);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .page-header-left .overline {
+    font-family: var(--font-display); font-size: 0.52rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--denim); margin-bottom: 0.2rem;
+  }
+  .page-header-left h1 { color: var(--offwhite); font-size: 1.3rem; }
+  .header-actions { display: flex; gap: 0.75rem; align-items: center; }
+
+  .controls {
+    background: white; border-bottom: 1px solid var(--border);
+    padding: 0.65rem 2rem; display: flex; align-items: center; gap: 0.75rem;
+    flex-wrap: wrap; position: sticky; top: 0; z-index: 40;
+    box-shadow: 0 1px 4px rgba(1,22,50,0.06);
+  }
+  .filter-group { display: flex; gap: 3px; align-items: center; }
+  .filter-group label {
+    font-family: var(--font-display); font-size: 0.48rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--slate); margin-right: 3px;
+  }
+  .filter-btn {
+    font-family: var(--font-display); font-size: 0.48rem; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 4px 9px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: white; cursor: pointer; color: var(--slate); transition: all 0.12s;
+  }
+  .filter-btn:hover { border-color: var(--denim); color: var(--navy); }
+  .filter-btn.active { background: var(--navy); color: white; border-color: var(--navy); }
+  .filter-btn.active.micro    { background: var(--denim); color: var(--navy); border-color: var(--denim); }
+  .filter-btn.active.small    { background: var(--slate); color: white; }
+  .filter-btn.active.fselected { background: #2a7a4b; color: white; border-color: #2a7a4b; }
+  .filter-btn.active.fmaybe   { background: #b8860b; color: white; border-color: #b8860b; }
+  .filter-btn.active.frejected { background: var(--rose); color: white; border-color: var(--rose); }
+
+  .sort-select {
+    font-family: var(--font-display); font-size: 0.48rem; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 4px 8px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: white; cursor: pointer; color: var(--navy); outline: none;
+  }
+  .sort-dir-btn {
+    font-family: var(--font-display); font-size: 0.65rem; padding: 3px 8px;
+    border: 1px solid var(--border); background: white; border-radius: var(--radius-sm); cursor: pointer; color: var(--slate);
+  }
+  .sort-dir-btn:hover { border-color: var(--navy); color: var(--navy); }
+  .controls-right { margin-left: auto; display: flex; gap: 0.5rem; align-items: center; }
+  .count-display { font-family: var(--font-body); font-size: 0.72rem; color: var(--slate); white-space: nowrap; }
+  .count-display strong { color: var(--navy); }
+
+  .status-bar {
+    background: var(--navy); color: var(--denim); font-family: var(--font-body); font-size: 0.7rem;
+    padding: 4px 2rem; display: flex; align-items: center; gap: 1.5rem;
+  }
+  .status-dot { width:6px;height:6px;border-radius:50%;background:#3dffc0;display:inline-block;margin-right:4px; }
+
+  .main-layout { display: flex; flex: 1; overflow: hidden; }
+
+  .film-table-wrap { flex: 1; overflow-y: auto; min-width: 0; transition: flex 0.25s ease; }
+  .film-table-wrap.panel-open { flex: 0 0 55%; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  thead { position: sticky; top: 0; z-index: 10; }
+  thead th {
+    background: var(--navy); color: var(--denim);
+    font-family: var(--font-display); font-size: 0.5rem; letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 10px 12px; text-align: left; white-space: nowrap;
+    border-right: 1px solid rgba(158,199,213,0.15);
+  }
+  thead th:last-child { border-right: none; }
+  thead th.sortable { cursor: pointer; user-select: none; }
+  thead th.sortable:hover { color: white; }
+  thead th.sort-active { color: white; }
+
+  tbody tr { border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
+  tbody tr:hover { background: rgba(158,199,213,0.08); }
+  tbody tr.row-selected  { background: rgba(42,122,75,0.06);   border-left: 3px solid #2a7a4b; }
+  tbody tr.row-maybe     { background: rgba(184,134,11,0.06);  border-left: 3px solid #b8860b; }
+  tbody tr.row-rejected  { background: rgba(201,84,106,0.06);  border-left: 3px solid var(--rose); }
+  tbody tr.row-active    { background: rgba(158,199,213,0.2) !important; }
+
+  td { padding: 9px 12px; vertical-align: middle; color: var(--navy); }
+  td.title-cell { font-family: var(--font-title); font-weight: 700; font-size: 0.82rem; max-width: 200px; }
+  td.muted { color: var(--slate); font-size: 0.72rem; }
+  .score-cell { font-family: var(--font-display); font-weight: 700; font-size: 0.82rem; text-align: center; }
+  .score-high { color: var(--rose); }
+  .score-mid  { color: var(--slate); }
+  .score-low  { color: rgba(1,22,50,0.3); }
+
+  .status-pill {
+    display: inline-block; font-family: var(--font-display); font-size: 0.48rem;
+    letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 7px;
+    border-radius: var(--radius-sm); font-weight: 700;
+  }
+  .sp-selected  { background:#d4f0e0; color:#1a5c35; }
+  .sp-maybe     { background:#fef3cd; color:#7a5700; }
+  .sp-rejected  { background:#fde8ec; color:#8b1a2e; }
+  .sp-undecided { background:var(--border); color:var(--slate); }
+
+  /* ── Detail panel ── */
+  .detail-panel {
+    width: 0; overflow: hidden; background: white; border-left: 1px solid var(--border);
+    transition: width 0.25s ease; display: flex; flex-direction: column;
+    height: calc(100vh - 145px); position: sticky; top: 0;
+  }
+  .detail-panel.open { width: 45%; min-width: 380px; overflow-y: auto; }
+
+  .panel-header {
+    background: var(--navy); padding: 1rem 1.25rem;
+    display: flex; align-items: flex-start; gap: 0.75rem; flex-shrink: 0;
+    position: sticky; top: 0; z-index: 5;
+  }
+  .panel-title { font-family: var(--font-title); font-size: 1rem; font-weight: 700; color: var(--offwhite); flex: 1; line-height: 1.3; }
+  .panel-close { background:none;border:none;color:var(--denim);cursor:pointer;font-size:1.2rem;line-height:1;padding:0;flex-shrink:0;margin-top:2px; }
+  .panel-close:hover { color: white; }
+
+  .panel-watch {
+    background: #eef3f6; padding: 0.6rem 1.25rem; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .panel-watch-link {
+    font-family: var(--font-display); font-size: 0.6rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--navy); text-decoration: none; display: flex; align-items: center; gap: 5px;
+  }
+  .panel-watch-link:hover { color: var(--rose); }
+  .panel-watch-pw { font-family: var(--font-body); font-size: 0.72rem; color: var(--slate); margin-left: auto; }
+  .panel-watch-pw strong { color: var(--navy); }
+
+  .panel-meta {
+    padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1rem;
+  }
+  .meta-item .meta-label { font-family:var(--font-display);font-size:0.46rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:2px; }
+  .meta-item .meta-value { font-family:var(--font-body);font-size:0.8rem;color:var(--navy); }
+  .meta-item.full { grid-column: 1/-1; }
+
+  .panel-logline {
+    padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--border);
+    font-family: var(--font-body); font-size: 0.82rem; color: var(--navy); line-height: 1.6; font-style: italic;
+  }
+
+  .panel-statement { padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--border); }
+  .statement-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem; }
+  .statement-label {
+    font-family:var(--font-display);font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);
+    display:flex;align-items:center;gap:5px;
+  }
+  .statement-label::before { content:'★';font-size:0.6rem; }
+  .statement-toggle { font-family:var(--font-display);font-size:0.45rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate);background:none;border:none;cursor:pointer; }
+  .statement-toggle:hover { color:var(--navy); }
+  .statement-text {
+    font-family:var(--font-body);font-size:0.78rem;color:var(--slate);line-height:1.6;
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+  }
+  .statement-text.expanded { display:block; }
+
+  .panel-scores { padding:0.85rem 1.25rem;border-bottom:1px solid var(--border); }
+  .scores-header { font-family:var(--font-display);font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:0.75rem; }
+  .judge-score-row { margin-bottom:0.75rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border); }
+  .judge-score-row:last-child { margin-bottom:0;padding-bottom:0;border-bottom:none; }
+  .judge-row-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:4px; }
+  .judge-name-label { font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy); }
+  .judge-avg-badge { font-family:var(--font-display);font-size:0.75rem;font-weight:700;color:var(--rose); }
+  .judge-score-cols { display:flex;gap:1rem;margin-bottom:4px; }
+  .judge-score-col { font-size:0.72rem;color:var(--slate); }
+  .judge-score-col strong { color:var(--navy);font-weight:700; }
+  .judge-notes-text {
+    font-family:var(--font-body);font-size:0.75rem;color:var(--slate);
+    background:#f8f9fa;padding:6px 8px;border-radius:var(--radius-sm);border-left:2px solid var(--denim);line-height:1.5;font-style:italic;
+  }
+  .no-score { color:rgba(1,22,50,0.3);font-style:italic;font-size:0.72rem; }
+
+  .panel-decisions {
+    padding:0.85rem 1.25rem;border-bottom:1px solid var(--border);
+    display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;
+  }
+  .decision-btn {
+    font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;
+    padding:10px 8px;border-radius:var(--radius-sm);border:2px solid transparent;cursor:pointer;font-weight:700;
+    transition:all 0.15s;text-align:center;
+  }
+  .decision-btn:hover { opacity:0.85;transform:translateY(-1px); }
+  .btn-select    { background:#d4f0e0;color:#1a5c35;border-color:#a8dcc0; }
+  .btn-maybe     { background:#fef3cd;color:#7a5700;border-color:#f5d97a; }
+  .btn-reject    { background:#fde8ec;color:#8b1a2e;border-color:#f5b8c4; }
+  .btn-undecided { background:#f0f0f0;color:var(--slate);border-color:var(--border); }
+  .btn-select.active    { background:#2a7a4b;color:white;border-color:#2a7a4b; }
+  .btn-maybe.active     { background:#b8860b;color:white;border-color:#b8860b; }
+  .btn-reject.active    { background:var(--rose);color:white;border-color:var(--rose); }
+  .btn-undecided.active { background:var(--slate);color:white;border-color:var(--slate); }
+
+  .export-summary { padding:0.75rem 1.25rem;background:#fafaf8;font-family:var(--font-body);font-size:0.75rem;color:var(--slate); }
+  .export-summary strong { color:var(--navy); }
+
+  /* Gate */
+  .gate-overlay { position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.25rem;z-index:9999; }
+  .gate-logo { font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.2em;color:var(--denim);text-transform:uppercase; }
+  .gate-overlay h1 { color:var(--offwhite);font-size:1.4rem; }
+  .gate-subtitle { color:var(--denim);font-family:var(--font-body);font-size:0.85rem; }
+  .gate-form { display:flex;flex-direction:column;gap:0.65rem;width:100%;max-width:280px; }
+  .gate-field-label { font-family:var(--font-display);font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--denim);margin-bottom:3px;display:block; }
+  .gate-input { background:rgba(255,255,255,0.08);border:1px solid rgba(158,199,213,0.4);color:white;font-family:var(--font-body);font-size:1rem;padding:10px 14px;border-radius:var(--radius);width:100%;outline:none; }
+  .gate-input:focus { border-color:var(--denim); }
+  .gate-input::placeholder { color:rgba(255,255,255,0.3); }
+  .gate-error { color:var(--rose);font-size:0.78rem;font-family:var(--font-body);min-height:1.2em; }
+  .empty-state { text-align:center;padding:4rem 2rem;color:var(--slate);font-family:var(--font-display);font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase; }
+  .save-toast { position:fixed;bottom:1.5rem;right:1.5rem;background:var(--navy);color:#3dffc0;font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;padding:10px 16px;border-radius:var(--radius);border:1px solid #3dffc0;opacity:0;transform:translateY(8px);transition:all 0.2s;z-index:200;pointer-events:none; }
+  .save-toast.show { opacity:1;transform:translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- Gate -->
+<div class="gate-overlay" id="gate">
+  <div style="text-align:center">
+    <div class="gate-logo">Big Teeth Small Shorts Film Fest</div>
+    <h1>Results</h1>
+    <p class="gate-subtitle">Enter the team access code</p>
+  </div>
+  <div class="gate-form">
+    <div>
+      <label class="gate-field-label">Access code</label>
+      <input class="gate-input" type="password" id="gateInput" placeholder="Access code" autocomplete="off">
+    </div>
+    <button class="btn btn-denim" style="width:100%;justify-content:center" onclick="checkGate()">Enter →</button>
+    <div class="gate-error" id="gateError"></div>
+  </div>
+</div>
+
+<header class="page-header">
+  <div class="page-header-left">
+    <div class="overline">Big Teeth Small Shorts Film Fest · Internal</div>
+    <h1>Results</h1>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="loadAll()" style="font-size:0.5rem">↻ Refresh</button>
+    <button class="btn btn-denim" onclick="exportToRunOfShow()">Export to Run of Show →</button>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="filter-group">
+    <label>Category</label>
+    <button class="filter-btn active" data-cat="all"   onclick="setCat('all',this)">All</button>
+    <button class="filter-btn micro"  data-cat="Micro" onclick="setCat('Micro',this)">Micro</button>
+    <button class="filter-btn small"  data-cat="Small" onclick="setCat('Small',this)">Small</button>
+  </div>
+  <div class="filter-group">
+    <label>Status</label>
+    <button class="filter-btn active"     data-st="all"       onclick="setSt('all',this)">All</button>
+    <button class="filter-btn"            data-st="undecided" onclick="setSt('undecided',this)">Undecided</button>
+    <button class="filter-btn fselected"  data-st="selected"  onclick="setSt('selected',this)">Selected</button>
+    <button class="filter-btn fmaybe"     data-st="maybe"     onclick="setSt('maybe',this)">Maybe</button>
+    <button class="filter-btn frejected"  data-st="rejected"  onclick="setSt('rejected',this)">Rejected</button>
+  </div>
+  <div class="filter-group">
+    <label>Sort by</label>
+    <select class="sort-select" id="sortBy" onchange="sortBy=this.value;render()">
+      <option value="avg">Overall avg</option>
+      <option value="prod">Production avg</option>
+      <option value="ent">Entertainment avg</option>
+      <option value="title">Title A–Z</option>
+    </select>
+    <button class="sort-dir-btn" id="sortDirBtn" onclick="toggleSortDir()">↓</button>
+  </div>
+  <div class="controls-right">
+    <div class="count-display" id="countDisplay"></div>
+  </div>
+</div>
+
+<div class="status-bar">
+  <span><span class="status-dot"></span> Connected to Google Sheets</span>
+  <span id="syncStatus">Loading…</span>
+</div>
+
+<div class="main-layout">
+  <div class="film-table-wrap" id="tableWrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Category</th>
+          <th style="width:46px">Run</th>
+          <th>Director</th>
+          <th class="sortable sort-active" data-col="avg"  onclick="clickSort('avg',this)"  style="width:56px;text-align:center">Avg ↓</th>
+          <th class="sortable"             data-col="prod" onclick="clickSort('prod',this)" style="width:52px;text-align:center">Prod</th>
+          <th class="sortable"             data-col="ent"  onclick="clickSort('ent',this)"  style="width:52px;text-align:center">Ent</th>
+          <th style="width:70px">Judges</th>
+          <th style="width:88px">Status</th>
+        </tr>
+      </thead>
+      <tbody id="filmTbody">
+        <tr><td colspan="9"><div class="loading-spinner">Loading films…</div></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="detail-panel" id="detailPanel"></div>
+</div>
+
+<div class="save-toast" id="saveToast"></div>
+
+<script>
+const SHEET_ID        = "1i-iCDCzVr_BuxHTu3pMVCvjEfpSLew7-Z3LkErpT-Uc";
+const SCORES_SHEET_ID = "1TYGNvemzVl05R4wSxxiMZVcUx77UpG--gOJotq-cvIA";
+const TEAM_PASSWORD   = "team2026";
+
+let allFilms=[], judgeScores={}, decisions={}, selectedId=null;
+let filterCat="all", filterSt="all", sortBy="avg", sortDir="desc";
+
+// Gate
+function checkGate() {
+  const pass=document.getElementById("gateInput").value.trim().toLowerCase();
+  if(pass===TEAM_PASSWORD){document.getElementById("gate").style.display="none";loadAll();}
+  else{document.getElementById("gateError").textContent="Incorrect code — try again.";document.getElementById("gateInput").value="";}
+}
+document.getElementById("gateInput").addEventListener("keydown",e=>{if(e.key==="Enter")checkGate();});
+
+// Load
+async function loadAll(){
+  document.getElementById("syncStatus").textContent="Loading…";
+  try{
+    [allFilms, judgeScores]=await Promise.all([fetchFilms(),fetchScores()]);
+    loadDecisions();
+    render();
+    document.getElementById("syncStatus").textContent=`${allFilms.length} films · scores loaded`;
+  }catch(err){document.getElementById("syncStatus").textContent="Error: "+err.message;}
+}
+
+async function fetchFilms(){
+  const res=await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Films`);
+  if(!res.ok)throw new Error("Films sheet: "+res.status);
+  const rows=parseCSV(await res.text());
+  if(rows.length<2)return[];
+  const h=rows[0].map(x=>x.trim());
+  const g=(row,col)=>(row[h.indexOf(col.trim())]||"").trim();
+  return rows.slice(1).map((row,idx)=>{
+    const catRaw=g(row,"Submission Categories");
+    const size=/micro/i.test(catRaw)?"Micro":"Small";
+    const genre=catRaw.replace(/^(micro|small)\s+short\s*/i,"").trim();
+    const dur=g(row,"Duration").split(":").map(Number);
+    const dispMin=dur.length===3?(dur[0]>0?`${dur[0]}:`:"") +`${dur[1]}:${String(dur[2]).padStart(2,"0")}`:g(row,"Duration");
+    const dir=g(row,"Please list all person(s) that should get a director's credit on our programming and promotional listings, should your film be selected. ")||`${g(row,"First Name")} ${g(row,"Last Name")}`.trim();
+    const city=g(row,"City"),state=g(row,"State"),country=g(row,"Country"),coo=g(row,"Country of Origin");
+    const isUS=country==="United States"||country==="US"||country==="USA";
+    let loc="Location not listed";
+    if(city&&state&&isUS)loc=`${city}, ${state}`;
+    else if(city&&!isUS&&country)loc=`${city}, ${country}`;
+    else if(city&&isUS)loc=`${city}, US`;
+    else if(isUS&&!city)loc="United States";
+    else if(country)loc=country;
+    else if(coo)loc=coo;
+    return{
+      id:g(row,"Tracking Number")||`f${idx}`,
+      title:g(row,"Project Title")||"Untitled",
+      director:dir,location:loc,size,genre,genres:g(row,"Genres"),dispMin,category:catRaw,
+      logLine:g(row,'Please include a one sentence "log line" of your film that will be included in the program if your film is selected.')||g(row,"Synopsis"),
+      statement:g(row,"Please share any information about yourself and/or your film that you'd like the programming team to know."),
+      vimeoLink:g(row,"Submission Link"),password:g(row,"Submission Password"),
+      instagram:g(row,"List any instagram handles you'd like credited (tagged) if your film is chosen as an official selection. (Note: saying \"No\" will not exclude you from selection)"),
+    };
+  }).filter(f=>f.title&&f.title!=="Untitled");
+}
+
+async function fetchScores(){
+  try{
+    const res=await fetch(`https://docs.google.com/spreadsheets/d/${SCORES_SHEET_ID}/gviz/tq?tqx=out:csv`);
+    if(!res.ok)return{};
+    const rows=parseCSV(await res.text());
+    if(rows.length<2)return{};
+    const h=rows[0].map(x=>x.trim());
+    const g=(row,col)=>(row[h.indexOf(col.trim())]||"").trim();
+    const latest={};
+    rows.slice(1).forEach(row=>{
+      const judge=g(row,"Judge Name"),filmId=g(row,"Film ID");
+      if(!judge||!filmId)return;
+      latest[`${judge.toLowerCase()}__${filmId}`]={
+        judge,filmId,
+        production:parseFloat(g(row,"Production Quality"))||null,
+        entertainment:parseFloat(g(row,"Entertainment Value"))||null,
+        notes:g(row,"Notes"),
+      };
+    });
+    const result={};
+    Object.values(latest).forEach(e=>{
+      if(!result[e.filmId])result[e.filmId]={};
+      result[e.filmId][e.judge]={production:e.production,entertainment:e.entertainment,notes:e.notes};
+    });
+    return result;
+  }catch{return{};}
+}
+
+function loadDecisions(){try{decisions=JSON.parse(localStorage.getItem("btssff-decisions")||"{}");}catch{}}
+function saveDecision(filmId,dec){
+  decisions[filmId]=dec;
+  try{localStorage.setItem("btssff-decisions",JSON.stringify(decisions));}catch{}
+  renderRow(filmId);
+  if(selectedId===filmId)renderPanel(filmId);
+  updateCount();
+  flashToast(`Marked as ${dec}`);
+}
+
+// Score helpers
+function getFilmScores(id){return judgeScores[id]||{};}
+function getAvg(id,cat){
+  const vals=Object.values(getFilmScores(id)).map(s=>s[cat]).filter(v=>v!==null&&v!==undefined);
+  return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
+}
+function getOverall(id){
+  const p=getAvg(id,"production"),e=getAvg(id,"entertainment");
+  const vals=[p,e].filter(v=>v!==null);
+  return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
+}
+function fmt(v){if(v===null||v===undefined)return"—";return Number.isInteger(v)?v.toString():v.toFixed(1);}
+function sClass(v){if(v===null)return"score-low";if(v>=7)return"score-high";if(v>=5)return"score-mid";return"score-low";}
+
+// Filters / sort
+function setCat(v,btn){filterCat=v;document.querySelectorAll("[data-cat]").forEach(b=>b.classList.remove("active"));btn.classList.add("active");closePanel();render();}
+function setSt(v,btn){filterSt=v;document.querySelectorAll("[data-st]").forEach(b=>b.classList.remove("active"));btn.classList.add("active");render();}
+function clickSort(col,btn){
+  if(sortBy===col){sortDir=sortDir==="desc"?"asc":"desc";}else{sortBy=col;sortDir="desc";}
+  document.querySelectorAll("[data-col]").forEach(b=>{b.classList.remove("sort-active");b.textContent=b.textContent.replace(/ [↑↓]/,"");});
+  btn.classList.add("sort-active");btn.textContent+=sortDir==="desc"?" ↓":" ↑";
+  document.getElementById("sortBy").value=col;
+  document.getElementById("sortDirBtn").textContent=sortDir==="desc"?"↓":"↑";
+  render();
+}
+function toggleSortDir(){sortDir=sortDir==="desc"?"asc":"desc";document.getElementById("sortDirBtn").textContent=sortDir==="desc"?"↓":"↑";render();}
+
+function filteredSorted(){
+  let films=allFilms.filter(f=>{
+    if(filterCat!=="all"&&f.size!==filterCat)return false;
+    if(filterSt!=="all"&&(decisions[f.id]||"undecided")!==filterSt)return false;
+    return true;
+  });
+  films.sort((a,b)=>{
+    let va,vb;
+    if(sortBy==="avg"){va=getOverall(a.id)??-1;vb=getOverall(b.id)??-1;}
+    else if(sortBy==="prod"){va=getAvg(a.id,"production")??-1;vb=getAvg(b.id,"production")??-1;}
+    else if(sortBy==="ent"){va=getAvg(a.id,"entertainment")??-1;vb=getAvg(b.id,"entertainment")??-1;}
+    else{return sortDir==="asc"?a.title.localeCompare(b.title):b.title.localeCompare(a.title);}
+    return sortDir==="desc"?vb-va:va-vb;
+  });
+  return films;
+}
+
+// Render
+function render(){
+  updateCount();
+  const films=filteredSorted();
+  if(!films.length){document.getElementById("filmTbody").innerHTML=`<tr><td colspan="9"><div class="empty-state">No films match this filter</div></td></tr>`;return;}
+  document.getElementById("filmTbody").innerHTML=films.map(filmRow).join("");
+  films.forEach(f=>{document.querySelector(`tr[data-id="${CSS.escape(f.id)}"]`)?.addEventListener("click",()=>openPanel(f.id));});
+}
+
+function filmRow(f){
+  const avg=getOverall(f.id),prod=getAvg(f.id,"production"),ent=getAvg(f.id,"entertainment");
+  const dec=decisions[f.id]||"undecided";
+  const jCount=Object.keys(getFilmScores(f.id)).length;
+  const rowCls=dec==="selected"?"row-selected":dec==="maybe"?"row-maybe":dec==="rejected"?"row-rejected":"";
+  const activeCls=selectedId===f.id?"row-active":"";
+  const pill=dec==="selected"?`<span class="status-pill sp-selected">Selected</span>`:
+             dec==="maybe"?`<span class="status-pill sp-maybe">Maybe</span>`:
+             dec==="rejected"?`<span class="status-pill sp-rejected">Rejected</span>`:
+             `<span class="status-pill sp-undecided">Undecided</span>`;
+  return`<tr data-id="${esc(f.id)}" class="${rowCls} ${activeCls}">
+    <td class="title-cell">${esc(f.title)}</td>
+    <td class="muted">${esc(f.size)} · ${esc(f.genre)}</td>
+    <td class="muted" style="white-space:nowrap">${f.dispMin}</td>
+    <td class="muted">${esc(f.director)}</td>
+    <td class="score-cell ${sClass(avg)}">${fmt(avg)}</td>
+    <td class="score-cell ${sClass(prod)}">${fmt(prod)}</td>
+    <td class="score-cell ${sClass(ent)}">${fmt(ent)}</td>
+    <td class="muted" style="font-size:0.68rem">${jCount} judge${jCount!==1?"s":""}</td>
+    <td>${pill}</td>
+  </tr>`;
+}
+
+function renderRow(id){
+  const f=allFilms.find(x=>x.id===id);if(!f)return;
+  const tr=document.querySelector(`tr[data-id="${CSS.escape(id)}"]`);if(!tr)return;
+  const newRow=document.createElement("tbody");newRow.innerHTML=filmRow(f);
+  tr.replaceWith(newRow.firstChild);
+  document.querySelector(`tr[data-id="${CSS.escape(id)}"]`)?.addEventListener("click",()=>openPanel(id));
+}
+
+function updateCount(){
+  const films=filteredSorted();
+  const sel=allFilms.filter(f=>(decisions[f.id]||"undecided")==="selected").length;
+  const maybe=allFilms.filter(f=>(decisions[f.id]||"undecided")==="maybe").length;
+  document.getElementById("countDisplay").innerHTML=`<strong>${films.length}</strong> shown · <strong style="color:#2a7a4b">${sel}</strong> selected · <strong style="color:#b8860b">${maybe}</strong> maybe`;
+}
+
+// Panel
+function openPanel(id){
+  selectedId=id;
+  document.querySelectorAll("tr.row-active").forEach(r=>r.classList.remove("row-active"));
+  document.querySelector(`tr[data-id="${CSS.escape(id)}"]`)?.classList.add("row-active");
+  document.getElementById("tableWrap").classList.add("panel-open");
+  document.getElementById("detailPanel").classList.add("open");
+  renderPanel(id);
+}
+
+function closePanel(){
+  selectedId=null;
+  document.querySelectorAll("tr.row-active").forEach(r=>r.classList.remove("row-active"));
+  document.getElementById("tableWrap").classList.remove("panel-open");
+  document.getElementById("detailPanel").classList.remove("open");
+  document.getElementById("detailPanel").innerHTML="";
+}
+
+function renderPanel(id){
+  const f=allFilms.find(x=>x.id===id);if(!f)return;
+  const dec=decisions[id]||"undecided";
+  const scores=getFilmScores(id);
+  const judges=Object.keys(scores);
+
+  const watch=f.vimeoLink
+    ?`<a class="panel-watch-link" href="${esc(f.vimeoLink)}" target="_blank" rel="noopener">▶ Watch film</a>${f.password?`<span class="panel-watch-pw">Password: <strong>${esc(f.password)}</strong></span>`:""}`
+    :`<span class="panel-watch-link" style="opacity:0.4;cursor:default">No screening link</span>`;
+
+  const statHtml=f.statement
+    ?`<div class="panel-statement">
+        <div class="statement-header">
+          <span class="statement-label">Filmmaker statement</span>
+          <button class="statement-toggle" onclick="toggleStatement(this)">Read more</button>
+        </div>
+        <div class="statement-text">${esc(f.statement)}</div>
+      </div>`:""
+
+  const judgeHtml=judges.length
+    ?judges.map(j=>{
+        const s=scores[j];
+        const avg=(s.production!==null&&s.entertainment!==null)?((s.production+s.entertainment)/2).toFixed(1):null;
+        return`<div class="judge-score-row">
+          <div class="judge-row-header">
+            <span class="judge-name-label">${esc(j)}</span>
+            ${avg!==null?`<span class="judge-avg-badge">${avg}</span>`:""}
+          </div>
+          <div class="judge-score-cols">
+            <span class="judge-score-col">Production: <strong>${s.production!==null?s.production:"—"}</strong></span>
+            <span class="judge-score-col">Entertainment: <strong>${s.entertainment!==null?s.entertainment:"—"}</strong></span>
+          </div>
+          ${s.notes?`<div class="judge-notes-text">${esc(s.notes)}</div>`:""}
+        </div>`;
+      }).join("")
+    :`<div class="no-score">No scores submitted yet</div>`;
+
+  const ab=(d)=>dec===d?"active":"";
+
+  document.getElementById("detailPanel").innerHTML=`
+    <div class="panel-header">
+      <div class="panel-title">${esc(f.title)}</div>
+      <button class="panel-close" onclick="closePanel()">✕</button>
+    </div>
+    <div class="panel-watch">${watch}</div>
+    <div class="panel-meta">
+      <div class="meta-item"><div class="meta-label">Director</div><div class="meta-value">${esc(f.director)}</div></div>
+      <div class="meta-item"><div class="meta-label">Location</div><div class="meta-value">${esc(f.location)}</div></div>
+      <div class="meta-item"><div class="meta-label">Runtime</div><div class="meta-value">${f.dispMin}</div></div>
+      <div class="meta-item"><div class="meta-label">Category</div><div class="meta-value">${esc(f.category)}</div></div>
+      ${f.genres?`<div class="meta-item full"><div class="meta-label">Genres</div><div class="meta-value">${esc(f.genres)}</div></div>`:""}
+    </div>
+    ${f.logLine?`<div class="panel-logline">"${esc(f.logLine)}"</div>`:""}
+    ${statHtml}
+    <div class="panel-scores">
+      <div class="scores-header">Judge scores &amp; notes</div>
+      ${judgeHtml}
+    </div>
+    <div class="panel-decisions">
+      <button class="decision-btn btn-select ${ab('selected')}"   onclick="saveDecision('${esc(id)}','selected')">✓ Select</button>
+      <button class="decision-btn btn-maybe ${ab('maybe')}"       onclick="saveDecision('${esc(id)}','maybe')">? Maybe</button>
+      <button class="decision-btn btn-reject ${ab('rejected')}"   onclick="saveDecision('${esc(id)}','rejected')">✕ Reject</button>
+      <button class="decision-btn btn-undecided ${ab('undecided')}" onclick="saveDecision('${esc(id)}','undecided')">↺ Undecided</button>
+    </div>
+    <div class="export-summary">
+      Overall: <strong>${fmt(getOverall(id))}</strong> &nbsp;·&nbsp;
+      Production: <strong>${fmt(getAvg(id,"production"))}</strong> &nbsp;·&nbsp;
+      Entertainment: <strong>${fmt(getAvg(id,"entertainment"))}</strong>
+    </div>`;
+}
+
+function toggleStatement(btn){
+  const t=btn.closest(".panel-statement").querySelector(".statement-text");
+  t.classList.toggle("expanded");btn.textContent=t.classList.contains("expanded")?"Show less":"Read more";
+}
+
+function exportToRunOfShow(){
+  const films=allFilms.filter(f=>{const d=decisions[f.id]||"undecided";return d==="selected"||d==="maybe";});
+  if(!films.length){flashToast("No selected or maybe films yet");return;}
+  const data=films.map(f=>({
+    id:f.id,title:f.title,director:f.director,location:f.location,
+    size:f.size,genre:f.genre,category:f.category,dispMin:f.dispMin,
+    logLine:f.logLine,vimeoLink:f.vimeoLink,password:f.password,instagram:f.instagram,
+    decision:decisions[f.id],
+    avgOverall:fmt(getOverall(f.id)),avgProd:fmt(getAvg(f.id,"production")),avgEnt:fmt(getAvg(f.id,"entertainment")),
+  }));
+  localStorage.setItem("btssff-runofshow-films",JSON.stringify(data));
+  flashToast(`${films.length} films sent to Run of Show →`);
+  setTimeout(()=>{window.location.href="../run-of-show/";},1200);
+}
+
+function flashToast(msg){
+  const el=document.getElementById("saveToast");
+  el.textContent=msg;el.classList.add("show");
+  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),2000);
+}
+function parseCSV(text){
+  const rows=[];let row=[],field="",inQ=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i],n=text[i+1];
+    if(inQ){if(c==='"'&&n==='"'){field+='"';i++;}else if(c==='"'){inQ=false;}else{field+=c;}}
+    else{if(c==='"'){inQ=true;}else if(c===','){row.push(field);field="";}else if(c==='\n'){row.push(field);rows.push(row);row=[];field="";}else if(c!=='\r'){field+=c;}}
+  }
+  if(field||row.length){row.push(field);rows.push(row);}
+  return rows;
+}
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+</script>
+</body>
+</html>
