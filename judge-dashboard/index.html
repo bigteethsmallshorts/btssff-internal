@@ -431,6 +431,18 @@
 const SHEET_ID       = "1i-iCDCzVr_BuxHTu3pMVCvjEfpSLew7-Z3LkErpT-Uc";
 const JUDGE_PASSWORD = "judges2026";
 
+// Google Form — scores save here automatically across all devices
+const FORM_ID = "18NOQu387LQgM-BeAaA9WPgjGaaYt_Wps9ZZ4LfxESwg";
+const FORM_BASE = "https://docs.google.com/forms/d/e";
+const FORM_FIELDS = {
+  judge:         "entry.866448888",
+  filmId:        "entry.1189529712",
+  filmTitle:     "entry.1692337027",
+  production:    "entry.945907164",
+  entertainment: "entry.676155486",
+  notes:         "entry.841439912",
+};
+
 // ─── STATE ────────────────────────────────────────────────────────────────────
 let allFilms    = [];
 let scores      = {};
@@ -527,16 +539,54 @@ function persist() {
   try { localStorage.setItem(storageKey(), JSON.stringify({scores, notes, judge: judgeName, ts: Date.now()})); } catch {}
 }
 
+// Submit score to Google Form via hidden iframe (bypasses CORS)
+function submitToForm(filmId) {
+  const s = scores[filmId] || {};
+  const film = allFilms.find(f => f.id === filmId) || {};
+  const params = new URLSearchParams({
+    [FORM_FIELDS.judge]:         judgeName,
+    [FORM_FIELDS.filmId]:        filmId,
+    [FORM_FIELDS.filmTitle]:     film.title || "",
+    [FORM_FIELDS.production]:    s.production    !== undefined ? s.production    : "",
+    [FORM_FIELDS.entertainment]: s.entertainment !== undefined ? s.entertainment : "",
+    [FORM_FIELDS.notes]:         notes[filmId] || "",
+  });
+  // Use hidden iframe so no CORS error
+  let iframe = document.getElementById("form-submitter");
+  if (!iframe) {
+    iframe = document.createElement("iframe");
+    iframe.id = "form-submitter";
+    iframe.name = "form-submitter";
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+  }
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = `${FORM_BASE}/${FORM_ID}/formResponse`;
+  form.target = "form-submitter";
+  params.forEach((val, key) => {
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = key;
+    input.value = val;
+    form.appendChild(input);
+  });
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+}
+
 // ─── SCORING ──────────────────────────────────────────────────────────────────
 function setScore(filmId, cat, val) {
   if (!scores[filmId]) scores[filmId] = {};
   scores[filmId][cat] = val;
   persist();
+  submitToForm(filmId);
   updateCardScoring(filmId);
   updateProgress();
   flashToast(`${judgeName} — saved ✓`);
 }
-function setNote(filmId, val) { notes[filmId] = val; persist(); }
+function setNote(filmId, val) { notes[filmId] = val; persist(); submitToForm(filmId); }
 
 function getAvg(filmId) {
   const s = scores[filmId]; if (!s) return null;
