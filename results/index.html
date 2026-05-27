@@ -34,8 +34,8 @@
     letter-spacing: 0.1em; text-transform: uppercase; color: var(--slate); margin-right: 3px;
   }
   .filter-btn {
-    font-family: var(--font-display); font-size: 0.48rem; letter-spacing: 0.08em;
-    text-transform: uppercase; padding: 4px 9px; border-radius: var(--radius-sm);
+    font-family: var(--font-display); font-size: 0.6rem; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 5px 11px; border-radius: var(--radius-sm);
     border: 1px solid var(--border); background: white; cursor: pointer; color: var(--slate); transition: all 0.12s;
   }
   .filter-btn:hover { border-color: var(--denim); color: var(--navy); }
@@ -47,8 +47,8 @@
   .filter-btn.active.frejected { background: var(--rose); color: white; border-color: var(--rose); }
 
   .sort-select {
-    font-family: var(--font-display); font-size: 0.48rem; letter-spacing: 0.08em;
-    text-transform: uppercase; padding: 4px 8px; border-radius: var(--radius-sm);
+    font-family: var(--font-display); font-size: 0.6rem; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 5px 9px; border-radius: var(--radius-sm);
     border: 1px solid var(--border); background: white; cursor: pointer; color: var(--navy); outline: none;
   }
   .sort-dir-btn {
@@ -123,8 +123,8 @@
   }
   .controls-row:last-child { border-bottom: none; }
   .controls-row-label {
-    font-family: var(--font-display); font-size: 0.48rem; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--slate); min-width: 44px;
+    font-family: var(--font-display); font-size: 0.6rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--slate); min-width: 48px;
   }
 
   .main-layout { display: flex; flex: 1; overflow: hidden; }
@@ -132,11 +132,11 @@
   .film-table-wrap { flex: 1; overflow-y: auto; min-width: 0; transition: flex 0.25s ease; }
   .film-table-wrap.panel-open { flex: 0 0 55%; }
 
-  table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
   thead { position: sticky; top: 0; z-index: 10; }
   thead th {
     background: var(--navy); color: var(--denim);
-    font-family: var(--font-display); font-size: 0.5rem; letter-spacing: 0.1em;
+    font-family: var(--font-display); font-size: 0.62rem; letter-spacing: 0.08em;
     text-transform: uppercase; padding: 10px 12px; text-align: left; white-space: nowrap;
     border-right: 1px solid rgba(158,199,213,0.15);
   }
@@ -153,7 +153,7 @@
   tbody tr.row-active    { background: rgba(158,199,213,0.2) !important; }
 
   td { padding: 9px 12px; vertical-align: middle; color: var(--navy); }
-  td.title-cell { font-family: var(--font-title); font-weight: 700; font-size: 0.82rem; max-width: 200px; }
+  td.title-cell { font-family: var(--font-title); font-weight: 500; font-size: 0.9rem; max-width: 200px; }
   td.truncate-cell {
     max-width: 0;
     overflow: hidden;
@@ -166,15 +166,15 @@
     display: table-cell;
     max-height: 52px;
   }
-  td.muted { color: var(--slate); font-size: 0.72rem; }
-  .score-cell { font-family: var(--font-display); font-weight: 700; font-size: 0.82rem; text-align: center; }
+  td.muted { color: var(--slate); font-size: 0.78rem; }
+  .score-cell { font-family: var(--font-display); font-weight: 700; font-size: 0.88rem; text-align: center; }
   .score-high { color: var(--rose); }
   .score-mid  { color: var(--slate); }
   .score-low  { color: rgba(1,22,50,0.3); }
 
   .status-pill {
-    display: inline-block; font-family: var(--font-display); font-size: 0.48rem;
-    letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 7px;
+    display: inline-block; font-family: var(--font-display); font-size: 0.6rem;
+    letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 9px;
     border-radius: var(--radius-sm); font-weight: 700;
   }
   .sp-selected  { background:#d4f0e0; color:#1a5c35; }
@@ -350,7 +350,7 @@
          alt="BTSSFF Logo" style="height:52px;width:auto;flex-shrink:0">
     <div>
       <div style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--denim);margin-bottom:4px">Big Teeth Small Shorts Film Fest</div>
-      <h1 style="font-size:1.8rem;letter-spacing:0.06em;color:var(--offwhite);line-height:1">Results</h1>
+      <h1 style="font-size:1.8rem;letter-spacing:-0.02em;color:var(--offwhite);line-height:1">Results</h1>
     </div>
     <div style="width:2px;height:40px;background:var(--rose);margin-left:0.25rem;flex-shrink:0"></div>
   </div>
