@@ -63,6 +63,67 @@
   }
   .status-dot { width:6px;height:6px;border-radius:50%;background:#3dffc0;display:inline-block;margin-right:4px; }
 
+  /* Tally bar */
+  .tally-bar {
+    background: white; border-bottom: 2px solid var(--denim);
+    padding: 0.6rem 2rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+  }
+  .tally-group { display: flex; align-items: center; gap: 0.75rem; }
+  .tally-label {
+    font-family: var(--font-display); font-size: 0.5rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--slate);
+  }
+  .tally-stat {
+    font-family: var(--font-display); font-size: 0.62rem; letter-spacing: 0.04em;
+    color: var(--navy); font-weight: 700;
+  }
+  .tally-stat .num { font-size: 0.9rem; }
+  .tally-sep { color: var(--border-mid); font-size: 0.8rem; }
+  .tally-toggle {
+    font-family: var(--font-display); font-size: 0.5rem; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 3px 9px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: white; cursor: pointer; color: var(--slate);
+    margin-left: auto; transition: all 0.12s;
+  }
+  .tally-toggle:hover { border-color: var(--denim); color: var(--navy); }
+  .tally-toggle.active { background: var(--navy); color: white; border-color: var(--navy); }
+  .tally-divider { width: 1px; height: 24px; background: var(--border); }
+
+  /* Judge coverage bar */
+  .judge-coverage {
+    background: #f8f9fa; border-bottom: 1px solid var(--border);
+    padding: 0.5rem 2rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+  }
+  .coverage-label {
+    font-family: var(--font-display); font-size: 0.48rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--slate); white-space: nowrap;
+  }
+  .coverage-judges { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .coverage-judge { display: flex; align-items: center; gap: 0.5rem; }
+  .coverage-name {
+    font-family: var(--font-display); font-size: 0.55rem; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--navy); white-space: nowrap;
+  }
+  .coverage-bar-wrap { width: 80px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .coverage-bar-fill { height: 100%; border-radius: 3px; background: var(--denim); transition: width 0.4s; }
+  .coverage-pct { font-family: var(--font-display); font-size: 0.55rem; font-weight: 700; color: var(--navy); }
+
+  /* Controls redesign — 4 */
+  .controls-section {
+    background: white; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 40;
+    box-shadow: 0 1px 4px rgba(1,22,50,0.06);
+  }
+  .controls-row {
+    padding: 0.5rem 2rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+  }
+  .controls-row:last-child { border-bottom: none; }
+  .controls-row-label {
+    font-family: var(--font-display); font-size: 0.48rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--slate); min-width: 44px;
+  }
+
   .main-layout { display: flex; flex: 1; overflow: hidden; }
 
   .film-table-wrap { flex: 1; overflow-y: auto; min-width: 0; transition: flex 0.25s ease; }
@@ -247,23 +308,14 @@
   </div>
 </header>
 
-<div class="controls">
-  <div class="filter-group">
-    <label>Category</label>
-    <button class="filter-btn active" data-cat="all"   onclick="setCat('all',this)">All</button>
-    <button class="filter-btn micro"  data-cat="Micro" onclick="setCat('Micro',this)">Micro</button>
-    <button class="filter-btn small"  data-cat="Small" onclick="setCat('Small',this)">Small</button>
-  </div>
-  <div class="filter-group">
-    <label>Status</label>
-    <button class="filter-btn active"     data-st="all"       onclick="setSt('all',this)">All</button>
-    <button class="filter-btn"            data-st="undecided" onclick="setSt('undecided',this)">Undecided</button>
-    <button class="filter-btn fselected"  data-st="selected"  onclick="setSt('selected',this)">Selected</button>
-    <button class="filter-btn fmaybe"     data-st="maybe"     onclick="setSt('maybe',this)">Maybe</button>
-    <button class="filter-btn frejected"  data-st="rejected"  onclick="setSt('rejected',this)">Rejected</button>
-  </div>
-  <div class="filter-group">
-    <label>Sort by</label>
+<div class="controls-section">
+  <div class="controls-row">
+    <span class="controls-row-label">Category</span>
+    <button class="filter-btn active" data-cat="all"   onclick="setCat('all',this)">All Films</button>
+    <button class="filter-btn micro"  data-cat="Micro" onclick="setCat('Micro',this)">Micro Short</button>
+    <button class="filter-btn small"  data-cat="Small" onclick="setCat('Small',this)">Small Short</button>
+    <div class="tally-divider"></div>
+    <span class="controls-row-label">Sort by</span>
     <select class="sort-select" id="sortBy" onchange="sortBy=this.value;render()">
       <option value="avg">Overall avg</option>
       <option value="prod">Production avg</option>
@@ -271,9 +323,17 @@
       <option value="title">Title A–Z</option>
     </select>
     <button class="sort-dir-btn" id="sortDirBtn" onclick="toggleSortDir()">↓</button>
+    <div style="margin-left:auto">
+      <div class="count-display" id="countDisplay"></div>
+    </div>
   </div>
-  <div class="controls-right">
-    <div class="count-display" id="countDisplay"></div>
+  <div class="controls-row">
+    <span class="controls-row-label">Status</span>
+    <button class="filter-btn active"     data-st="all"       onclick="setSt('all',this)">All</button>
+    <button class="filter-btn"            data-st="undecided" onclick="setSt('undecided',this)">Undecided</button>
+    <button class="filter-btn fselected"  data-st="selected"  onclick="setSt('selected',this)">✓ Selected</button>
+    <button class="filter-btn fmaybe"     data-st="maybe"     onclick="setSt('maybe',this)">? Maybe</button>
+    <button class="filter-btn frejected"  data-st="rejected"  onclick="setSt('rejected',this)">✕ Rejected</button>
   </div>
 </div>
 
@@ -282,15 +342,34 @@
   <span id="syncStatus">Loading…</span>
 </div>
 
+<!-- Tally bar -->
+<div class="tally-bar" id="tallyBar">
+  <span class="tally-label">Selected</span>
+  <span class="tally-stat" id="tallySelected">—</span>
+  <div class="tally-divider"></div>
+  <span class="tally-label" id="maybeLabel" style="color:var(--slate)">Maybe</span>
+  <span class="tally-stat" id="tallyMaybe">—</span>
+  <div class="tally-divider"></div>
+  <span class="tally-label">Total runtime</span>
+  <span class="tally-stat" id="tallyRuntime">—</span>
+  <button class="tally-toggle" id="tallyToggle" onclick="toggleMaybe()">+ Include Maybe</button>
+</div>
+
+<!-- Judge coverage -->
+<div class="judge-coverage" id="judgeCoverage">
+  <span class="coverage-label">Judge coverage</span>
+  <div class="coverage-judges" id="coverageJudges">Loading…</div>
+</div>
+
 <div class="main-layout">
   <div class="film-table-wrap" id="tableWrap">
     <table>
       <thead>
         <tr>
-          <th>Title</th>
+          <th style="min-width:180px">Title</th>
           <th>Category</th>
           <th style="width:46px">Run</th>
-          <th>Director</th>
+          <th style="width:140px">Director</th>
           <th class="sortable sort-active" data-col="avg"  onclick="clickSort('avg',this)"  style="width:56px;text-align:center">Avg ↓</th>
           <th class="sortable"             data-col="prod" onclick="clickSort('prod',this)" style="width:52px;text-align:center">Prod</th>
           <th class="sortable"             data-col="ent"  onclick="clickSort('ent',this)"  style="width:52px;text-align:center">Ent</th>
@@ -331,6 +410,8 @@ async function loadAll(){
     [allFilms, judgeScores]=await Promise.all([fetchFilms(),fetchScores()]);
     loadDecisions();
     render();
+    updateTally();
+    updateCoverage();
     document.getElementById("syncStatus").textContent=`${allFilms.length} films · scores loaded`;
   }catch(err){document.getElementById("syncStatus").textContent="Error: "+err.message;}
 }
@@ -363,7 +444,7 @@ async function fetchFilms(){
       title:g(row,"Project Title")||"Untitled",
       director:dir,location:loc,size,genre,genres:g(row,"Genres"),dispMin,category:catRaw,
       logLine:g(row,'Please include a one sentence "log line" of your film that will be included in the program if your film is selected.')||g(row,"Synopsis"),
-      statement:g(row,"Please share any information about yourself and/or your film that you'd like the programming team to know."),
+      statement:g(row,"Please share any information about yourself and/or your film that you'd like the programming team to know.")||g(row,"Submitter Statement")||g(row,"Statement"),
       vimeoLink:g(row,"Submission Link"),password:g(row,"Submission Password"),
       instagram:g(row,"List any instagram handles you'd like credited (tagged) if your film is chosen as an official selection. (Note: saying \"No\" will not exclude you from selection)"),
     };
@@ -405,6 +486,7 @@ function saveDecision(filmId,dec){
   renderRow(filmId);
   if(selectedId===filmId)renderPanel(filmId);
   updateCount();
+  updateTally();
   flashToast(`Marked as ${dec}`);
 }
 
@@ -564,13 +646,13 @@ function renderPanel(id){
     <div class="panel-watch">${watch}</div>
     <div class="panel-meta">
       <div class="meta-item"><div class="meta-label">Director</div><div class="meta-value">${esc(f.director)}</div></div>
-      <div class="meta-item"><div class="meta-label">Location</div><div class="meta-value">${esc(f.location)}</div></div>
-      <div class="meta-item"><div class="meta-label">Runtime</div><div class="meta-value">${f.dispMin}</div></div>
       <div class="meta-item"><div class="meta-label">Category</div><div class="meta-value">${esc(f.category)}</div></div>
-      ${f.genres?`<div class="meta-item full"><div class="meta-label">Genres</div><div class="meta-value">${esc(f.genres)}</div></div>`:""}
+      <div class="meta-item"><div class="meta-label">Runtime</div><div class="meta-value">${f.dispMin}</div></div>
+      <div class="meta-item"><div class="meta-label">Genres</div><div class="meta-value">${f.genres||"—"}</div></div>
+      <div class="meta-item full"><div class="meta-label">Location</div><div class="meta-value">${esc(f.location)}</div></div>
     </div>
     ${f.logLine?`<div class="panel-logline">"${esc(f.logLine)}"</div>`:""}
-    ${statHtml}
+    ${f.statement?statHtml:""}
     <div class="panel-scores">
       <div class="scores-header">Judge scores &amp; notes</div>
       ${judgeHtml}
@@ -606,6 +688,93 @@ function exportToRunOfShow(){
   localStorage.setItem("btssff-runofshow-films",JSON.stringify(data));
   flashToast(`${films.length} films sent to Run of Show →`);
   setTimeout(()=>{window.location.href="../run-of-show/";},1200);
+}
+
+// ─── TALLY BAR ───────────────────────────────────────────────────────────────
+let includeMaybe = false;
+
+function toggleMaybe() {
+  includeMaybe = !includeMaybe;
+  const btn = document.getElementById("tallyToggle");
+  btn.classList.toggle("active", includeMaybe);
+  btn.textContent = includeMaybe ? "− Exclude Maybe" : "+ Include Maybe";
+  updateTally();
+}
+
+function parseDurToSeconds(dispMin) {
+  const parts = dispMin.split(":").map(Number);
+  if (parts.length === 3) return parts[0]*3600 + parts[1]*60 + parts[2];
+  if (parts.length === 2) return parts[0]*60 + parts[1];
+  return 0;
+}
+
+function fmtSeconds(secs) {
+  const h = Math.floor(secs/3600);
+  const m = Math.floor((secs%3600)/60);
+  const s = secs % 60;
+  if (h > 0) return `${h}h ${m}m ${s}s`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
+function updateTally() {
+  const selFilms   = allFilms.filter(f => (decisions[f.id]||"undecided") === "selected");
+  const maybeFilms = allFilms.filter(f => (decisions[f.id]||"undecided") === "maybe");
+  const tally      = includeMaybe ? [...selFilms, ...maybeFilms] : selFilms;
+
+  const selMicro = selFilms.filter(f=>f.size==="Micro").length;
+  const selSmall = selFilms.filter(f=>f.size==="Small").length;
+  const selRuntime = selFilms.reduce((a,f)=>a+parseDurToSeconds(f.dispMin),0);
+
+  const maybeMicro = maybeFilms.filter(f=>f.size==="Micro").length;
+  const maybeSmall = maybeFilms.filter(f=>f.size==="Small").length;
+  const maybeRuntime = maybeFilms.reduce((a,f)=>a+parseDurToSeconds(f.dispMin),0);
+
+  const totalRuntime = includeMaybe ? selRuntime + maybeRuntime : selRuntime;
+  const totalFilms   = tally.length;
+  const totalMicro   = includeMaybe ? selMicro+maybeMicro : selMicro;
+  const totalSmall   = includeMaybe ? selSmall+maybeSmall : selSmall;
+
+  document.getElementById("tallySelected").innerHTML =
+    `<span class="num">${selFilms.length}</span> films &nbsp;<span style="font-weight:400;color:var(--slate);font-size:0.55rem">${selMicro} micro · ${selSmall} small</span>`;
+
+  document.getElementById("tallyMaybe").innerHTML =
+    `<span class="num">${maybeFilms.length}</span> films &nbsp;<span style="font-weight:400;color:var(--slate);font-size:0.55rem">${maybeMicro} micro · ${maybeSmall} small</span>`;
+
+  document.getElementById("tallyRuntime").innerHTML =
+    `<span class="num">${fmtSeconds(totalRuntime)}</span>${includeMaybe?` <span style="font-weight:400;color:var(--slate);font-size:0.55rem">(sel+maybe)</span>`:""}`;
+}
+
+// ─── JUDGE COVERAGE ──────────────────────────────────────────────────────────
+function updateCoverage() {
+  const total = allFilms.length;
+  if (!total) return;
+
+  // Count unique films scored per judge
+  const judgeFilmCount = {};
+  Object.entries(judgeScores).forEach(([filmId, judges]) => {
+    Object.keys(judges).forEach(judge => {
+      judgeFilmCount[judge] = (judgeFilmCount[judge]||0) + 1;
+    });
+  });
+
+  if (!Object.keys(judgeFilmCount).length) {
+    document.getElementById("coverageJudges").textContent = "No scores yet";
+    return;
+  }
+
+  const html = Object.entries(judgeFilmCount)
+    .sort((a,b) => b[1]-a[1])
+    .map(([judge, count]) => {
+      const pct = Math.round((count/total)*100);
+      return `<div class="coverage-judge">
+        <span class="coverage-name">${esc(judge)}</span>
+        <div class="coverage-bar-wrap"><div class="coverage-bar-fill" style="width:${pct}%"></div></div>
+        <span class="coverage-pct">${pct}%</span>
+        <span style="font-family:var(--font-body);font-size:0.65rem;color:var(--slate)">${count}/${total}</span>
+      </div>`;
+    }).join("");
+  document.getElementById("coverageJudges").innerHTML = html;
 }
 
 function flashToast(msg){
