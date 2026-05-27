@@ -144,9 +144,9 @@
 
   tbody tr { border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
   tbody tr:hover { background: rgba(158,199,213,0.08); }
-  tbody tr.row-selected  { background: rgba(42,122,75,0.06);   border-left: 3px solid #2a7a4b; }
-  tbody tr.row-maybe     { background: rgba(184,134,11,0.06);  border-left: 3px solid #b8860b; }
-  tbody tr.row-rejected  { background: rgba(201,84,106,0.06);  border-left: 3px solid var(--rose); }
+  tbody tr.row-selected  { background: rgba(42,122,75,0.12);   border-left: 3px solid #2a7a4b; }
+  tbody tr.row-maybe     { background: rgba(184,134,11,0.12);  border-left: 3px solid #b8860b; }
+  tbody tr.row-rejected  { background: rgba(201,84,106,0.12);  border-left: 3px solid var(--rose); }
   tbody tr.row-active    { background: rgba(158,199,213,0.2) !important; }
 
   td { padding: 9px 12px; vertical-align: middle; color: var(--navy); }
@@ -206,23 +206,29 @@
 
   .panel-logline {
     padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--border);
-    font-family: var(--font-body); font-size: 0.82rem; color: var(--navy); line-height: 1.6; font-style: italic;
+  }
+  .logline-label {
+    font-family: var(--font-display); font-size: 0.48rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--slate); margin-bottom: 6px; display: block;
+  }
+  .logline-text {
+    font-family: var(--font-body); font-size: 0.9rem; color: var(--navy); line-height: 1.65;
+    font-weight: 500;
   }
 
   .panel-statement { padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--border); }
   .statement-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem; }
   .statement-label {
-    font-family:var(--font-display);font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);
-    display:flex;align-items:center;gap:5px;
+    font-family:var(--font-display);font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);
+    display:flex;align-items:center;gap:5px; margin-bottom:5px;
   }
-  .statement-label::before { content:'★';font-size:0.6rem; }
-  .statement-toggle { font-family:var(--font-display);font-size:0.45rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate);background:none;border:none;cursor:pointer; }
-  .statement-toggle:hover { color:var(--navy); }
   .statement-text {
     font-family:var(--font-body);font-size:0.78rem;color:var(--slate);line-height:1.6;
-    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
   }
   .statement-text.expanded { display:block; }
+  .statement-toggle { font-family:var(--font-display);font-size:0.45rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--denim);background:none;border:none;cursor:pointer;margin-top:4px;display:block; }
+  .statement-toggle:hover { color:var(--navy); }
 
   .panel-scores { padding:0.85rem 1.25rem;border-bottom:1px solid var(--border); }
   .scores-header { font-family:var(--font-display);font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:0.75rem; }
@@ -260,6 +266,32 @@
   .btn-undecided.active { background:var(--slate);color:white;border-color:var(--slate); }
 
   .export-summary { padding:0.75rem 1.25rem;background:#fafaf8;font-family:var(--font-body);font-size:0.75rem;color:var(--slate); }
+
+  /* Editable fields */
+  .editable-field { display:flex;align-items:center;gap:6px;flex-wrap:wrap; }
+  .editable-value { flex:1; }
+  .edit-btn {
+    font-family:var(--font-display);font-size:0.42rem;letter-spacing:0.08em;text-transform:uppercase;
+    padding:2px 7px;border-radius:var(--radius-sm);border:1px solid var(--border);
+    background:white;cursor:pointer;color:var(--slate);transition:all 0.12s;white-space:nowrap;flex-shrink:0;
+  }
+  .edit-btn:hover { border-color:var(--denim);color:var(--navy); }
+  .corrected-badge {
+    font-family:var(--font-display);font-size:0.42rem;letter-spacing:0.06em;text-transform:uppercase;
+    color:#b8860b;background:#fef3cd;padding:2px 6px;border-radius:var(--radius-sm);
+  }
+  .edit-form { margin-top:6px;display:flex;flex-direction:column;gap:5px; }
+  .edit-input {
+    font-family:var(--font-body);font-size:0.8rem;padding:5px 8px;
+    border:1px solid var(--denim);border-radius:var(--radius-sm);outline:none;color:var(--navy);width:100%;
+  }
+  .edit-note-input {
+    font-family:var(--font-body);font-size:0.72rem;padding:4px 8px;
+    border:1px solid var(--border);border-radius:var(--radius-sm);outline:none;color:var(--slate);width:100%;
+  }
+  .edit-actions { display:flex;gap:5px; }
+  .edit-save-btn { font-family:var(--font-display);font-size:0.48rem;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:var(--radius-sm);border:none;background:var(--navy);color:white;cursor:pointer; }
+  .edit-cancel-btn { font-family:var(--font-display);font-size:0.48rem;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:white;color:var(--slate);cursor:pointer; }
   .export-summary strong { color:var(--navy); }
 
   /* Gate */
@@ -314,15 +346,6 @@
     <button class="filter-btn active" data-cat="all"   onclick="setCat('all',this)">All Films</button>
     <button class="filter-btn micro"  data-cat="Micro" onclick="setCat('Micro',this)">Micro Short</button>
     <button class="filter-btn small"  data-cat="Small" onclick="setCat('Small',this)">Small Short</button>
-    <div class="tally-divider"></div>
-    <span class="controls-row-label">Sort by</span>
-    <select class="sort-select" id="sortBy" onchange="sortBy=this.value;render()">
-      <option value="avg">Overall avg</option>
-      <option value="prod">Production avg</option>
-      <option value="ent">Entertainment avg</option>
-      <option value="title">Title A–Z</option>
-    </select>
-    <button class="sort-dir-btn" id="sortDirBtn" onclick="toggleSortDir()">↓</button>
     <div style="margin-left:auto">
       <div class="count-display" id="countDisplay"></div>
     </div>
@@ -334,6 +357,17 @@
     <button class="filter-btn fselected"  data-st="selected"  onclick="setSt('selected',this)">✓ Selected</button>
     <button class="filter-btn fmaybe"     data-st="maybe"     onclick="setSt('maybe',this)">? Maybe</button>
     <button class="filter-btn frejected"  data-st="rejected"  onclick="setSt('rejected',this)">✕ Rejected</button>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+      <span class="controls-row-label">Sort</span>
+      <select class="sort-select" id="sortBy" onchange="sortBy=this.value;render()">
+        <option value="avg">Overall avg</option>
+        <option value="prod">Production avg</option>
+        <option value="ent">Entertainment avg</option>
+        <option value="title">Title A–Z</option>
+        <option value="runtime">Runtime</option>
+      </select>
+      <button class="sort-dir-btn" id="sortDirBtn" onclick="toggleSortDir()">↓</button>
+    </div>
   </div>
 </div>
 
@@ -351,8 +385,8 @@
   <span class="tally-stat" id="tallyMaybe">—</span>
   <div class="tally-divider"></div>
   <span class="tally-label">Total runtime</span>
-  <span class="tally-stat" id="tallyRuntime">—</span>
   <button class="tally-toggle" id="tallyToggle" onclick="toggleMaybe()">+ Include Maybe</button>
+  <span class="tally-stat" id="tallyRuntime">—</span>
 </div>
 
 <!-- Judge coverage -->
@@ -392,7 +426,17 @@ const SHEET_ID        = "1i-iCDCzVr_BuxHTu3pMVCvjEfpSLew7-Z3LkErpT-Uc";
 const SCORES_SHEET_ID = "1TYGNvemzVl05R4wSxxiMZVcUx77UpG--gOJotq-cvIA";
 const TEAM_PASSWORD   = "team2026";
 
-let allFilms=[], judgeScores={}, decisions={}, selectedId=null;
+// Overrides form — field corrections
+const OVERRIDES_FORM_ID = "1FAIpQLSfIkl-HrVDXkBUS2abWZ5bSesxUHWdwX57vXxPbqVotHBZFTw";
+const OVERRIDES_FIELDS  = {
+  filmId:      "entry.980348820",
+  field:       "entry.1526638552",
+  newValue:    "entry.305740934",
+  correctedBy: "entry.1580550823",
+  note:        "entry.1404313224",
+};
+
+let allFilms=[], judgeScores={}, decisions={}, overrides={}, selectedId=null;
 let filterCat="all", filterSt="all", sortBy="avg", sortDir="desc";
 
 // Gate
@@ -407,7 +451,8 @@ document.getElementById("gateInput").addEventListener("keydown",e=>{if(e.key==="
 async function loadAll(){
   document.getElementById("syncStatus").textContent="Loading…";
   try{
-    [allFilms, judgeScores]=await Promise.all([fetchFilms(),fetchScores()]);
+    [allFilms, judgeScores]=await Promise.all([fetchFilms(),fetchScores(),fetchOverrides().then(o=>{overrides=o;})]);
+    applyOverrides();
     loadDecisions();
     render();
     updateTally();
@@ -479,6 +524,74 @@ async function fetchScores(){
   }catch{return{};}
 }
 
+async function fetchOverrides(){
+  try{
+    // Overrides sheet is linked to the Overrides form responses
+    // We store overrides in localStorage until the sheet is linked
+    const stored = JSON.parse(localStorage.getItem("btssff-overrides")||"{}");
+    return stored;
+  }catch{return{};}
+}
+
+function applyOverrides(){
+  // Apply stored overrides to allFilms array
+  Object.entries(overrides).forEach(([key, override]) => {
+    const [filmId, field] = key.split("__");
+    const film = allFilms.find(f=>f.id===filmId);
+    if(!film) return;
+    film[field] = override.newValue;
+    film._overrides = film._overrides || {};
+    film._overrides[field] = { newValue: override.newValue, note: override.note, by: override.by };
+  });
+}
+
+function saveOverride(filmId, field, newValue, note){
+  const key = `${filmId}__${field}`;
+  overrides[key] = { newValue, note, by: "Team" };
+  // Apply immediately to allFilms
+  const film = allFilms.find(f=>f.id===filmId);
+  if(film){
+    film[field] = newValue;
+    film._overrides = film._overrides || {};
+    film._overrides[field] = { newValue, note, by: "Team" };
+  }
+  // Save to localStorage
+  try{ localStorage.setItem("btssff-overrides", JSON.stringify(overrides)); }catch{}
+  // Submit to Google Form
+  submitOverrideToForm(filmId, field, newValue, note);
+  // Re-render
+  renderRow(filmId);
+  if(selectedId===filmId) renderPanel(filmId);
+  flashToast(`${field} updated`);
+}
+
+function submitOverrideToForm(filmId, field, newValue, note){
+  const film = allFilms.find(f=>f.id===filmId)||{};
+  const params = new URLSearchParams({
+    [OVERRIDES_FIELDS.filmId]:      filmId,
+    [OVERRIDES_FIELDS.field]:       field,
+    [OVERRIDES_FIELDS.newValue]:    newValue,
+    [OVERRIDES_FIELDS.correctedBy]: "Team",
+    [OVERRIDES_FIELDS.note]:        note||"",
+  });
+  let iframe = document.getElementById("override-submitter");
+  if(!iframe){
+    iframe=document.createElement("iframe");
+    iframe.id="override-submitter";iframe.name="override-submitter";iframe.style.display="none";
+    document.body.appendChild(iframe);
+  }
+  const form=document.createElement("form");
+  form.method="POST";
+  form.action=`https://docs.google.com/forms/d/e/${OVERRIDES_FORM_ID}/formResponse`;
+  form.target="override-submitter";
+  params.forEach((val,key)=>{
+    const input=document.createElement("input");
+    input.type="hidden";input.name=key;input.value=val;
+    form.appendChild(input);
+  });
+  document.body.appendChild(form);form.submit();document.body.removeChild(form);
+}
+
 function loadDecisions(){try{decisions=JSON.parse(localStorage.getItem("btssff-decisions")||"{}");}catch{}}
 function saveDecision(filmId,dec){
   decisions[filmId]=dec;
@@ -528,6 +641,7 @@ function filteredSorted(){
     if(sortBy==="avg"){va=getOverall(a.id)??-1;vb=getOverall(b.id)??-1;}
     else if(sortBy==="prod"){va=getAvg(a.id,"production")??-1;vb=getAvg(b.id,"production")??-1;}
     else if(sortBy==="ent"){va=getAvg(a.id,"entertainment")??-1;vb=getAvg(b.id,"entertainment")??-1;}
+    else if(sortBy==="runtime"){va=parseDurToSeconds(a.dispMin);vb=parseDurToSeconds(b.dispMin);}
     else{return sortDir==="asc"?a.title.localeCompare(b.title):b.title.localeCompare(a.title);}
     return sortDir==="desc"?vb-va:va-vb;
   });
@@ -599,6 +713,46 @@ function closePanel(){
   document.getElementById("detailPanel").innerHTML="";
 }
 
+function editableField(filmId, field, label, value){
+  const override = allFilms.find(f=>f.id===filmId)?._overrides?.[field];
+  const badge = override ? `<span class="corrected-badge">Corrected</span>` : "";
+  return `<div class="meta-label">${label} ${badge}</div>
+    <div class="editable-field">
+      <div class="meta-value editable-value" id="val-${filmId}-${field}">${esc(value)}</div>
+      <button class="edit-btn" onclick="showEditForm('${filmId}','${field}','${esc(value)}',this)">Edit</button>
+    </div>
+    <div class="edit-form" id="edit-${filmId}-${field}" style="display:none">
+      <input class="edit-input" id="einput-${filmId}-${field}" value="${esc(value)}" placeholder="New value…">
+      <input class="edit-note-input" id="enote-${filmId}-${field}" placeholder="Reason for correction (optional)">
+      <div class="edit-actions">
+        <button class="edit-save-btn" onclick="commitEdit('${filmId}','${field}')">Save</button>
+        <button class="edit-cancel-btn" onclick="cancelEdit('${filmId}','${field}')">Cancel</button>
+      </div>
+    </div>`;
+}
+
+function showEditForm(filmId, field, currentVal, btn){
+  const formEl = document.getElementById(`edit-${filmId}-${field}`);
+  if(!formEl) return;
+  formEl.style.display = "flex";
+  formEl.style.flexDirection = "column";
+  document.getElementById(`einput-${filmId}-${field}`).focus();
+  btn.style.display = "none";
+}
+
+function cancelEdit(filmId, field){
+  document.getElementById(`edit-${filmId}-${field}`).style.display = "none";
+  const btn = document.querySelector(`#edit-${filmId}-${field}`)?.previousElementSibling?.querySelector(".edit-btn");
+  if(btn) btn.style.display = "";
+}
+
+function commitEdit(filmId, field){
+  const newVal  = document.getElementById(`einput-${filmId}-${field}`).value.trim();
+  const note    = document.getElementById(`enote-${filmId}-${field}`).value.trim();
+  if(!newVal) return;
+  saveOverride(filmId, field, newVal, note);
+}
+
 function renderPanel(id){
   const f=allFilms.find(x=>x.id===id);if(!f)return;
   const dec=decisions[id]||"undecided";
@@ -611,11 +765,9 @@ function renderPanel(id){
 
   const statHtml=f.statement
     ?`<div class="panel-statement">
-        <div class="statement-header">
-          <span class="statement-label">Filmmaker statement</span>
-          <button class="statement-toggle" onclick="toggleStatement(this)">Read more</button>
-        </div>
+        <span class="statement-label">Filmmaker statement</span>
         <div class="statement-text">${esc(f.statement)}</div>
+        <button class="statement-toggle" onclick="toggleStatement(this)">Read more</button>
       </div>`:""
 
   const judgeHtml=judges.length
@@ -648,10 +800,10 @@ function renderPanel(id){
       <div class="meta-item"><div class="meta-label">Director</div><div class="meta-value">${esc(f.director)}</div></div>
       <div class="meta-item"><div class="meta-label">Category</div><div class="meta-value">${esc(f.category)}</div></div>
       <div class="meta-item"><div class="meta-label">Runtime</div><div class="meta-value">${f.dispMin}</div></div>
-      <div class="meta-item"><div class="meta-label">Genres</div><div class="meta-value">${f.genres||"—"}</div></div>
+      <div class="meta-item"><div class="meta-label">Additional genres</div><div class="meta-value">${f.genres||"—"}</div></div>
       <div class="meta-item full"><div class="meta-label">Location</div><div class="meta-value">${esc(f.location)}</div></div>
     </div>
-    ${f.logLine?`<div class="panel-logline">"${esc(f.logLine)}"</div>`:""}
+    ${f.logLine?`<div class="panel-logline"><span class="logline-label">Log line</span><div class="logline-text">${esc(f.logLine)}</div></div>`:""}
     ${f.statement?statHtml:""}
     <div class="panel-scores">
       <div class="scores-header">Judge scores &amp; notes</div>
