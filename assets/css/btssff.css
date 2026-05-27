@@ -3,7 +3,46 @@
    Source of truth: Gregg's brand guide at greggjaffe.com/brand-guide/
    ────────────────────────────────────────────────────────────────────────── */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+/* ── Custom fonts from assets/fonts/ ── */
+@font-face {
+  font-family: 'FatFrank';
+  src: url('../fonts/fat-frank-heavy.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Antarctican';
+  src: url('../fonts/Antarctican-Headline-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Antarctican';
+  src: url('../fonts/Antarctican-Headline-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DMSans';
+  src: url('../fonts/DMSans-Variable.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DMSans';
+  src: url('../fonts/DMSans-Variable-Italic.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
 
 /* FatFrank — loaded via @font-face (you'll add the actual font file to /assets/fonts/) */
 /* Antarctican — same */
@@ -34,9 +73,9 @@
   --cta:         var(--rose);
 
   /* ── Typography ── */
-  --font-display: 'FatFrank', 'Arial Black', system-ui;   /* headers, labels, pills */
-  --font-title:   'Antarctican', Georgia, serif;           /* film titles, subheads */
-  --font-body:    'DM Sans', 'Tablet Gothic', sans-serif;  /* body, credits, UI */
+  --font-display: 'FatFrank', 'Arial Black', system-ui;   /* headers, labels, pills */   /* headers, labels, pills */
+  --font-title:   'Antarctican', Georgia, serif;           /* film titles, subheads */           /* film titles, subheads */
+  --font-body:    'DMSans', 'DM Sans', 'Tablet Gothic', sans-serif;  /* body, credits, UI */
 
   /* ── Spacing ── */
   --radius-sm: 4px;
