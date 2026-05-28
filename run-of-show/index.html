@@ -820,7 +820,7 @@ function updateActStats(actId, list) {
   }
 }
 
-const TOTAL_TARGET_SECS = 102 * 60; // ~102 min total target
+const TOTAL_TARGET_SECS = 110 * 60; // ~102 min total target
 
 function updateTotals() {
   const all = [...act1, ...act2];
@@ -838,11 +838,11 @@ function updateTotals() {
     if (stats.secs >= TOTAL_TARGET_SECS) {
       bar.style.background = "#3dffc0";
       lbl.style.color = "#3dffc0";
-      lbl.textContent = `✓ ${fmtSecs(stats.secs)} / ~102:00`;
+      lbl.textContent = `✓ ${fmtSecs(stats.secs)} / ~110:00`;
     } else {
       bar.style.background = "var(--denim)";
       lbl.style.color = "var(--denim)";
-      lbl.textContent = `${fmtSecs(stats.secs)} / ~102:00`;
+      lbl.textContent = `${fmtSecs(stats.secs)} / ~110:00`;
     }
   }
   updateActStats("act1", act1);
