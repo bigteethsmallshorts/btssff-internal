@@ -780,10 +780,8 @@ function filmCardHTML(id, zone, slotNum) {
     </div>
     <div class="card-right">
       <span class="card-runtime">${f.dispMin}</span>
-      <div style="display:flex;align-items:center;gap:5px">
-        ${isMaybe?`<span style="font-family:var(--font-body);font-size:0.65rem;color:rgba(1,22,50,0.35);font-style:italic">maybe ·</span>`:""}
-        <span style="font-family:var(--font-display);font-size:0.72rem;letter-spacing:0.05em;text-transform:uppercase;color:var(--slate)">${esc(f.genre)}</span>
-      </div>
+      <span style="font-family:var(--font-display);font-size:0.72rem;letter-spacing:0.05em;text-transform:uppercase;color:var(--slate)">${esc(f.genre)}</span>
+      ${isMaybe?`<span style="font-family:var(--font-body);font-size:0.65rem;color:rgba(1,22,50,0.35);font-style:italic">maybe</span>`:""}
     </div>
   </div>`;
 }
@@ -1130,7 +1128,7 @@ async function exportUpdatedSheet() {
   // Find key column indices
   const hTrim = headers.map(x=>x.trim());
   const trackingIdx  = hTrim.indexOf("Tracking Number");
-  const statusIdx    = hTrim.indexOf("Judging Status");
+  const judgingIdx   = hTrim.indexOf("Judging Status");  // column AA — update in place
   const catIdx       = hTrim.indexOf("Submission Categories");
   const dirCreditIdx = hTrim.indexOf("Please list all person(s) that should get a director's credit on our programming and promotional listings, should your film be selected. ");
 
@@ -1152,7 +1150,7 @@ async function exportUpdatedSheet() {
   const inPool = new Set(pool);
 
   // Add new columns to header
-  const newHeaders = [...headers, "Judging Status (Updated)", "ROS Order", "Act"];
+  const newHeaders = [...headers, "ROS Order", "Act"];
   const outputRows = [newHeaders];
 
   rawRows.slice(1).forEach(row => {
@@ -1190,7 +1188,8 @@ async function exportUpdatedSheet() {
     if (inAct1.has(filmId)) act = document.getElementById("act1-title").value || "Act 1";
     else if (inAct2.has(filmId)) act = document.getElementById("act2-title").value || "Act 2";
 
-    newRow.push(judgingStatus);
+    // Update Judging Status column AA in place
+    if (judgingIdx >= 0) newRow[judgingIdx] = judgingStatus;
     newRow.push(rosOrder[filmId] || "");
     newRow.push(act);
 
