@@ -105,7 +105,7 @@
     background: var(--navy); padding: 0.85rem 1rem;
     display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem;
   }
-  .card-jury-title { font-family:var(--font-title);font-size:1.05rem;font-weight:500;color:var(--offwhite);line-height:1.3;flex:1; }
+  .card-jury-title { font-family:var(--font-title);font-size:1.4rem;font-weight:500;color:var(--offwhite);line-height:1.2;flex:1; }
   .avg-badge {
     font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:white;
     background:var(--rose);border-radius:var(--radius-sm);
@@ -182,12 +182,14 @@
   .vote-count strong { color:var(--navy);font-size:0.75rem; }
   .vote-names { font-family:var(--font-body);font-size:0.72rem;color:var(--slate);margin-top:2px; }
   .vote-btn {
-    font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;
-    padding:8px 16px;border-radius:var(--radius-sm);border:2px solid var(--border);
+    font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;
+    padding:8px 14px;border-radius:var(--radius-sm);border:2px solid var(--border);
     background:white;cursor:pointer;color:var(--slate);transition:all 0.15s;
   }
   .vote-btn:hover { border-color:var(--denim);color:var(--navy); }
-  .vote-btn.voted { background:var(--rose);color:white;border-color:var(--rose); }
+  .rank-btn[data-rank="1"].voted { background:#2a7a4b;color:white;border-color:#2a7a4b; }
+  .rank-btn[data-rank="2"].voted { background:var(--denim);color:var(--navy);border-color:var(--denim); }
+  .rank-btn[data-rank="3"].voted { background:var(--slate);color:white;border-color:var(--slate); }
 
   /* ── Winner announcement ── */
   .winner-section {
@@ -212,7 +214,7 @@
   .loading-spinner { text-align:center;padding:4rem;color:var(--slate);font-family:var(--font-display);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase; }
 </style>
 </head>
-<body>
+<body ondragover="event.preventDefault()" ondrop="event.preventDefault()">
 
 <!-- Gate -->
 <div class="gate-overlay" id="gate">
@@ -264,8 +266,8 @@
   <p style="font-family:var(--font-body);font-size:0.88rem;color:var(--slate);margin-bottom:2rem">Export the ratings CSV from FilmFreeway and drop it here. All processing happens in your browser — nothing is uploaded anywhere.</p>
 
   <div class="upload-box" id="uploadBox" onclick="document.getElementById('csvFile').click()"
-       ondragover="e=>{e.preventDefault();document.getElementById('uploadBox').classList.add('drag-over')}"
-       ondragleave="document.getElementById('uploadBox').classList.remove('drag-over')"
+       ondragover="onUploadDragOver(event)"
+       ondragleave="onUploadDragLeave(event)"
        ondrop="handleFileDrop(event)">
     <div class="upload-icon">📊</div>
     <div class="upload-label">Drop FilmFreeway Ratings CSV here</div>
@@ -277,6 +279,35 @@
 
 <!-- Main app -->
 <div id="appScreen" style="display:none">
+  <!-- Instructions banner -->
+  <div id="instructionsBanner" style="background:#011632;border-bottom:3px solid #9EC7D5;padding:1rem 2rem">
+    <div style="max-width:1400px;margin:0 auto">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem">
+        <div style="flex:1">
+          <div style="font-family:var(--font-display);font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--denim);margin-bottom:0.5rem">How to deliberate</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem">
+            <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
+              <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 1</div>
+              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Click <strong style="color:var(--denim)">"Show individual scores"</strong> on any film to see every judge's rating and written comments.</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
+              <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 2</div>
+              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Add a <strong style="color:var(--denim)">deliberation note</strong> to share your thoughts. Good notes explain <em>why</em> — not just "I liked it." Help us decide!</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
+              <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 3</div>
+              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Cast your <strong style="color:var(--denim)">ranked votes</strong> — pick your #1, #2, and #3 films. You <em>must</em> rank all three before your votes count.</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
+              <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 4</div>
+              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Finish <strong style="color:var(--denim)">Micro Shorts first</strong>, then click the <strong style="color:var(--denim)">Small Shorts</strong> tab above and repeat.</div>
+            </div>
+          </div>
+        </div>
+        <button onclick="document.getElementById('instructionsBanner').style.display='none'" style="background:none;border:none;color:var(--denim);cursor:pointer;font-size:1.2rem;flex-shrink:0;margin-top:4px">✕</button>
+      </div>
+    </div>
+  </div>
   <div class="main-wrap">
 
     <!-- Admin bar (only visible to admin) -->
@@ -284,7 +315,7 @@
       <span class="admin-label">Admin</span>
       <button class="btn btn-ghost" onclick="clearAllVotes()" style="font-size:0.55rem">Clear all votes</button>
       <button class="btn btn-ghost" onclick="clearAllNotes()" style="font-size:0.55rem">Clear all notes</button>
-      <button class="btn btn-rose" onclick="revealResults()" style="font-size:0.55rem;background:var(--rose);color:white;border:none">Reveal final results</button>
+  <button onclick="revealResults()" style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:var(--rose);color:white;border:none;padding:7px 14px;border-radius:var(--radius-sm);cursor:pointer">📊 Reveal final results</button>
       <span style="font-family:var(--font-body);font-size:0.72rem;color:var(--slate);margin-left:auto" id="adminVoteSummary"></span>
     </div>
 
@@ -318,7 +349,8 @@ let activeTab    = "Small";
 
 // Deliberation state (localStorage)
 let notes  = {};  // { filmId: [ { author, text, time } ] }
-let votes  = {};  // { filmId: [jurorName, ...] }
+let votes  = {};  // { jurorName: { rank1: filmId, rank2: filmId, rank3: filmId } }
+// votes[jurorName].rank1/rank2/rank3 = filmId
 
 // ─── GATE ─────────────────────────────────────────────────────────────────────
 function checkGate() {
@@ -353,6 +385,15 @@ document.getElementById("gatePassInput").addEventListener("keydown", e => { if(e
 document.getElementById("gateNameInput").addEventListener("keydown", e => { if(e.key==="Enter") document.getElementById("gatePassInput").focus(); });
 
 // ─── FILE HANDLING ────────────────────────────────────────────────────────────
+function onUploadDragOver(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('uploadBox').classList.add('drag-over');
+}
+function onUploadDragLeave(e) {
+  e.preventDefault();
+  document.getElementById('uploadBox').classList.remove('drag-over');
+}
 function handleFileDrop(e) {
   e.preventDefault();
   document.getElementById("uploadBox").classList.remove("drag-over");
@@ -413,7 +454,9 @@ function processData() {
     const genre = cat.replace(/^(micro|small)\s+short\s*/i,"").trim();
 
     if (!films[id]) {
-      films[id] = { id, title, cat, size, genre, judges: [] };
+      // Try to build a FilmFreeway watch URL from tracking number
+      const watchUrl = id ? `https://filmfreeway.com/submissions/${id}` : "";
+      films[id] = { id, title, cat, size, genre, judges: [], watchUrl };
     }
 
     const judgeFirst = get(row,"First Name");
@@ -437,7 +480,6 @@ function processData() {
       pacing:         parseFloat(get(row,"Pacing (did the length of the film feel appropriate for the content)"))||0,
       structure:      parseFloat(get(row,"Structure (storytelling, editing, overall make of the film for the story you think they were trying to tell)"))||0,
       sound:          parseFloat(get(row,"Sound / Music"))||0,
-      recommendation: get(row,"Recommendation"),
       comment:        get(row,"Comment"),
       panelNote:      get(row,"If you'd like to call out any additional notes for the judges panel to consider, please include here. (Optional)"),
     });
@@ -519,15 +561,54 @@ function addNote(filmId, text) {
   flashToast("Note added ✓");
 }
 
-function toggleVote(filmId) {
-  if (!votes[filmId]) votes[filmId] = [];
-  const idx = votes[filmId].indexOf(jurorName);
-  if (idx >= 0) votes[filmId].splice(idx, 1);
-  else votes[filmId].push(jurorName);
+function setRank(filmId, rank) {
+  if (!votes[jurorName]) votes[jurorName] = {};
+  const myVotes = votes[jurorName];
+  // If this film already has this rank, remove it
+  if (myVotes[`rank${rank}`] === filmId) {
+    delete myVotes[`rank${rank}`];
+    saveState();
+    rerenderAllCards();
+    flashToast(`Rank #${rank} removed`);
+    return;
+  }
+  // If this film already has a different rank, remove that
+  [1,2,3].forEach(r => { if (myVotes[`rank${r}`] === filmId) delete myVotes[`rank${r}`]; });
+  // If another film has this rank, clear it
+  if (myVotes[`rank${rank}`]) delete myVotes[`rank${rank}`];
+  myVotes[`rank${rank}`] = filmId;
   saveState();
-  renderFilmCard(filmId);
+  rerenderAllCards();
+  flashToast(`Ranked #${rank} ✓`);
   updateAdminSummary();
-  flashToast(idx >= 0 ? "Vote removed" : "Vote cast ✓");
+}
+
+function getMyRankForFilm(filmId) {
+  const myVotes = votes[jurorName]||{};
+  for (let r=1;r<=3;r++) { if (myVotes[`rank${r}`]===filmId) return r; }
+  return null;
+}
+
+function getVotePoints(filmId) {
+  // Sum points across all jurors: rank1=3pts, rank2=2pts, rank3=1pt
+  let points = 0;
+  Object.values(votes).forEach(jvotes => {
+    if (jvotes.rank1 === filmId) points += 3;
+    if (jvotes.rank2 === filmId) points += 2;
+    if (jvotes.rank3 === filmId) points += 1;
+  });
+  return points;
+}
+
+function getVoterCount(filmId) {
+  return Object.values(votes).filter(jv => [jv.rank1,jv.rank2,jv.rank3].includes(filmId)).length;
+}
+
+function rerenderAllCards() {
+  const cat = contenders[activeTab]||[];
+  cat.forEach(c => renderFilmCard(c.id));
+  renderSummary();
+  updateAdminSummary();
 }
 
 // ─── RENDER ───────────────────────────────────────────────────────────────────
@@ -607,7 +688,7 @@ function renderContenders() {
     btn.addEventListener("click", () => {
       const id = btn.dataset.id;
       const bd = document.getElementById(`breakdown-${id}`);
-      if (bd) { bd.style.display = bd.style.display==="none"?"table":"none"; btn.textContent = bd.style.display==="none"?"Show scores":"Hide scores"; }
+      if (bd) { bd.style.display = bd.style.display==="none"?"table":"none"; btn.textContent = bd.style.display==="none"?"Show individual scores":"Hide scores"; }
     });
   });
 }
@@ -629,7 +710,6 @@ function filmCardHTML(filmId, type) {
       <td>${esc(j.name)}</td>
       <td class="score-num ${cls}">${sc}</td>
       <td style="font-size:0.68rem;color:var(--slate)">${j.originality}/${j.production}/${j.creativity}/${j.entertainment}</td>
-      <td style="font-size:0.68rem;color:var(--slate)">${j.recommendation||""}</td>
     </tr>
     ${j.comment?`<tr class="judge-comment-row"><td colspan="4">💬 ${esc(j.comment)}</td></tr>`:""}
     ${j.panelNote?`<tr class="panel-note-row"><td colspan="4">📌 Panel note: ${esc(j.panelNote)}</td></tr>`:""}`;
@@ -658,20 +738,20 @@ function filmCardHTML(filmId, type) {
     <div class="card-jury-meta">
       <span class="contender-tag ${type==="top5"?"tag-top5":"tag-wildcard"}">${type==="top5"?"Top contender":"Wildcard — judge's pick"}</span>
       <span style="font-family:var(--font-display);font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate)">${esc(f.cat)}</span>
+      ${f.watchUrl?`<a href="${esc(f.watchUrl)}" target="_blank" rel="noopener" style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--denim);text-decoration:none;margin-left:auto">▶ Watch film</a>`:""}
     </div>
 
     <div class="score-breakdown">
       <div class="breakdown-header">
         <span>Judge scores — avg / orig / prod / cre / ent</span>
-        <button class="breakdown-toggle" data-id="${filmId}">Hide scores</button>
+        <button class="breakdown-toggle" data-id="${filmId}">Show individual scores</button>
       </div>
-      <table class="judge-scores-table" id="breakdown-${filmId}">
+      <table class="judge-scores-table" id="breakdown-${filmId}" style="display:none">
         <thead><tr>
           <td style="color:var(--slate);font-size:0.65rem;font-weight:700">Judge</td>
           <td style="color:var(--slate);font-size:0.65rem;font-weight:700;text-align:center">Avg</td>
           <td style="color:var(--slate);font-size:0.65rem;font-weight:700">Orig/Prod/Cre/Ent</td>
-          <td style="color:var(--slate);font-size:0.65rem;font-weight:700">Rec</td>
-        </tr></thead>
+            </tr></thead>
         <tbody>${judgeRows}</tbody>
       </table>
     </div>
@@ -687,10 +767,12 @@ function filmCardHTML(filmId, type) {
 
     <div class="vote-section">
       <div>
-        <div class="vote-count">Votes: <strong>${myVotes.length}</strong></div>
-        ${voteNames}
+        <div class="vote-count">Points: <strong>${getVotePoints(filmId)}</strong> &nbsp;·&nbsp; Ranked by <strong>${getVoterCount(filmId)}</strong> juror${getVoterCount(filmId)!==1?"s":""}</div>
+        <div class="vote-names" style="margin-top:2px;font-size:0.65rem;color:var(--slate)" id="vote-names-${filmId}"></div>
       </div>
-      <button class="vote-btn ${hasVoted?"voted":""}" data-id="${filmId}">${hasVoted?"✓ Voted for this film":"Vote for this film"}</button>
+      <div style="display:flex;gap:5px">
+        ${[1,2,3].map(r=>`<button class="vote-btn rank-btn${getMyRankForFilm(filmId)===r?" voted":""}" data-id="${filmId}" data-rank="${r}" onclick="setRank('${filmId}',${r})">#${r}</button>`).join("")}
+      </div>
     </div>
   </div>`;
 }
@@ -707,13 +789,13 @@ function renderFilmCard(filmId) {
       if (ta) { addNote(btn.dataset.id, ta.value); ta.value = ""; }
     });
   });
-  document.getElementById(`card-${filmId}`)?.querySelectorAll(".vote-btn").forEach(btn => {
-    btn.addEventListener("click", () => toggleVote(btn.dataset.id));
+  document.getElementById(`card-${filmId}`)?.querySelectorAll(".rank-btn").forEach(btn => {
+    btn.addEventListener("click", () => setRank(btn.dataset.id, parseInt(btn.dataset.rank)));
   });
   document.getElementById(`card-${filmId}`)?.querySelectorAll(".breakdown-toggle").forEach(btn => {
     btn.addEventListener("click", () => {
       const bd = document.getElementById(`breakdown-${btn.dataset.id}`);
-      if (bd) { bd.style.display = bd.style.display==="none"?"table":"none"; btn.textContent = bd.style.display==="none"?"Show scores":"Hide scores"; }
+      if (bd) { bd.style.display = bd.style.display==="none"?"table":"none"; btn.textContent = bd.style.display==="none"?"Show individual scores":"Hide scores"; }
     });
   });
   renderSummary();
@@ -724,8 +806,8 @@ function updateAdminSummary() {
   const cat = contenders[activeTab]||[];
   const voteMap = {};
   cat.forEach(c => {
-    const v = votes[c.id]||[];
-    if (v.length) voteMap[films[c.id]?.title||c.id] = v.length;
+    const pts = getVotePoints(c.id);
+    if (pts) voteMap[films[c.id]?.title||c.id] = pts;
   });
   const sorted = Object.entries(voteMap).sort((a,b)=>b[1]-a[1]);
   document.getElementById("adminVoteSummary").textContent = sorted.length
@@ -753,8 +835,8 @@ function revealResults() {
   const cat = contenders[activeTab]||[];
   const tally = cat.map(c => ({
     title: films[c.id]?.title||c.id,
-    votes: (votes[c.id]||[]).length,
-    voters: (votes[c.id]||[]).join(", ")
+    votes: getVotePoints(c.id),
+    voters: Object.entries(votes).filter(([,jv])=>[jv.rank1,jv.rank2,jv.rank3].includes(c.id)).map(([n,jv])=>`${n}(#${[jv.rank1,jv.rank2,jv.rank3].indexOf(c.id)+1})`).join(", ")
   })).sort((a,b)=>b.votes-a.votes);
   alert("VOTE RESULTS — " + activeTab + " Shorts\n\n" + tally.map((t,i)=>`${i+1}. ${t.title} — ${t.votes} vote${t.votes!==1?"s":""} (${t.voters||"none"})`).join("\n"));
 }
@@ -770,8 +852,7 @@ function exportDeliberation() {
       const f = films[c.id]; if (!f) return;
       lines.push(`${i+1}. ${f.title} (${c.type==="top5"?"Top contender":"Wildcard"})`);
       lines.push(`   Average: ${f.allJudgesAvg.toFixed(1)} · Rated by ${f.ratedByCount} judges`);
-      const vList = votes[c.id]||[];
-      lines.push(`   Votes: ${vList.length} (${vList.join(", ")||"none"})`);
+      lines.push(`   Points: ${getVotePoints(c.id)} · Voters: ${Object.entries(votes).filter(([,jv])=>[jv.rank1,jv.rank2,jv.rank3].includes(c.id)).map(([n,jv])=>`${n}(#${[jv.rank1,jv.rank2,jv.rank3].indexOf(c.id)+1})`).join(", ")||"none"}`);
       f.judges.sort((a,b)=>b.avgRating-a.avgRating).forEach(j => {
         lines.push(`   ${j.name}: ${j.avgRating} avg`);
         if (j.comment) lines.push(`     Comment: ${j.comment}`);
