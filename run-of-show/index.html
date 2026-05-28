@@ -21,7 +21,7 @@
   /* ── Main layout ── */
   .builder-layout {
     display: grid;
-    grid-template-columns: 320px 1fr;
+    grid-template-columns: 380px 1fr;
     gap: 0;
     height: calc(100vh - 80px);
   }
@@ -41,7 +41,7 @@
   }
   .pool-header h2 {
     font-family: var(--font-display);
-    font-size: 0.75rem;
+    font-size: 0.98rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--offwhite);
@@ -49,7 +49,7 @@
   }
   .pool-stats {
     font-family: var(--font-body);
-    font-size: 0.72rem;
+    font-size: 0.94rem;
     color: var(--denim);
   }
   .pool-filters {
@@ -62,7 +62,7 @@
   }
   .pool-filter-btn {
     font-family: var(--font-display);
-    font-size: 0.55rem;
+    font-size: 0.94rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     padding: 3px 8px;
@@ -114,7 +114,7 @@
   }
   .act-title-input {
     font-family: var(--font-display);
-    font-size: 0.82rem;
+    font-size: 1.07rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--offwhite);
@@ -133,18 +133,18 @@
   }
   .act-stat {
     font-family: var(--font-display);
-    font-size: 0.55rem;
+    font-size: 0.94rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--denim);
     white-space: nowrap;
   }
-  .act-stat strong { color: white; font-size: 0.65rem; }
+  .act-stat strong { color: white; font-size: 1.43rem; }
   .act-runtime { color: var(--rose) !important; }
   .act-runtime strong { color: white !important; }
 
   .act-dropzone {
-    min-height: 80px;
+    min-height: 140px;
     border: 2px dashed var(--border);
     border-top: none;
     border-radius: 0 0 var(--radius) var(--radius);
@@ -162,7 +162,7 @@
     justify-content: center;
     color: var(--slate);
     font-family: var(--font-display);
-    font-size: 0.55rem;
+    font-size: 0.94rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
@@ -172,7 +172,7 @@
     background: var(--denim);
     color: var(--navy);
     font-family: var(--font-display);
-    font-size: 0.65rem;
+    font-size: 1.43rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     font-weight: 700;
@@ -191,37 +191,38 @@
     background: white;
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 0.5rem 0.65rem;
-    margin-bottom: 4px;
+    padding: 0.75rem 0.85rem;
+    margin-bottom: 6px;
     cursor: grab;
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.75rem;
     transition: box-shadow 0.12s, transform 0.1s;
     user-select: none;
     position: relative;
   }
   .film-card-ros:hover { box-shadow: var(--shadow); }
   .film-card-ros.dragging { opacity: 0.5; transform: scale(0.98); cursor: grabbing; }
-  .film-card-ros.drag-over-top    { border-top: 2px solid var(--denim); }
-  .film-card-ros.drag-over-bottom { border-bottom: 2px solid var(--denim); }
+  .film-card-ros.drag-over-top    { border-top: 3px solid var(--denim); }
+  .film-card-ros.drag-over-bottom { border-bottom: 3px solid var(--denim); }
 
-  /* Size color strip on left */
-  .film-card-ros.micro { border-left: 3px solid var(--denim); }
-  .film-card-ros.small { border-left: 3px solid var(--slate); }
-  .film-card-ros.maybe-film { border-left: 3px solid #b8860b; }
+  /* Micro = light rose bg + rose left strip. Small = light slate bg + slate left strip */
+  .film-card-ros.micro { border-left: 4px solid var(--rose); background: rgba(201,84,106,0.04); }
+  .film-card-ros.small { border-left: 4px solid var(--slate); background: rgba(84,110,133,0.05); }
+  .film-card-ros.maybe-film.micro { border-left: 4px solid var(--rose); background: rgba(184,134,11,0.07); }
+  .film-card-ros.maybe-film.small { border-left: 4px solid var(--slate); background: rgba(184,134,11,0.07); }
 
   .card-thumb {
-    width: 48px;
-    height: 34px;
+    width: 64px;
+    height: 44px;
     border-radius: 3px;
     object-fit: cover;
     flex-shrink: 0;
     background: var(--border);
   }
   .card-thumb-placeholder {
-    width: 48px;
-    height: 34px;
+    width: 64px;
+    height: 44px;
     border-radius: 3px;
     background: var(--navy);
     flex-shrink: 0;
@@ -229,7 +230,7 @@
     align-items: center;
     justify-content: center;
     font-family: var(--font-display);
-    font-size: 0.45rem;
+    font-size: 0.98rem;
     color: var(--denim);
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -238,7 +239,7 @@
   .card-info { flex: 1; min-width: 0; }
   .card-title-ros {
     font-family: var(--font-title);
-    font-size: 0.82rem;
+    font-size: 1.07rem;
     font-weight: 500;
     color: var(--navy);
     white-space: nowrap;
@@ -248,7 +249,7 @@
   }
   .card-meta-ros {
     font-family: var(--font-body);
-    font-size: 0.65rem;
+    font-size: 1.43rem;
     color: var(--slate);
     white-space: nowrap;
     overflow: hidden;
@@ -264,26 +265,26 @@
   }
   .card-runtime {
     font-family: var(--font-display);
-    font-size: 0.62rem;
+    font-size: 1.04rem;
     font-weight: 700;
     color: var(--navy);
   }
   .size-badge {
     font-family: var(--font-display);
-    font-size: 0.45rem;
+    font-size: 0.98rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     padding: 2px 5px;
     border-radius: 2px;
     font-weight: 700;
   }
-  .size-micro { background: rgba(158,199,213,0.25); color: var(--navy); }
-  .size-small { background: rgba(84,110,133,0.15); color: var(--slate); }
-  .size-maybe { background: rgba(184,134,11,0.15); color: #7a5700; }
+  .size-micro { background: rgba(201,84,106,0.12); color: var(--rose); }
+  .size-small { background: rgba(84,110,133,0.12); color: var(--slate); }
+  .size-maybe-tag { color: rgba(1,22,50,0.3); font-family: var(--font-body); font-size: 0.7rem; font-style: italic; font-weight: 400; letter-spacing: 0; text-transform: none; }
 
   .slot-number {
     font-family: var(--font-display);
-    font-size: 0.55rem;
+    font-size: 0.94rem;
     color: var(--slate);
     min-width: 18px;
     text-align: right;
@@ -298,7 +299,7 @@
     border: none;
     cursor: pointer;
     color: var(--border-mid);
-    font-size: 0.7rem;
+    font-size: 0.91rem;
     line-height: 1;
     padding: 1px 3px;
     border-radius: 2px;
@@ -319,13 +320,13 @@
   }
   .total-stat {
     font-family: var(--font-display);
-    font-size: 0.58rem;
+    font-size: 0.98rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--denim);
     white-space: nowrap;
   }
-  .total-stat strong { color: white; font-size: 0.7rem; }
+  .total-stat strong { color: white; font-size: 0.91rem; }
   .total-stat.runtime strong { color: var(--rose); }
 
   /* ── Film detail panel (slide in) ── */
@@ -354,13 +355,13 @@
     gap: 1.25rem; z-index: 9999;
   }
   .gate-form { display:flex;flex-direction:column;gap:0.65rem;width:100%;max-width:280px; }
-  .gate-field-label { font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--denim);margin-bottom:3px;display:block; }
+  .gate-field-label { font-family:var(--font-display);font-size:1.04rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--denim);margin-bottom:3px;display:block; }
   .gate-input { background:rgba(255,255,255,0.08);border:1px solid rgba(158,199,213,0.4);color:white;font-family:var(--font-body);font-size:1rem;padding:10px 14px;border-radius:var(--radius);width:100%;outline:none; }
   .gate-input:focus { border-color:var(--denim); }
   .gate-input::placeholder { color:rgba(255,255,255,0.3); }
-  .gate-error { color:var(--rose);font-size:0.78rem;font-family:var(--font-body);min-height:1.2em; }
+  .gate-error { color:var(--rose);font-size:1.01rem;font-family:var(--font-body);min-height:1.2em; }
 
-  .save-toast { position:fixed;bottom:1.5rem;right:1.5rem;background:var(--navy);color:#3dffc0;font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;padding:10px 16px;border-radius:var(--radius);border:1px solid #3dffc0;opacity:0;transform:translateY(8px);transition:all 0.2s;z-index:300;pointer-events:none; }
+  .save-toast { position:fixed;bottom:1.5rem;right:1.5rem;background:var(--navy);color:#3dffc0;font-family:var(--font-display);font-size:0.98rem;letter-spacing:0.1em;text-transform:uppercase;padding:10px 16px;border-radius:var(--radius);border:1px solid #3dffc0;opacity:0;transform:translateY(8px);transition:all 0.2s;z-index:300;pointer-events:none; }
   .save-toast.show { opacity:1;transform:translateY(0); }
 
   /* Drag ghost */
@@ -381,9 +382,9 @@
     <img src="https://greggjaffe.com/brand-guide/images/BTSSFF_shorts-nolegs-logo_2025.png"
          alt="BTSSFF" style="height:80px;width:auto;">
     <div>
-      <div style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.2em;color:var(--denim);text-transform:uppercase;margin-bottom:6px">Big Teeth Small Shorts Film Fest</div>
-      <h1 style="font-size:2rem;letter-spacing:-0.02em;color:var(--offwhite)">Run of Show Builder</h1>
-      <p style="color:var(--denim);font-family:var(--font-body);font-size:0.9rem;margin-top:4px">Enter the team access code</p>
+      <div style="font-family:var(--font-display);font-size:1.43rem;letter-spacing:0.2em;color:var(--denim);text-transform:uppercase;margin-bottom:6px">Big Teeth Small Shorts Film Fest</div>
+      <h1 style="font-size:2.2rem;letter-spacing:-0.02em;color:var(--offwhite)">Run of Show Builder</h1>
+      <p style="color:var(--denim);font-family:var(--font-body);font-size:1.17rem;margin-top:4px">Enter the team access code</p>
     </div>
   </div>
   <div class="gate-form">
@@ -402,15 +403,15 @@
     <img src="https://greggjaffe.com/brand-guide/images/BTSSFF_shorts-nolegs-logo_2025.png"
          alt="BTSSFF Logo" style="height:48px;width:auto;flex-shrink:0">
     <div>
-      <div style="font-family:var(--font-display);font-size:0.75rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--denim);margin-bottom:3px">Big Teeth Small Shorts Film Fest</div>
-      <h1 style="font-size:1.8rem;letter-spacing:-0.02em;color:var(--offwhite);line-height:1">Run of Show Builder</h1>
+      <div style="font-family:var(--font-display);font-size:0.98rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--denim);margin-bottom:3px">Big Teeth Small Shorts Film Fest</div>
+      <h1 style="font-size:2.2rem;letter-spacing:-0.02em;color:var(--offwhite);line-height:1">Run of Show Builder</h1>
     </div>
     <div style="width:2px;height:40px;background:var(--rose);flex-shrink:0"></div>
   </div>
   <div class="header-actions">
-    <button class="btn btn-ghost" onclick="saveToStorage()" style="font-size:0.55rem">💾 Save</button>
-    <button class="btn btn-ghost" onclick="exportRunSheet()" style="font-size:0.55rem">Export Run Sheet</button>
-    <button class="btn btn-ghost" onclick="exportWixCSV()" style="font-size:0.55rem">Export Wix CSV</button>
+    <button class="btn btn-ghost" onclick="saveToStorage()" style="font-size:0.94rem">💾 Save</button>
+    <button class="btn btn-ghost" onclick="exportRunSheet()" style="font-size:0.94rem">Export Run Sheet</button>
+    <button class="btn btn-ghost" onclick="exportWixCSV()" style="font-size:0.94rem">Export Wix CSV</button>
     <button class="btn btn-denim" onclick="exportUpdatedSheet()">Export Updated Sheet →</button>
   </div>
 </header>
@@ -447,7 +448,7 @@
       <span class="total-stat runtime">Total runtime: <strong id="totalRuntime">0:00</strong></span>
       <span class="total-stat">Micro: <strong id="totalMicro">0</strong></span>
       <span class="total-stat">Small: <strong id="totalSmall">0</strong></span>
-      <span class="total-stat" style="margin-left:auto;color:rgba(158,199,213,0.6);font-size:0.5rem">Target: ~100–105 min total · ~50 min per act</span>
+      <span class="total-stat" style="margin-left:auto;color:rgba(158,199,213,0.6);font-size:1.43rem">Target: ~100–105 min total · ~50 min per act</span>
     </div>
 
     <div class="program-scroll" id="programScroll">
@@ -460,7 +461,11 @@
             <span class="act-stat">Films: <strong id="act1-films">0</strong></span>
             <span class="act-stat">Micro: <strong id="act1-micro">0</strong></span>
             <span class="act-stat">Small: <strong id="act1-small">0</strong></span>
-            <span class="act-stat act-runtime">Runtime: <strong id="act1-runtime">0:00</strong></span>
+            <span class="act-stat act-runtime"><strong id="act1-runtime">0:00</strong></span>
+            <div class="act-progress-wrap">
+              <div class="act-progress-bar"><div class="act-progress-fill" id="act1-bar" style="width:0%"></div></div>
+              <span class="act-progress-label under" id="act1-progress-label">0:00 of 50:00</span>
+            </div>
           </div>
         </div>
         <div class="act-dropzone empty" id="act1"
@@ -482,7 +487,11 @@
             <span class="act-stat">Films: <strong id="act2-films">0</strong></span>
             <span class="act-stat">Micro: <strong id="act2-micro">0</strong></span>
             <span class="act-stat">Small: <strong id="act2-small">0</strong></span>
-            <span class="act-stat act-runtime">Runtime: <strong id="act2-runtime">0:00</strong></span>
+            <span class="act-stat act-runtime"><strong id="act2-runtime">0:00</strong></span>
+            <div class="act-progress-wrap">
+              <div class="act-progress-bar"><div class="act-progress-fill" id="act2-bar" style="width:0%"></div></div>
+              <span class="act-progress-label under" id="act2-progress-label">0:00 of 50:00</span>
+            </div>
           </div>
         </div>
         <div class="act-dropzone empty" id="act2"
@@ -697,7 +706,7 @@ function renderPool() {
 
   const container = document.getElementById("poolList");
   if (!filtered.length) {
-    container.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--slate);font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase">No films here</div>`;
+    container.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--slate);font-family:var(--font-display);font-size:1.01rem;letter-spacing:0.1em;text-transform:uppercase">No films here</div>`;
     return;
   }
   container.innerHTML = filtered.map(id => filmCardHTML(id, "pool", null)).join("");
@@ -742,9 +751,7 @@ function filmCardHTML(id, zone, slotNum) {
   const dec = decisions[id]||"undecided";
   const isMaybe = dec === "maybe";
   const sizeClass = isMaybe ? "maybe-film" : f.size.toLowerCase();
-  const sizeBadge = isMaybe
-    ? `<span class="size-badge size-maybe">Maybe</span>`
-    : f.size === "Micro"
+  const sizeBadge = f.size === "Micro"
     ? `<span class="size-badge size-micro">Micro</span>`
     : `<span class="size-badge size-small">Small</span>`;
 
@@ -762,14 +769,21 @@ function filmCardHTML(id, zone, slotNum) {
     ${thumbHtml}${thumbPlaceholder}
     <div class="card-info">
       <div class="card-title-ros">${esc(f.title)}</div>
-      <div class="card-meta-ros">${esc(f.director)} · ${esc(f.genre)}</div>
+      <div class="card-meta-ros">${esc(f.director)}</div>
+      <div class="card-meta-ros" style="color:rgba(84,110,133,0.7);font-size:0.7rem">${esc(f.location)}</div>
     </div>
     <div class="card-right">
-      <span class="card-runtime">${f.dispMin}</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        ${isMaybe?`<span class="size-maybe-tag">maybe</span>`:""}
+        <span class="card-runtime">${f.dispMin}</span>
+      </div>
+      <span style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--slate);text-align:right">${esc(f.genre)}</span>
       ${sizeBadge}
     </div>
   </div>`;
 }
+
+const TARGET_SECS = 50 * 60; // 50 min target per act
 
 function updateActStats(actId, list) {
   const stats = getStats(list);
@@ -777,6 +791,28 @@ function updateActStats(actId, list) {
   document.getElementById(`${actId}-micro`).textContent   = stats.micro;
   document.getElementById(`${actId}-small`).textContent   = stats.small;
   document.getElementById(`${actId}-runtime`).textContent = fmtSecs(stats.secs);
+
+  // Progress bar
+  const pct = Math.min((stats.secs / TARGET_SECS) * 100, 100);
+  const bar  = document.getElementById(`${actId}-bar`);
+  const lbl  = document.getElementById(`${actId}-progress-label`);
+  if (!bar||!lbl) return;
+  bar.style.width = `${pct}%`;
+  const remaining = TARGET_SECS - stats.secs;
+  if (stats.secs >= TARGET_SECS) {
+    const over = stats.secs - TARGET_SECS;
+    bar.className = "act-progress-fill over";
+    lbl.className = "act-progress-label over";
+    lbl.textContent = `✓ +${fmtSecs(over)} over`;
+  } else if (pct >= 90) {
+    bar.className = "act-progress-fill done";
+    lbl.className = "act-progress-label done";
+    lbl.textContent = `✓ ${fmtSecs(stats.secs)} / 50:00`;
+  } else {
+    bar.className = "act-progress-fill";
+    lbl.className = "act-progress-label under";
+    lbl.textContent = `${fmtSecs(stats.secs)} / 50:00`;
+  }
 }
 
 function updateTotals() {
@@ -925,14 +961,14 @@ function openDetail(filmId) {
   const judges = Object.keys(scores);
 
   const decBadge = dec==="selected"
-    ? `<span style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:#2a7a4b;color:white;padding:3px 10px;border-radius:var(--radius-sm)">✓ Selected</span>`
+    ? `<span style="font-family:var(--font-display);font-size:1.01rem;letter-spacing:0.08em;text-transform:uppercase;background:#2a7a4b;color:white;padding:3px 10px;border-radius:var(--radius-sm)">✓ Selected</span>`
     : dec==="maybe"
-    ? `<span style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:#b8860b;color:white;padding:3px 10px;border-radius:var(--radius-sm)">? Maybe</span>`
+    ? `<span style="font-family:var(--font-display);font-size:1.01rem;letter-spacing:0.08em;text-transform:uppercase;background:#b8860b;color:white;padding:3px 10px;border-radius:var(--radius-sm)">? Maybe</span>`
     : "";
 
   const watch = f.vimeoLink
-    ? `<a href="${esc(f.vimeoLink)}" target="_blank" rel="noopener" style="font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);text-decoration:none;display:flex;align-items:center;gap:5px">▶ Watch film</a>${f.password?`<span style="font-family:var(--font-body);font-size:0.72rem;color:var(--slate);margin-left:auto">Password: <strong>${esc(f.password)}</strong></span>`:""}`
-    : `<span style="opacity:0.4;font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase">No screening link</span>`;
+    ? `<a href="${esc(f.vimeoLink)}" target="_blank" rel="noopener" style="font-family:var(--font-display);font-size:0.88rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);text-decoration:none;display:flex;align-items:center;gap:5px">▶ Watch film</a>${f.password?`<span style="font-family:var(--font-body);font-size:0.94rem;color:var(--slate);margin-left:auto">Password: <strong>${esc(f.password)}</strong></span>`:""}`
+    : `<span style="opacity:0.4;font-family:var(--font-display);font-size:0.88rem;letter-spacing:0.1em;text-transform:uppercase">No screening link</span>`;
 
   const judgeHtml = judges.length
     ? judges.map(j => {
@@ -940,41 +976,42 @@ function openDetail(filmId) {
         const avg = (s.production!==null&&s.entertainment!==null) ? ((s.production+s.entertainment)/2).toFixed(1) : null;
         return `<div style="margin-bottom:0.75rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-            <span style="font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy)">${esc(j)}</span>
-            ${avg!==null?`<span style="font-family:var(--font-display);font-size:0.75rem;font-weight:700;color:var(--rose)">${avg}</span>`:""}
+            <span style="font-family:var(--font-display);font-size:1.04rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy)">${esc(j)}</span>
+            ${avg!==null?`<span style="font-family:var(--font-display);font-size:0.98rem;font-weight:700;color:var(--rose)">${avg}</span>`:""}
           </div>
-          <div style="display:flex;gap:1rem;font-size:0.72rem;color:var(--slate)">
+          <div style="display:flex;gap:1rem;font-size:0.94rem;color:var(--slate)">
             <span>Production: <strong style="color:var(--navy)">${s.production!==null?s.production:"—"}</strong></span>
             <span>Entertainment: <strong style="color:var(--navy)">${s.entertainment!==null?s.entertainment:"—"}</strong></span>
           </div>
-          ${s.notes?`<div style="margin-top:5px;font-family:var(--font-body);font-size:0.75rem;color:var(--slate);background:#f8f9fa;padding:6px 8px;border-radius:var(--radius-sm);border-left:2px solid var(--denim);line-height:1.5;font-style:italic">${esc(s.notes)}</div>`:""}
+          ${s.notes?`<div style="margin-top:5px;font-family:var(--font-body);font-size:0.98rem;color:var(--slate);background:#f8f9fa;padding:6px 8px;border-radius:var(--radius-sm);border-left:2px solid var(--denim);line-height:1.5;font-style:italic">${esc(s.notes)}</div>`:""}
         </div>`;
       }).join("")
-    : `<div style="color:rgba(1,22,50,0.3);font-style:italic;font-size:0.72rem">No scores yet</div>`;
+    : `<div style="color:rgba(1,22,50,0.3);font-style:italic;font-size:0.94rem">No scores yet</div>`;
 
   document.getElementById("detailDrawer").innerHTML = `
     <div style="background:var(--navy);padding:1rem 1.25rem;display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;position:sticky;top:0;z-index:5">
       <div>
-        <div style="font-family:var(--font-title);font-size:1.1rem;font-weight:500;color:var(--offwhite);line-height:1.3;margin-bottom:5px">${esc(f.title)}</div>
+        <div style="font-family:var(--font-title);font-size:1.43rem;font-weight:500;color:var(--offwhite);line-height:1.3;margin-bottom:5px">${esc(f.title)}</div>
         ${decBadge}
       </div>
-      <button onclick="closeDetailBtn()" style="background:none;border:none;color:var(--denim);cursor:pointer;font-size:1.2rem;line-height:1;padding:0;flex-shrink:0">✕</button>
+      <button onclick="closeDetailBtn()" style="background:none;border:none;color:var(--denim);cursor:pointer;font-size:1.56rem;line-height:1;padding:0;flex-shrink:0">✕</button>
     </div>
     <div style="background:#eef3f6;padding:0.6rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem">${watch}</div>
     <div style="background:#f0f4f6;padding:0.5rem 1.25rem;border-bottom:1px solid var(--border);display:flex;gap:1.5rem;align-items:center">
-      <div style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate)">Avg scores</div>
-      ${getOverall(filmId)!==null?`<span style="font-family:var(--font-display);font-weight:700;font-size:0.85rem;color:var(--rose)">${getOverall(filmId)?.toFixed(1)}</span>`:""}
+      <div style="font-family:var(--font-display);font-size:0.94rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate)">Avg scores</div>
+      ${getOverall(filmId)!==null?`<span style="font-family:var(--font-display);font-weight:700;font-size:1.43rem;color:var(--rose)">${getOverall(filmId)?.toFixed(1)}</span>`:""}
     </div>
     ${f.thumb?`<img src="${f.thumb}" alt="" style="width:100%;height:160px;object-fit:cover;border-bottom:1px solid var(--border)" onerror="this.style.display='none'">`: ""}
     <div style="padding:0.85rem 1.25rem;border-bottom:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:0.5rem 1rem">
       ${metaItem("Director", f.director)}
+      ${metaItem("Location", f.location)}
       ${metaItem("Category", f.catRaw)}
       ${metaItem("Runtime",  f.dispMin)}
-      ${metaItem("Location", f.location)}
+      ${f.genre?metaItem("Additional genres", f.genre):""}
     </div>
-    ${f.logLine?`<div style="padding:0.85rem 1.25rem;border-bottom:1px solid var(--border)"><div style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:5px">Log line</div><div style="font-size:0.9rem;font-weight:500;line-height:1.6;color:var(--navy)">${esc(f.logLine)}</div></div>`:""}
+    ${f.logLine?`<div style="padding:0.85rem 1.25rem;border-bottom:1px solid var(--border)"><div style="font-family:var(--font-display);font-size:0.98rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:5px">Log line</div><div style="font-size:1.17rem;font-weight:500;line-height:1.6;color:var(--navy)">${esc(f.logLine)}</div></div>`:""}
     <div style="padding:0.85rem 1.25rem;border-bottom:1px solid var(--border)">
-      <div style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:0.75rem">Judge scores &amp; notes</div>
+      <div style="font-family:var(--font-display);font-size:0.98rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:0.75rem">Judge scores &amp; notes</div>
       ${judgeHtml}
     </div>`;
 
@@ -982,7 +1019,7 @@ function openDetail(filmId) {
 }
 
 function metaItem(label, val) {
-  return `<div><div style="font-family:var(--font-display);font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:2px">${label}</div><div style="font-family:var(--font-body);font-size:0.8rem;color:var(--navy)">${esc(val||"—")}</div></div>`;
+  return `<div><div style="font-family:var(--font-display);font-size:0.88rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:2px">${label}</div><div style="font-family:var(--font-body);font-size:1.04rem;color:var(--navy)">${esc(val||"—")}</div></div>`;
 }
 
 function closeDetail(e) {
