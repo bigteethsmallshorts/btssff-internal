@@ -62,13 +62,14 @@
     border-bottom: 2px solid var(--denim);
   }
   .cat-tab {
-    font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;
-    padding: 10px 20px; border: none; background: none; cursor: pointer;
-    color: var(--slate); border-bottom: 3px solid transparent; margin-bottom: -2px;
-    transition: all 0.15s;
+    font-family:var(--font-display);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;
+    padding: 11px 24px; border: 1px solid var(--border); background: #f0f0f0; cursor: pointer;
+    color: var(--slate); margin-right: 4px; border-radius: var(--radius) var(--radius) 0 0;
+    transition: all 0.15s; border-bottom: none; margin-bottom: -1px;
   }
-  .cat-tab:hover { color: var(--navy); }
-  .cat-tab.active { color: var(--navy); border-bottom-color: var(--rose); font-weight: 700; }
+  .cat-tab:hover { background: #e0e8f0; color: var(--navy); }
+  .cat-tab.active.micro-tab { background: rgba(201,84,106,0.12); color: var(--navy); border-color: var(--rose); border-bottom: 2px solid white; font-weight: 700; }
+  .cat-tab.active.small-tab { background: rgba(84,110,133,0.12); color: var(--navy); border-color: var(--slate); border-bottom: 2px solid white; font-weight: 700; }
 
   /* ── Summary stats — compact inline strip ── */
   .summary-bar {
@@ -717,7 +718,7 @@ function toggleCardBody(filmId) {
   if (!body) return;
   const isOpen = body.style.display !== "none";
   body.style.display = isOpen ? "none" : "block";
-  if (lbl) lbl.textContent = isOpen ? "▼ expand" : "▲ collapse";
+  if (lbl) lbl.textContent = isOpen ? "▼ Details" : "▲ Collapse";
 }
 
 function getExpandedCards() {
@@ -805,7 +806,7 @@ function rerenderAllCards() {
       newCard.querySelectorAll(".breakdown-toggle").forEach(btn => {
         btn.addEventListener("click", () => {
           const bd = document.getElementById(`breakdown-${btn.dataset.id}`);
-          if (bd) { bd.style.display = bd.style.display==="none"?"table":"none"; btn.textContent = bd.style.display==="none"?"Show individual scores":"Hide scores"; }
+          if (bd) { bd.style.display = bd.style.display==="none"?"table":"none"; btn.textContent = bd.style.display==="none"?"▶ Show scores":"▼ Hide scores"; }
         });
       });
     }
@@ -825,8 +826,8 @@ function render() {
 function renderTabs() {
   const tabs = Object.keys(contenders);
   document.getElementById("catTabs").innerHTML = tabs.map(cat =>
-    `<button class="cat-tab ${cat===activeTab?"active":""}" onclick="setTab('${cat}')">${cat} Shorts
-      <span style="font-size:0.5rem;opacity:0.7"> (${contenders[cat].length} contenders)</span>
+    `<button class="cat-tab ${cat===activeTab?"active":""} ${cat.toLowerCase()}-tab" onclick="setTab('${cat}')">${cat} Shorts
+      <span style="font-size:0.6rem;opacity:0.7;margin-left:4px">${contenders[cat].length} films</span>
     </button>`
   ).join("");
 }
