@@ -207,10 +207,10 @@
   .film-card-ros.drag-over-bottom { border-bottom: 3px solid var(--denim); }
 
   /* Micro = light rose bg + rose left strip. Small = light slate bg + slate left strip */
-  .film-card-ros.micro { border-left: 4px solid var(--rose); background: rgba(201,84,106,0.04); }
-  .film-card-ros.small { border-left: 4px solid var(--slate); background: rgba(84,110,133,0.05); }
-  .film-card-ros.maybe-film.micro { border-left: 4px solid var(--rose); background: rgba(184,134,11,0.07); }
-  .film-card-ros.maybe-film.small { border-left: 4px solid var(--slate); background: rgba(184,134,11,0.07); }
+  .film-card-ros.micro { border-left: 4px solid var(--rose); background: rgba(201,84,106,0.09); }
+  .film-card-ros.small { border-left: 4px solid var(--slate); background: rgba(84,110,133,0.09); }
+  .film-card-ros.maybe-film.micro { border-left: 4px solid var(--rose); background: rgba(201,84,106,0.09); }
+  .film-card-ros.maybe-film.small { border-left: 4px solid var(--slate); background: rgba(84,110,133,0.09); }
 
   .card-thumb {
     width: 64px;
@@ -239,7 +239,7 @@
   .card-info { flex: 1; min-width: 0; }
   .card-title-ros {
     font-family: var(--font-title);
-    font-size: 1.07rem;
+    font-size: 1.15rem;
     font-weight: 500;
     color: var(--navy);
     white-space: nowrap;
@@ -249,7 +249,7 @@
   }
   .card-meta-ros {
     font-family: var(--font-body);
-    font-size: 1.43rem;
+    font-size: 0.8rem;
     color: var(--slate);
     white-space: nowrap;
     overflow: hidden;
@@ -408,11 +408,11 @@
     </div>
     <div style="width:2px;height:40px;background:var(--rose);flex-shrink:0"></div>
   </div>
-  <div class="header-actions">
-    <button class="btn btn-ghost" onclick="saveToStorage()" style="font-size:0.94rem">💾 Save</button>
-    <button class="btn btn-ghost" onclick="exportRunSheet()" style="font-size:0.94rem">Export Run Sheet</button>
-    <button class="btn btn-ghost" onclick="exportWixCSV()" style="font-size:0.94rem">Export Wix CSV</button>
-    <button class="btn btn-denim" onclick="exportUpdatedSheet()">Export Updated Sheet →</button>
+  <div class="header-actions" style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+    <button class="btn btn-ghost" onclick="saveToStorage()" style="font-size:0.65rem;padding:7px 12px;border-color:rgba(158,199,213,0.4);color:var(--denim)">💾 Save</button>
+    <button class="btn btn-ghost" onclick="exportRunSheet()" style="font-size:0.65rem;padding:7px 12px;border-color:rgba(158,199,213,0.4);color:var(--denim)">Export Run Sheet</button>
+    <button class="btn btn-ghost" onclick="exportWixCSV()" style="font-size:0.65rem;padding:7px 12px;border-color:rgba(158,199,213,0.4);color:var(--denim)">Export Wix CSV</button>
+    <button class="btn btn-denim" onclick="exportUpdatedSheet()" style="font-size:0.65rem;padding:7px 14px">Export Updated Sheet →</button>
   </div>
 </header>
 
@@ -444,11 +444,17 @@
 
     <!-- Totals bar -->
     <div class="totals-bar" id="totalsBar">
-      <span class="total-stat">Total films: <strong id="totalFilms">0</strong></span>
-      <span class="total-stat runtime">Total runtime: <strong id="totalRuntime">0:00</strong></span>
+      <span class="total-stat">Films: <strong id="totalFilms">0</strong></span>
+      <span class="total-stat runtime">Runtime: <strong id="totalRuntime">0:00</strong></span>
       <span class="total-stat">Micro: <strong id="totalMicro">0</strong></span>
       <span class="total-stat">Small: <strong id="totalSmall">0</strong></span>
-      <span class="total-stat" style="margin-left:auto;color:rgba(158,199,213,0.6);font-size:1.43rem">Target: ~100–105 min total · ~50 min per act</span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <span style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--denim)">Total progress</span>
+        <div style="width:160px;height:10px;background:rgba(255,255,255,0.15);border-radius:5px;overflow:hidden">
+          <div id="totalBar" style="height:100%;border-radius:5px;background:var(--denim);transition:width 0.3s,background 0.3s;width:0%"></div>
+        </div>
+        <span id="totalProgressLabel" style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--denim);white-space:nowrap">0:00 / ~100:00</span>
+      </div>
     </div>
 
     <div class="program-scroll" id="programScroll">
@@ -461,7 +467,7 @@
             <span class="act-stat">Films: <strong id="act1-films">0</strong></span>
             <span class="act-stat">Micro: <strong id="act1-micro">0</strong></span>
             <span class="act-stat">Small: <strong id="act1-small">0</strong></span>
-            <span class="act-stat act-runtime"><strong id="act1-runtime">0:00</strong></span>
+            <span class="act-stat act-runtime">Runtime: <strong id="act1-runtime">0:00</strong></span>
             <div class="act-progress-wrap">
               <div class="act-progress-bar"><div class="act-progress-fill" id="act1-bar" style="width:0%"></div></div>
               <span class="act-progress-label under" id="act1-progress-label">0:00 of 50:00</span>
@@ -487,7 +493,7 @@
             <span class="act-stat">Films: <strong id="act2-films">0</strong></span>
             <span class="act-stat">Micro: <strong id="act2-micro">0</strong></span>
             <span class="act-stat">Small: <strong id="act2-small">0</strong></span>
-            <span class="act-stat act-runtime"><strong id="act2-runtime">0:00</strong></span>
+            <span class="act-stat act-runtime">Runtime: <strong id="act2-runtime">0:00</strong></span>
             <div class="act-progress-wrap">
               <div class="act-progress-bar"><div class="act-progress-fill" id="act2-bar" style="width:0%"></div></div>
               <span class="act-progress-label under" id="act2-progress-label">0:00 of 50:00</span>
@@ -750,7 +756,7 @@ function filmCardHTML(id, zone, slotNum) {
   const f = getFilm(id); if (!f) return "";
   const dec = decisions[id]||"undecided";
   const isMaybe = dec === "maybe";
-  const sizeClass = isMaybe ? "maybe-film" : f.size.toLowerCase();
+  const sizeClass = `${f.size.toLowerCase()}${isMaybe?" maybe-film":""}`;
   const sizeBadge = f.size === "Micro"
     ? `<span class="size-badge size-micro">Micro</span>`
     : `<span class="size-badge size-small">Small</span>`;
@@ -770,15 +776,14 @@ function filmCardHTML(id, zone, slotNum) {
     <div class="card-info">
       <div class="card-title-ros">${esc(f.title)}</div>
       <div class="card-meta-ros">${esc(f.director)}</div>
-      <div class="card-meta-ros" style="color:rgba(84,110,133,0.7);font-size:0.7rem">${esc(f.location)}</div>
+      <div class="card-meta-ros" style="color:rgba(84,110,133,0.65);font-size:0.72rem">${esc(f.location)}</div>
     </div>
     <div class="card-right">
-      <div style="display:flex;align-items:center;gap:6px">
-        ${isMaybe?`<span class="size-maybe-tag">maybe</span>`:""}
-        <span class="card-runtime">${f.dispMin}</span>
+      <span class="card-runtime">${f.dispMin}</span>
+      <div style="display:flex;align-items:center;gap:5px">
+        ${isMaybe?`<span style="font-family:var(--font-body);font-size:0.65rem;color:rgba(1,22,50,0.35);font-style:italic">maybe ·</span>`:""}
+        <span style="font-family:var(--font-display);font-size:0.72rem;letter-spacing:0.05em;text-transform:uppercase;color:var(--slate)">${esc(f.genre)}</span>
       </div>
-      <span style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--slate);text-align:right">${esc(f.genre)}</span>
-      ${sizeBadge}
     </div>
   </div>`;
 }
@@ -815,6 +820,8 @@ function updateActStats(actId, list) {
   }
 }
 
+const TOTAL_TARGET_SECS = 102 * 60; // ~102 min total target
+
 function updateTotals() {
   const all = [...act1, ...act2];
   const stats = getStats(all);
@@ -822,6 +829,22 @@ function updateTotals() {
   document.getElementById("totalRuntime").textContent = fmtSecs(stats.secs);
   document.getElementById("totalMicro").textContent   = stats.micro;
   document.getElementById("totalSmall").textContent   = stats.small;
+  // Total progress bar
+  const bar = document.getElementById("totalBar");
+  const lbl = document.getElementById("totalProgressLabel");
+  if (bar && lbl) {
+    const pct = Math.min((stats.secs / TOTAL_TARGET_SECS) * 100, 100);
+    bar.style.width = `${pct}%`;
+    if (stats.secs >= TOTAL_TARGET_SECS) {
+      bar.style.background = "#3dffc0";
+      lbl.style.color = "#3dffc0";
+      lbl.textContent = `✓ ${fmtSecs(stats.secs)} / ~102:00`;
+    } else {
+      bar.style.background = "var(--denim)";
+      lbl.style.color = "var(--denim)";
+      lbl.textContent = `${fmtSecs(stats.secs)} / ~102:00`;
+    }
+  }
   updateActStats("act1", act1);
   updateActStats("act2", act2);
 }
