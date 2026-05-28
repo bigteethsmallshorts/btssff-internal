@@ -261,20 +261,41 @@
 </header>
 
 <!-- Upload screen -->
-<div id="uploadScreen" class="upload-screen">
-  <div style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--slate);margin-bottom:1rem">Step 1 of 2</div>
-  <h2 style="font-family:var(--font-display);font-size:1.3rem;letter-spacing:0.05em;text-transform:uppercase;color:var(--navy);margin-bottom:0.5rem">Upload FilmFreeway Ratings Export</h2>
-  <p style="font-family:var(--font-body);font-size:0.88rem;color:var(--slate);margin-bottom:2rem">Export the ratings CSV from FilmFreeway and drop it here. All processing happens in your browser — nothing is uploaded anywhere.</p>
+<div id="uploadScreen" class="upload-screen" style="display:none">
+  <div style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--slate);margin-bottom:0.5rem">Admin — Upload two files</div>
+  <h2 style="font-family:var(--font-display);font-size:1.3rem;letter-spacing:0.05em;text-transform:uppercase;color:var(--navy);margin-bottom:0.5rem">Upload FilmFreeway Exports</h2>
+  <p style="font-family:var(--font-body);font-size:0.88rem;color:var(--slate);margin-bottom:1.5rem">Upload both files below, then click Load. Everything runs in your browser.</p>
 
-  <div class="upload-box" id="uploadBox" onclick="document.getElementById('csvFile').click()"
-       ondragover="onUploadDragOver(event)"
-       ondragleave="onUploadDragLeave(event)"
-       ondrop="handleFileDrop(event)">
-    <div class="upload-icon">📊</div>
-    <div class="upload-label">Drop FilmFreeway Ratings CSV here</div>
-    <div class="upload-sub">or click to browse</div>
-    <input type="file" id="csvFile" accept=".csv" onchange="handleFileSelect(event)">
+  <div style="text-align:left;margin-bottom:1rem">
+    <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);margin-bottom:6px">
+      File 1 — Jury Ratings CSV &nbsp;<span id="ratingsCheck" style="color:#2a7a4b;display:none">✓ Loaded</span>
+    </div>
+    <div class="upload-box" id="uploadBox1" style="padding:1.25rem;cursor:pointer"
+         onclick="document.getElementById('csvRatings').click()">
+      <div class="upload-icon" style="font-size:1.5rem;margin-bottom:0.4rem">🎬</div>
+      <div class="upload-label">Jury scores + comments from FilmFreeway</div>
+      <div class="upload-sub">Click to browse or drag and drop</div>
+    </div>
+    <input type="file" id="csvRatings" accept=".csv" style="display:none">
   </div>
+
+  <div style="text-align:left;margin-bottom:1.5rem">
+    <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);margin-bottom:6px">
+      File 2 — Film Submissions CSV &nbsp;<span id="submissionsCheck" style="color:#2a7a4b;display:none">✓ Loaded</span>
+    </div>
+    <div class="upload-box" id="uploadBox2" style="padding:1.25rem;cursor:pointer"
+         onclick="document.getElementById('csvSubmissions').click()">
+      <div class="upload-icon" style="font-size:1.5rem;margin-bottom:0.4rem">📋</div>
+      <div class="upload-label">Original submissions with Vimeo links + passwords</div>
+      <div class="upload-sub">Click to browse or drag and drop</div>
+    </div>
+    <input type="file" id="csvSubmissions" accept=".csv" style="display:none">
+  </div>
+
+  <button id="processBtn" onclick="processBothFiles()"
+    style="width:100%;padding:12px;font-family:var(--font-display);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;background:var(--navy);color:white;border:none;border-radius:var(--radius);cursor:pointer;display:none">
+    Load films →
+  </button>
   <div id="uploadError" style="color:var(--rose);font-family:var(--font-body);font-size:0.82rem;margin-top:1rem;display:none"></div>
 </div>
 
@@ -425,26 +446,7 @@ document.getElementById("gatePassInput").addEventListener("keydown", e => { if(e
 document.getElementById("gateNameInput").addEventListener("keydown", e => { if(e.key==="Enter") document.getElementById("gatePassInput").focus(); });
 
 // ─── FILE HANDLING ────────────────────────────────────────────────────────────
-function onUploadDragOver(e, boxId) {
-  e.preventDefault(); e.stopPropagation();
-  document.getElementById(boxId||'uploadBox1').classList.add('drag-over');
-}
-function onUploadDragLeave(e, boxId) {
-  e.preventDefault();
-  document.getElementById(boxId||'uploadBox1').classList.remove('drag-over');
-}
-
-function handleRatingsDrop(e) {
-  e.preventDefault(); document.getElementById('uploadBox1').classList.remove('drag-over');
-  const file = e.dataTransfer.files[0]; if (file) readRatings(file);
-}
-function handleRatingsSelect(e) { const file = e.target.files[0]; if (file) readRatings(file); }
-
-function handleSubmissionsDrop(e) {
-  e.preventDefault(); document.getElementById('uploadBox2').classList.remove('drag-over');
-  const file = e.dataTransfer.files[0]; if (file) readSubmissions(file);
-}
-function handleSubmissionsSelect(e) { const file = e.target.files[0]; if (file) readSubmissions(file); }
+// drag/drop wired in showUploadScreen()
 
 function readRatings(file) {
   const reader = new FileReader();
@@ -502,6 +504,17 @@ function showUploadError(msg) {
 function showUploadScreen() {
   document.getElementById("uploadScreen").style.display = "block";
   document.getElementById("appScreen").style.display = "none";
+  // Wire file inputs with addEventListener (more reliable than onchange)
+  setTimeout(() => {
+    const r = document.getElementById("csvRatings");
+    const s = document.getElementById("csvSubmissions");
+    const b1 = document.getElementById("uploadBox1");
+    const b2 = document.getElementById("uploadBox2");
+    if (r) { r.replaceWith(r.cloneNode(true)); document.getElementById("csvRatings").addEventListener("change", e => { if(e.target.files[0]) readRatings(e.target.files[0]); }); }
+    if (s) { s.replaceWith(s.cloneNode(true)); document.getElementById("csvSubmissions").addEventListener("change", e => { if(e.target.files[0]) readSubmissions(e.target.files[0]); }); }
+    if (b1) { b1.addEventListener("dragover", e => { e.preventDefault(); e.stopPropagation(); b1.classList.add("drag-over"); }); b1.addEventListener("dragleave", () => b1.classList.remove("drag-over")); b1.addEventListener("drop", e => { e.preventDefault(); e.stopPropagation(); b1.classList.remove("drag-over"); if(e.dataTransfer.files[0]) readRatings(e.dataTransfer.files[0]); }); }
+    if (b2) { b2.addEventListener("dragover", e => { e.preventDefault(); e.stopPropagation(); b2.classList.add("drag-over"); }); b2.addEventListener("dragleave", () => b2.classList.remove("drag-over")); b2.addEventListener("drop", e => { e.preventDefault(); e.stopPropagation(); b2.classList.remove("drag-over"); if(e.dataTransfer.files[0]) readSubmissions(e.dataTransfer.files[0]); }); }
+  }, 50);
 }
 function showUpload() {
   localStorage.removeItem("btssff-jury-csvdata");
