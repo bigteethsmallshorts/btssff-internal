@@ -24,7 +24,7 @@
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 1.25rem; z-index: 9999;
   }
-  .gate-form { display:flex;flex-direction:column;gap:0.65rem;width:100%;max-width:300px; }
+  .gate-form { display:flex;flex-direction:column;gap:0.65rem;width:300px;max-width:300px; }
   .gate-field-label { font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--denim);margin-bottom:3px;display:block; }
   .gate-input { background:rgba(255,255,255,0.08);border:1px solid rgba(158,199,213,0.4);color:white;font-family:var(--font-body);font-size:1rem;padding:10px 14px;border-radius:var(--radius);width:100%;outline:none; }
   .gate-input:focus { border-color:var(--denim); }
@@ -230,11 +230,11 @@
   <div class="gate-form">
     <div>
       <label class="gate-field-label">Your name</label>
-      <input class="gate-input" type="text" id="gateNameInput" placeholder="e.g. Gregg" autocomplete="off" autocapitalize="words">
+      <input class="gate-input" type="text" id="gateNameInput" placeholder="e.g. Gregg" autocomplete="off" autocapitalize="words" style="width:100%;box-sizing:border-box">
     </div>
     <div>
       <label class="gate-field-label">Access code</label>
-      <input class="gate-input" type="password" id="gatePassInput" placeholder="Access code" autocomplete="off">
+      <input class="gate-input" type="password" id="gatePassInput" placeholder="Access code" autocomplete="off" style="width:100%;box-sizing:border-box">
     </div>
     <button class="btn btn-denim" style="width:100%;justify-content:center" onclick="checkGate()">Enter →</button>
     <div class="gate-error" id="gateError"></div>
@@ -255,7 +255,7 @@
   <div class="header-actions">
     <span id="jurorBadge" style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--denim)"></span>
     <button class="btn btn-ghost" id="uploadNewBtn" onclick="showUpload()" style="font-size:0.6rem;color:var(--denim);border-color:rgba(158,199,213,0.4);display:none">↑ New CSV</button>
-    <button class="btn btn-denim" id="publishBtn" onclick="publishForJurors()" style="font-size:0.6rem;display:none">📤 Publish for jurors</button>
+    <button class="btn btn-denim" id="publishBtn" onclick="publishForJurors()" style="font-size:0.6rem;display:none">📋 Publish for jurors</button>
     <button class="btn btn-ghost" onclick="exportDeliberation()" id="exportBtn" style="font-size:0.6rem;color:var(--denim);border-color:rgba(158,199,213,0.4);display:none">Export Report</button>
   </div>
 </header>
@@ -956,13 +956,9 @@ function revealResults() {
 // ─── EXPORT ───────────────────────────────────────────────────────────────────
 // ─── PUBLISH / LOAD JURY DATA ────────────────────────────────────────────────
 
-async function publishForJurors() {
+function publishForJurors() {
   if (!Object.keys(films).length) { flashToast("No data to publish"); return; }
 
-  const btn = document.getElementById("publishBtn");
-  btn.textContent = "Publishing…"; btn.disabled = true;
-
-  // Build compact JSON blob of contender data
   const payload = {
     publishedAt: new Date().toISOString(),
     contenders,
@@ -982,31 +978,45 @@ async function publishForJurors() {
 
   const json = JSON.stringify(payload);
 
-  // Submit to Google Form
-  let iframe = document.getElementById("jury-data-submitter");
-  if (!iframe) {
-    iframe = document.createElement("iframe");
-    iframe.id = "jury-data-submitter"; iframe.name = "jury-data-submitter";
-    iframe.style.display = "none";
-    document.body.appendChild(iframe);
-  }
-  const form = document.createElement("form");
-  form.method = "POST";
-  form.action = `https://docs.google.com/forms/d/e/${JURY_DATA_FORM_ID}/formResponse`;
-  form.target = "jury-data-submitter";
-  const input = document.createElement("input");
-  input.type = "hidden"; input.name = JURY_DATA_FIELD; input.value = json;
-  form.appendChild(input);
-  document.body.appendChild(form);
-  form.submit();
-  document.body.removeChild(form);
+  // Copy to clipboard + show instruction modal
+  navigator.clipboard.writeText(json).then(() => {
+    showPasteModal();
+  }).catch(() => {
+    // Fallback: show text area to manually copy
+    showPasteModal(json);
+  });
+}
 
-  setTimeout(() => {
-    btn.textContent = "✓ Published for jurors";
-    btn.style.background = "#2a7a4b";
-    btn.disabled = false;
-    flashToast("Jury data published — jurors can now load the page");
-  }, 2000);
+function showPasteModal(fallbackText) {
+  const existing = document.getElementById("pasteModal");
+  if (existing) existing.remove();
+
+  const modal = document.createElement("div");
+  modal.id = "pasteModal";
+  modal.style.cssText = "position:fixed;inset:0;background:rgba(1,22,50,0.85);z-index:500;display:flex;align-items:center;justify-content:center;padding:2rem";
+  modal.innerHTML = `
+    <div style="background:white;border-radius:var(--radius-lg);padding:2rem;max-width:560px;width:100%">
+      <div style="font-family:var(--font-display);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);margin-bottom:0.5rem">Publish for jurors — 3 steps</div>
+      <div style="font-family:var(--font-body);font-size:0.88rem;color:var(--navy);line-height:1.7;margin-bottom:1.25rem">
+        ${fallbackText
+          ? `<strong>Step 1:</strong> Select all text in the box below and copy it (Cmd+A, Cmd+C)<br>`
+          : `<strong>Step 1:</strong> Data copied to clipboard ✓<br>`}
+        <strong>Step 2:</strong> Open the <a href="https://docs.google.com/spreadsheets/d/${JURY_DATA_SHEET_ID}/edit" target="_blank" style="color:var(--denim)">Jury Data sheet ↗</a><br>
+        <strong>Step 3:</strong> Click cell <strong>B2</strong>, paste (Cmd+V), and press Enter
+      </div>
+      ${fallbackText ? `<textarea style="width:100%;height:80px;font-size:0.65rem;border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px;font-family:monospace;resize:none;margin-bottom:1rem" onclick="this.select()">${fallbackText}</textarea>` : ""}
+      <div style="display:flex;gap:0.75rem">
+        <a href="https://docs.google.com/spreadsheets/d/${JURY_DATA_SHEET_ID}/edit" target="_blank"
+           style="flex:1;text-align:center;font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:var(--navy);color:white;padding:10px;border-radius:var(--radius-sm);text-decoration:none">
+          Open sheet →
+        </a>
+        <button onclick="document.getElementById('pasteModal').remove()"
+          style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid var(--border);padding:10px 16px;border-radius:var(--radius-sm);cursor:pointer;color:var(--slate)">
+          Done
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
 }
 
 async function loadFromSheet() {
