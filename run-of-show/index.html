@@ -1066,28 +1066,40 @@ function exportRunSheet() {
   const act2Stats = getStats(act2);
   const allStats  = getStats([...act1,...act2]);
 
-  const rows = [["#","Title","Director","Runtime","Size","Genre","Location","Act","Decision"]];
+  const rows = [["#","Title","Director","Runtime","Size","Genre","Location","Decision"]];
 
+  // Act 1 header
+  rows.push([`— ${act1Title} — ${act1.length} films · ${act1Stats.micro} micro · ${act1Stats.small} small · Runtime: ${fmtSecs(act1Stats.secs)} —`]);
   act1.forEach((id,i) => {
     const f = getFilm(id); if(!f) return;
-    rows.push([i+1, f.title, f.director, f.dispMin, f.size, f.genre, f.location, act1Title, decisions[id]||"selected"]);
+    rows.push([i+1, f.title, f.director, f.dispMin, f.size, f.genre, f.location, decisions[id]||"selected"]);
   });
-  rows.push(["","INTERMISSION","","","","","",""]);
+
+  rows.push(["","— INTERMISSION —"]);
+
+  // Act 2 header
+  rows.push([`— ${act2Title} — ${act2.length} films · ${act2Stats.micro} micro · ${act2Stats.small} small · Runtime: ${fmtSecs(act2Stats.secs)} —`]);
   act2.forEach((id,i) => {
     const f = getFilm(id); if(!f) return;
-    rows.push([act1.length+i+1, f.title, f.director, f.dispMin, f.size, f.genre, f.location, act2Title, decisions[id]||"selected"]);
+    rows.push([act1.length+i+1, f.title, f.director, f.dispMin, f.size, f.genre, f.location, decisions[id]||"selected"]);
   });
+
   rows.push([]);
-  rows.push(["TOTALS"]);
-  rows.push(["Total films", allStats.micro+allStats.small]);
+  rows.push(["— TOTALS —"]);
+  rows.push(["Total films in program", act1.length + act2.length]);
   rows.push(["Total runtime", fmtSecs(allStats.secs)]);
+  rows.push(["Total Micro Shorts", allStats.micro]);
+  rows.push(["Total Small Shorts", allStats.small]);
+  rows.push([`${act1Title} films`, act1.length]);
   rows.push([`${act1Title} runtime`, fmtSecs(act1Stats.secs)]);
+  rows.push([`${act2Title} films`, act2.length]);
   rows.push([`${act2Title} runtime`, fmtSecs(act2Stats.secs)]);
+
   rows.push([]);
-  rows.push(["UNPLACED (Consider for later)"]);
+  rows.push(["— UNPLACED (Consider for Later Screening) —"]);
   pool.forEach(id => {
     const f = getFilm(id); if(!f) return;
-    rows.push(["", f.title, f.director, f.dispMin, f.size, f.genre]);
+    rows.push(["", f.title, f.director, f.dispMin, f.size, f.genre, f.location]);
   });
 
   downloadCSV(rows, `btssff-runsheet-${dateStr()}.csv`);
@@ -1105,41 +1117,87 @@ function exportWixCSV() {
   flashToast("Wix CSV exported ✓");
 }
 
-function exportUpdatedSheet() {
-  // Build the full original sheet with updates applied
-  // Column AA = Judging Status
-  const inAct1   = new Set(act1);
-  const inAct2   = new Set(act2);
-  const inPool   = new Set(pool);
+async function exportUpdatedSheet() {
+  flashToast("Building export…");
 
-  const headers = [
-    "Tracking Number","Project Title","First Name","Last Name","Directors",
-    "Please list all person(s) that should get a director's credit on our programming and promotional listings, should your film be selected. ",
-    "Email","Submission Date","Submitter Statement",
-    'Please include a one sentence "log line" of your film that will be included in the program if your film is selected.',
-    "Synopsis","Genres","Submission Categories","Duration","City","State","Country","Country of Origin",
-    "Submission Link","Submission Password",
-    "List any instagram handles you'd like credited (tagged) if your film is chosen as an official selection. (Note: saying \"No\" will not exclude you from selection)",
-    "Submission Status","Judging Status"
-  ];
+  // Fetch the full raw sheet with ALL original columns
+  const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Films`);
+  const rawRows = parseCSV(await res.text());
+  if (rawRows.length < 2) { flashToast("Could not fetch sheet"); return; }
 
-  const rows = [headers];
-  allFilms.forEach(f => {
-    let judgingStatus = "Not Selected";
-    if (inAct1.has(f.id) || inAct2.has(f.id)) judgingStatus = "Selected";
-    else if (inPool.has(f.id)) judgingStatus = "Consider for Later Screening";
+  const headers = rawRows[0];
 
-    rows.push([
-      f.id, f.title, "", "", f.director, f.director,
-      f.email||"", f.submissionDate||"", f.statement||"", f.logLine||"",
-      "", "", f.catRaw||"", f.dispMin,
-      "", "", "", "",
-      f.vimeoLink||"", f.password||"", f.instagram||"",
-      "In Consideration", judgingStatus
-    ]);
+  // Find key column indices
+  const hTrim = headers.map(x=>x.trim());
+  const trackingIdx  = hTrim.indexOf("Tracking Number");
+  const statusIdx    = hTrim.indexOf("Judging Status");
+  const catIdx       = hTrim.indexOf("Submission Categories");
+  const dirCreditIdx = hTrim.indexOf("Please list all person(s) that should get a director's credit on our programming and promotional listings, should your film be selected. ");
+
+  // Map overrides: filmId -> { field -> newValue }
+  const overrideMap = {};
+  Object.entries(overrides).forEach(([key, override]) => {
+    const [filmId, field] = key.split("__");
+    if (!overrideMap[filmId]) overrideMap[filmId] = {};
+    overrideMap[filmId][field] = override.newValue;
   });
 
-  downloadCSV(rows, `btssff-updated-sheet-${dateStr()}.csv`);
+  // ROS order map
+  const rosOrder = {};
+  act1.forEach((id,i) => rosOrder[id] = i+1);
+  act2.forEach((id,i) => rosOrder[id] = act1.length+i+1);
+
+  const inAct1 = new Set(act1);
+  const inAct2 = new Set(act2);
+  const inPool = new Set(pool);
+
+  // Add new columns to header
+  const newHeaders = [...headers, "Judging Status (Updated)", "ROS Order", "Act"];
+  const outputRows = [newHeaders];
+
+  rawRows.slice(1).forEach(row => {
+    const filmId = trackingIdx >= 0 ? (row[trackingIdx]||"").trim() : "";
+    const newRow = [...row];
+
+    // Apply overrides to relevant columns
+    if (filmId && overrideMap[filmId]) {
+      const ov = overrideMap[filmId];
+      if (ov.category    && catIdx >= 0)       newRow[catIdx]       = ov.category;
+      if (ov.director    && dirCreditIdx >= 0)  newRow[dirCreditIdx] = ov.director;
+      // duration, location etc stored in different cols — apply by matching header name
+      Object.entries(ov).forEach(([field, val]) => {
+        const fieldColMap = {
+          dispMin: "Duration",
+          location: "City", // best effort — city field
+          category: "Submission Categories",
+          director: "Please list all person(s) that should get a director's credit on our programming and promotional listings, should your film be selected. ",
+        };
+        const colName = fieldColMap[field];
+        if (colName) {
+          const idx = hTrim.indexOf(colName.trim());
+          if (idx >= 0) newRow[idx] = val;
+        }
+      });
+    }
+
+    // Judging Status
+    let judgingStatus = "Not Selected";
+    if (inAct1.has(filmId) || inAct2.has(filmId)) judgingStatus = "Selected";
+    else if (inPool.has(filmId)) judgingStatus = "Consider for Later Screening";
+
+    // Act
+    let act = "";
+    if (inAct1.has(filmId)) act = document.getElementById("act1-title").value || "Act 1";
+    else if (inAct2.has(filmId)) act = document.getElementById("act2-title").value || "Act 2";
+
+    newRow.push(judgingStatus);
+    newRow.push(rosOrder[filmId] || "");
+    newRow.push(act);
+
+    outputRows.push(newRow);
+  });
+
+  downloadCSV(outputRows, `btssff-updated-sheet-${dateStr()}.csv`);
   flashToast("Updated sheet exported ✓");
 }
 
