@@ -477,13 +477,17 @@ function readSubmissions(file) {
 }
 
 function checkBothLoaded() {
+  const btn = document.getElementById('processBtn');
+  btn.style.display = 'block';
   if (ratingsLoaded && submissionsLoaded) {
-    document.getElementById('processBtn').style.display = 'flex';
-  } else if (ratingsLoaded || submissionsLoaded) {
-    document.getElementById('processBtn').style.display = 'flex';
-    document.getElementById('processBtn').textContent = submissionsLoaded && !ratingsLoaded
-      ? "Waiting for ratings file…" : ratingsLoaded && !submissionsLoaded
-      ? "Load films (no watch links — upload submissions file for those)" : "Load films →";
+    btn.textContent = "Load films →";
+    btn.style.background = "var(--navy)";
+  } else if (ratingsLoaded && !submissionsLoaded) {
+    btn.textContent = "Load films (no watch links — upload submissions file too)";
+    btn.style.background = "var(--slate)";
+  } else if (!ratingsLoaded && submissionsLoaded) {
+    btn.textContent = "Waiting for ratings file…";
+    btn.style.background = "var(--slate)";
   }
 }
 
