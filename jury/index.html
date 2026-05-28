@@ -342,7 +342,10 @@ const TOP_N          = 5; // top N per category
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let jurorName    = "";
 let isAdmin      = false;
-let allData      = [];   // raw rows from CSV
+let allData      = [];   // raw rows from ratings CSV
+let submissionsData = []; // raw rows from submissions CSV
+let ratingsLoaded = false;
+let submissionsLoaded = false;
 let films        = {};   // { filmId: { title, category, size, genre, judges: [...] } }
 let contenders   = {};   // { "Micro": [...filmIds], "Small": [...filmIds] }
 let activeTab    = "Small";
@@ -374,6 +377,8 @@ function checkGate() {
   if (cached) {
     try {
       allData = JSON.parse(cached);
+      const cachedSubs = localStorage.getItem("btssff-jury-submissions");
+      if (cachedSubs) submissionsData = JSON.parse(cachedSubs);
       processData();
       showApp();
     } catch { showUploadScreen(); }
@@ -385,39 +390,78 @@ document.getElementById("gatePassInput").addEventListener("keydown", e => { if(e
 document.getElementById("gateNameInput").addEventListener("keydown", e => { if(e.key==="Enter") document.getElementById("gatePassInput").focus(); });
 
 // ─── FILE HANDLING ────────────────────────────────────────────────────────────
-function onUploadDragOver(e) {
+function onUploadDragOver(e, boxId) {
+  e.preventDefault(); e.stopPropagation();
+  document.getElementById(boxId||'uploadBox1').classList.add('drag-over');
+}
+function onUploadDragLeave(e, boxId) {
   e.preventDefault();
-  e.stopPropagation();
-  document.getElementById('uploadBox').classList.add('drag-over');
+  document.getElementById(boxId||'uploadBox1').classList.remove('drag-over');
 }
-function onUploadDragLeave(e) {
-  e.preventDefault();
-  document.getElementById('uploadBox').classList.remove('drag-over');
+
+function handleRatingsDrop(e) {
+  e.preventDefault(); document.getElementById('uploadBox1').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0]; if (file) readRatings(file);
 }
-function handleFileDrop(e) {
-  e.preventDefault();
-  document.getElementById("uploadBox").classList.remove("drag-over");
-  const file = e.dataTransfer.files[0];
-  if (file) readCSV(file);
+function handleRatingsSelect(e) { const file = e.target.files[0]; if (file) readRatings(file); }
+
+function handleSubmissionsDrop(e) {
+  e.preventDefault(); document.getElementById('uploadBox2').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0]; if (file) readSubmissions(file);
 }
-function handleFileSelect(e) {
-  const file = e.target.files[0];
-  if (file) readCSV(file);
-}
-function readCSV(file) {
+function handleSubmissionsSelect(e) { const file = e.target.files[0]; if (file) readSubmissions(file); }
+
+function readRatings(file) {
   const reader = new FileReader();
   reader.onload = e => {
     try {
       allData = parseCSV(e.target.result);
-      localStorage.setItem("btssff-jury-csvdata", JSON.stringify(allData));
-      processData();
-      showApp();
-    } catch(err) {
-      document.getElementById("uploadError").style.display = "block";
-      document.getElementById("uploadError").textContent = "Could not read file: " + err.message;
-    }
+      ratingsLoaded = true;
+      document.getElementById('ratingsCheck').style.display = 'inline';
+      document.getElementById('uploadBox1').style.borderColor = '#2a7a4b';
+      checkBothLoaded();
+    } catch(err) { showUploadError("Ratings file error: " + err.message); }
   };
   reader.readAsText(file);
+}
+
+function readSubmissions(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      submissionsData = parseCSV(e.target.result);
+      submissionsLoaded = true;
+      document.getElementById('submissionsCheck').style.display = 'inline';
+      document.getElementById('uploadBox2').style.borderColor = '#2a7a4b';
+      checkBothLoaded();
+    } catch(err) { showUploadError("Submissions file error: " + err.message); }
+  };
+  reader.readAsText(file);
+}
+
+function checkBothLoaded() {
+  if (ratingsLoaded && submissionsLoaded) {
+    document.getElementById('processBtn').style.display = 'flex';
+  } else if (ratingsLoaded || submissionsLoaded) {
+    document.getElementById('processBtn').style.display = 'flex';
+    document.getElementById('processBtn').textContent = submissionsLoaded && !ratingsLoaded
+      ? "Waiting for ratings file…" : ratingsLoaded && !submissionsLoaded
+      ? "Load films (no watch links — upload submissions file for those)" : "Load films →";
+  }
+}
+
+function processBothFiles() {
+  try {
+    localStorage.setItem("btssff-jury-csvdata", JSON.stringify(allData));
+    localStorage.setItem("btssff-jury-submissions", JSON.stringify(submissionsData));
+    processData();
+    showApp();
+  } catch(err) { showUploadError("Could not process files: " + err.message); }
+}
+
+function showUploadError(msg) {
+  const el = document.getElementById("uploadError");
+  el.style.display = "block"; el.textContent = msg;
 }
 
 function showUploadScreen() {
@@ -426,6 +470,8 @@ function showUploadScreen() {
 }
 function showUpload() {
   localStorage.removeItem("btssff-jury-csvdata");
+  localStorage.removeItem("btssff-jury-submissions");
+  ratingsLoaded = false; submissionsLoaded = false;
   showUploadScreen();
 }
 function showApp() {
@@ -454,9 +500,7 @@ function processData() {
     const genre = cat.replace(/^(micro|small)\s+short\s*/i,"").trim();
 
     if (!films[id]) {
-      // Try to build a FilmFreeway watch URL from tracking number
-      const watchUrl = id ? `https://filmfreeway.com/submissions/${id}` : "";
-      films[id] = { id, title, cat, size, genre, judges: [], watchUrl };
+      films[id] = { id, title, cat, size, genre, judges: [], watchUrl: "", password: "" };
     }
 
     const judgeFirst = get(row,"First Name");
@@ -484,6 +528,19 @@ function processData() {
       panelNote:      get(row,"If you'd like to call out any additional notes for the judges panel to consider, please include here. (Optional)"),
     });
   });
+
+  // Merge watch links from submissions CSV
+  if (submissionsData.length > 1) {
+    const sh = submissionsData[0].map(x=>x.trim());
+    const sget = (row, col) => (row[sh.indexOf(col.trim())]||"").trim();
+    submissionsData.slice(1).forEach(row => {
+      const id = sget(row, "Tracking Number");
+      if (id && films[id]) {
+        films[id].watchUrl  = sget(row, "Submission Link") || films[id].watchUrl;
+        films[id].password  = sget(row, "Submission Password");
+      }
+    });
+  }
 
   // Build contenders
   contenders = buildContenders();
@@ -738,7 +795,7 @@ function filmCardHTML(filmId, type) {
     <div class="card-jury-meta">
       <span class="contender-tag ${type==="top5"?"tag-top5":"tag-wildcard"}">${type==="top5"?"Top contender":"Wildcard — judge's pick"}</span>
       <span style="font-family:var(--font-display);font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate)">${esc(f.cat)}</span>
-      ${f.watchUrl?`<a href="${esc(f.watchUrl)}" target="_blank" rel="noopener" style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--denim);text-decoration:none;margin-left:auto">▶ Watch film</a>`:""}
+      ${f.watchUrl?`<a href="${esc(f.watchUrl)}" target="_blank" rel="noopener" style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--denim);text-decoration:none;margin-left:auto">▶ Watch film</a>${f.password?` <span style="font-family:var(--font-body);font-size:0.72rem;color:var(--slate)">pw: <strong>${esc(f.password)}</strong></span>`:""}`:"<span style='font-family:var(--font-body);font-size:0.7rem;color:var(--slate);margin-left:auto;font-style:italic'>No link — upload submissions file</span>"}
     </div>
 
     <div class="score-breakdown">
