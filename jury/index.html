@@ -787,32 +787,63 @@ function getVoterCount(filmId) {
 
 function rerenderAllCards() {
   const cat = contenders[activeTab]||[];
+
+  // Save which cards are expanded AND which score tables are open
+  const expandedBodies = {};
+  const expandedScores = {};
   cat.forEach(c => {
-    // Always use frozen type from cardTypeMap
+    const body = document.getElementById(`body-${c.id}`);
+    const scores = document.getElementById(`breakdown-${c.id}`);
+    if (body && body.style.display !== "none") expandedBodies[c.id] = true;
+    if (scores && scores.style.display !== "none") expandedScores[c.id] = true;
+  });
+
+  // Re-render each card
+  cat.forEach(c => {
     const card = document.getElementById(`card-${c.id}`);
     if (card) card.outerHTML = filmCardHTML(c.id, cardTypeMap[c.id]||c.type);
-    // Re-wire
-    const newCard = document.getElementById(`card-${c.id}`);
-    if (newCard) {
-      newCard.querySelectorAll(".rank-btn").forEach(btn => {
-        btn.addEventListener("click", () => setRank(btn.dataset.id, parseInt(btn.dataset.rank)));
-      });
-      newCard.querySelectorAll(".note-submit-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const ta = document.getElementById(`note-input-${btn.dataset.id}`);
-          if (ta) { addNote(btn.dataset.id, ta.value); ta.value = ""; }
-        });
-      });
-      newCard.querySelectorAll(".breakdown-toggle").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const bd = document.getElementById(`breakdown-${btn.dataset.id}`);
-          if (bd) { bd.style.display = bd.style.display==="none"?"table":"none"; btn.textContent = bd.style.display==="none"?"▶ Show scores":"▼ Hide scores"; }
-        });
-      });
+    wireCard(c.id);
+  });
+
+  // Restore expanded state
+  cat.forEach(c => {
+    if (expandedBodies[c.id]) {
+      const body = document.getElementById(`body-${c.id}`);
+      const lbl  = document.getElementById(`expand-${c.id}`);
+      if (body) body.style.display = "block";
+      if (lbl)  lbl.textContent = "▲ Collapse";
+    }
+    if (expandedScores[c.id]) {
+      const bd  = document.getElementById(`breakdown-${c.id}`);
+      const btn = document.querySelector(`[data-id="${c.id}"].breakdown-toggle`);
+      if (bd)  bd.style.display = "table";
+      if (btn) btn.textContent = "▼ Hide scores";
     }
   });
+
   renderSummary();
   updateAdminSummary();
+}
+
+function wireCard(filmId) {
+  const card = document.getElementById(`card-${filmId}`);
+  if (!card) return;
+  card.querySelectorAll(".rank-btn").forEach(btn => {
+    btn.addEventListener("click", e => { e.stopPropagation(); setRank(btn.dataset.id, parseInt(btn.dataset.rank)); });
+  });
+  card.querySelectorAll(".note-submit-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const ta = document.getElementById(`note-input-${btn.dataset.id}`);
+      if (ta) { addNote(btn.dataset.id, ta.value); ta.value = ""; }
+    });
+  });
+  card.querySelectorAll(".breakdown-toggle").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const bd = document.getElementById(`breakdown-${btn.dataset.id}`);
+      if (bd) { bd.style.display = bd.style.display==="none"?"table":"none"; btn.textContent = bd.style.display==="none"?"▶ Show scores":"▼ Hide scores"; }
+    });
+  });
 }
 
 // ─── RENDER ───────────────────────────────────────────────────────────────────
@@ -843,9 +874,10 @@ function renderSummary() {
   const cat = contenders[activeTab] || [];
   const top5 = cat.filter(c=>c.type==="top5");
   const wild = cat.filter(c=>c.type==="wildcard");
-  const totalVotes = cat.reduce((sum,c) => sum + (votes[c.id]||[]).length, 0);
-  const voted = new Set(cat.flatMap(c => votes[c.id]||[]));
+  const totalVotes = cat.reduce((sum,c) => sum + getVoterCount(c.id), 0);
+  const myV = votes[jurorName]||{};
 
+  updateVotingStatusText();
   document.getElementById("summaryBar").innerHTML = `
     <div class="summary-card"><span class="summary-label">Top contenders</span><span class="summary-value" style="color:var(--rose)">${top5.length}</span></div>
     <div style="width:1px;height:16px;background:var(--border)"></div>
@@ -854,11 +886,12 @@ function renderSummary() {
     <div class="summary-card"><span class="summary-label">Votes cast</span><span class="summary-value">${totalVotes}</span></div>
     <div style="width:1px;height:16px;background:var(--border)"></div>
     <div class="summary-card"><span class="summary-label">Notes</span><span class="summary-value">${cat.reduce((s,c)=>s+(notes[c.id]||[]).length,0)}</span></div>
-    <div style="margin-left:auto;font-family:var(--font-body);font-size:0.78rem;color:var(--slate)">Your votes: 
-      <strong style="color:${votes[jurorName]?.rank1?'#2a7a4b':'var(--slate)'}">▪ #1</strong>
-      <strong style="color:${votes[jurorName]?.rank2?'var(--denim)':'var(--slate)'}"> ▪ #2</strong>
-      <strong style="color:${votes[jurorName]?.rank3?'var(--slate)':'rgba(84,110,133,0.4)'}"> ▪ #3</strong>
+    <div style="margin-left:auto;font-family:var(--font-body);font-size:0.85rem;color:var(--slate)">Your votes: 
+      <strong style="color:${myV.rank1?'#2a7a4b':'rgba(84,110,133,0.4)'}">▪ #1</strong>
+      <strong style="color:${myV.rank2?'var(--denim)':'rgba(84,110,133,0.4)'}"> ▪ #2</strong>
+      <strong style="color:${myV.rank3?'var(--slate)':'rgba(84,110,133,0.4)'}"> ▪ #3</strong>
     </div>`;
+}
 }
 
 // Store card types so voting doesn't change them
@@ -866,123 +899,107 @@ let cardTypeMap = {};
 
 function renderContenders() {
   const cat = contenders[activeTab] || [];
-  // Sort: top5 first by avg, then wildcards by avg
   const top5  = cat.filter(c=>c.type==="top5").sort((a,b)=>(films[b.id]?.allJudgesAvg||0)-(films[a.id]?.allJudgesAvg||0));
   const wild  = cat.filter(c=>c.type==="wildcard").sort((a,b)=>(films[b.id]?.allJudgesAvg||0)-(films[a.id]?.allJudgesAvg||0));
   const sorted = [...top5, ...wild];
-  // Freeze types
   sorted.forEach(c => { cardTypeMap[c.id] = c.type; });
-
   document.getElementById("contendersGrid").innerHTML = sorted.map(c => filmCardHTML(c.id, c.type)).join("");
-  // Wire submit buttons
-  document.querySelectorAll(".note-submit-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const filmId = btn.dataset.id;
-      const ta = document.getElementById(`note-input-${filmId}`);
-      if (ta) { addNote(filmId, ta.value); ta.value = ""; }
-    });
-  });
-  document.querySelectorAll(".vote-btn").forEach(btn => {
-    btn.addEventListener("click", () => toggleVote(btn.dataset.id));
-  });
-  document.querySelectorAll(".breakdown-toggle").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const id = btn.dataset.id;
-      const bd = document.getElementById(`breakdown-${id}`);
-      if (bd) { bd.style.display = bd.style.display==="none"?"table":"none"; btn.textContent = bd.style.display==="none"?"Show individual scores":"Hide scores"; }
-    });
-  });
+  sorted.forEach(c => wireCard(c.id));
 }
 
 function filmCardHTML(filmId, type) {
   const f = films[filmId]; if (!f) return "";
   const avg = f.allJudgesAvg;
-  const myVotes = votes[filmId]||[];
-  const hasVoted = myVotes.includes(jurorName);
+  const myRank = getMyRankForFilm(filmId); // uses votes[jurorName]
   const filmNotes = notes[filmId]||[];
+  const pts = getVotePoints(filmId);
+  const voterCt = getVoterCount(filmId);
 
-  // Sort judges by their score desc
-  const sortedJudges = [...f.judges].sort((a,b)=>b.avgRating-a.avgRating);
+  const sortedJudges = [...(f.judges||[])].sort((a,b)=>b.avgRating-a.avgRating);
 
   const judgeRows = sortedJudges.map(j => {
     const sc = j.avgRating;
     const cls = sc>=8?"score-high":sc>=6?"score-mid":"score-low";
     return `<tr>
-      <td>${esc(j.name)}</td>
-      <td class="score-num ${cls}">${sc}</td>
-      <td style="font-size:0.68rem;color:var(--slate)">${j.originality}/${j.production}/${j.creativity}/${j.entertainment}</td>
+      <td style="padding:8px 10px;font-size:0.9rem">${esc(j.name)}</td>
+      <td class="score-num ${cls}" style="padding:8px 10px;text-align:center">${sc}</td>
+      <td style="padding:8px 10px;text-align:center;font-size:0.9rem">${j.originality||"—"}</td>
+      <td style="padding:8px 10px;text-align:center;font-size:0.9rem">${j.production||"—"}</td>
+      <td style="padding:8px 10px;text-align:center;font-size:0.9rem">${j.creativity||"—"}</td>
+      <td style="padding:8px 10px;text-align:center;font-size:0.9rem">${j.entertainment||"—"}</td>
     </tr>
-    ${j.comment?`<tr class="judge-comment-row"><td colspan="4">💬 ${esc(j.comment)}</td></tr>`:""}
-    ${j.panelNote?`<tr class="panel-note-row"><td colspan="4">📌 Panel note: ${esc(j.panelNote)}</td></tr>`:""}`;
+    ${j.comment?`<tr class="judge-comment-row"><td colspan="6" style="padding:6px 10px 10px;font-size:0.9rem">💬 ${esc(j.comment)}</td></tr>`:""}
+    ${j.panelNote?`<tr class="panel-note-row"><td colspan="6" style="padding:6px 10px 10px;font-size:0.9rem">📌 ${esc(j.panelNote)}</td></tr>`:""}`;
   }).join("");
 
   const notesHtml = filmNotes.length
-    ? filmNotes.map(n => `<div class="delib-note">
+    ? filmNotes.map(n=>`<div class="delib-note">
         <div class="delib-note-author">${esc(n.author)}</div>
         <div class="delib-note-text">${esc(n.text)}</div>
         <div class="delib-note-time">${n.time}</div>
       </div>`).join("")
-    : `<div style="font-family:var(--font-body);font-size:0.78rem;color:var(--slate);font-style:italic;margin-bottom:0.75rem">No notes yet — be the first to weigh in.</div>`;
+    : `<div style="font-family:var(--font-body);font-size:0.9rem;color:var(--slate);font-style:italic;margin-bottom:0.75rem">No notes yet — be the first to weigh in.</div>`;
 
-  const voteNames = myVotes.length
-    ? `<div class="vote-names">${myVotes.map(esc).join(", ")}</div>`
+  const rankLabel = myRank
+    ? `<span style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;background:${myRank===1?'#2a7a4b':myRank===2?'#2a6496':'#546E85'};color:white;padding:3px 10px;border-radius:var(--radius-sm)">My #${myRank}</span>`
     : "";
-
-  const myRank = getMyRankForFilm(filmId);
-  const rankColors = {1:'#2a7a4b',2:'var(--denim)',3:'var(--slate)'};
-  const rankLabel = myRank ? `<span style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;background:${rankColors[myRank]};color:white;padding:2px 8px;border-radius:var(--radius-sm);margin-left:8px">My #${myRank}</span>` : "";
 
   return `<div class="film-card-jury ${type}" id="card-${filmId}">
     <div class="card-jury-header" onclick="toggleCardBody('${filmId}')">
       <div style="display:flex;align-items:center;gap:0.75rem;flex:1;min-width:0;flex-wrap:wrap">
         <div class="card-jury-title">${esc(f.title)}</div>
-        ${f.watchUrl?`<a href="${esc(f.watchUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--denim);text-decoration:none;background:rgba(158,199,213,0.15);padding:5px 12px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0">▶ Watch Film</a>`:''}
-        ${f.password?`<span onclick="event.stopPropagation();copyPw('${esc(f.password)}',this)" title="Click to copy password" style="font-family:var(--font-body);font-size:0.72rem;color:rgba(158,199,213,0.9);cursor:pointer;background:rgba(255,255,255,0.08);padding:4px 10px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0;border:1px solid rgba(158,199,213,0.3)">🔑 ${esc(f.password)}</span>`:''}
+        ${f.watchUrl?`<a href="${esc(f.watchUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--denim);text-decoration:none;background:rgba(158,199,213,0.15);padding:5px 12px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0">▶ Watch Film</a>`:""}
+        ${f.password?`<span onclick="event.stopPropagation();copyPw('${esc(f.password)}',this)" title="Click to copy password" style="font-family:var(--font-body);font-size:0.78rem;color:rgba(158,199,213,0.9);cursor:pointer;background:rgba(255,255,255,0.08);padding:4px 10px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0;border:1px solid rgba(158,199,213,0.3)">🔑 ${esc(f.password)}</span>`:""}
         ${rankLabel}
       </div>
       <div style="display:flex;align-items:center;gap:0.75rem;flex-shrink:0">
-        <span style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--denim)" id="expand-${filmId}">▼ expand</span>
+        <span style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--denim)" id="expand-${filmId}">▼ Details</span>
         <div class="avg-badge">${avg.toFixed(1)}</div>
       </div>
     </div>
     <div class="card-jury-body" id="body-${filmId}" style="display:none">
-    <div class="card-jury-meta">
-      <span class="contender-tag ${type==="top5"?"tag-top5":"tag-wildcard"}">${type==="top5"?"Top contender":"Wildcard — judge's pick"}</span>
-      <span style="font-family:var(--font-display);font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate)">${esc(f.cat)}</span>
-      ${f.watchUrl?`<a href="${esc(f.watchUrl)}" target="_blank" rel="noopener" style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--denim);text-decoration:none;margin-left:auto">▶ Watch film</a>${f.password?` <span style="font-family:var(--font-body);font-size:0.72rem;color:var(--slate)">pw: <strong>${esc(f.password)}</strong></span>`:""}`:"<span style='font-family:var(--font-body);font-size:0.7rem;color:var(--slate);margin-left:auto;font-style:italic'>No link — upload submissions file</span>"}
-    </div>
-
-    <div class="score-breakdown">
-      <div class="breakdown-header">
-        <span>Judge scores</span>
-        <button class="breakdown-toggle" data-id="${filmId}">Show individual scores</button>
+      <div class="card-jury-meta">
+        <span class="contender-tag ${type==="top5"?"tag-top5":"tag-wildcard"}">${type==="top5"?"Top contender":"Wildcard — judge's pick"}</span>
+        <span style="font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate)">${esc(f.cat)}</span>
       </div>
-      <table class="judge-scores-table" id="breakdown-${filmId}" style="display:none">
-        <thead><tr>
-          <td style="color:var(--slate);font-size:0.65rem;font-weight:700">Judge</td>
-          <td style="color:var(--slate);font-size:0.65rem;font-weight:700;text-align:center">Avg</td>
-          <td style="color:var(--slate);font-size:0.65rem;font-weight:700">Orig/Prod/Cre/Ent</td>
-            </tr></thead>
-        <tbody>${judgeRows}</tbody>
-      </table>
-    </div>
 
-    <div class="deliberation">
-      <div class="delib-header">Deliberation notes</div>
-      <div class="delib-notes" id="notes-${filmId}">${notesHtml}</div>
-      <div class="delib-input-wrap">
-        <textarea class="delib-input" id="note-input-${filmId}" placeholder="Add your thoughts on this film…" rows="2"></textarea>
-        <button class="btn btn-navy note-submit-btn" data-id="${filmId}" style="align-self:flex-end;font-size:0.55rem;padding:8px 12px">Post</button>
+      <div class="score-breakdown">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;border-bottom:1px solid var(--border)">
+          <span style="font-family:var(--font-display);font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate)">Judge scores</span>
+          <button class="breakdown-toggle" data-id="${filmId}" style="font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--denim);background:none;border:1px solid rgba(158,199,213,0.4);padding:5px 14px;border-radius:var(--radius-sm);cursor:pointer">▶ Show scores</button>
+        </div>
+        <table class="judge-scores-table" id="breakdown-${filmId}" style="display:none;width:100%">
+          <thead><tr style="background:#f8f9fa">
+            <td style="padding:8px 10px;font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--slate)">Judge</td>
+            <td style="padding:8px 10px;font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--slate);text-align:center">Avg</td>
+            <td style="padding:8px 10px;font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--slate);text-align:center">Originality</td>
+            <td style="padding:8px 10px;font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--slate);text-align:center">Production</td>
+            <td style="padding:8px 10px;font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--slate);text-align:center">Creativity</td>
+            <td style="padding:8px 10px;font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--slate);text-align:center">Entertainment</td>
+          </tr></thead>
+          <tbody>${judgeRows}</tbody>
+        </table>
       </div>
-    </div>
 
-    <div class="vote-section">
-      <div>
-        <div class="vote-count">Points: <strong>${getVotePoints(filmId)}</strong> &nbsp;·&nbsp; Ranked by <strong>${getVoterCount(filmId)}</strong> juror${getVoterCount(filmId)!==1?"s":""}</div>
-        <div class="vote-names" style="margin-top:2px;font-size:0.65rem;color:var(--slate)" id="vote-names-${filmId}"></div>
+      <div class="deliberation">
+        <div class="delib-header">Deliberation notes</div>
+        <div class="delib-notes" id="notes-${filmId}">${notesHtml}</div>
+        <div class="delib-input-wrap">
+          <textarea class="delib-input" id="note-input-${filmId}" placeholder="Add your thoughts on this film…" rows="2"></textarea>
+          <button class="btn btn-navy note-submit-btn" data-id="${filmId}" style="align-self:flex-end;font-size:0.72rem;padding:10px 14px">Post</button>
+        </div>
       </div>
-      <div style="display:flex;gap:5px">
-        ${[1,2,3].map(r=>`<button class="vote-btn rank-btn${getMyRankForFilm(filmId)===r?" voted":""}" data-id="${filmId}" data-rank="${r}" onclick="setRank('${filmId}',${r})">#${r}</button>`).join("")}
+
+      <div class="vote-section">
+        <div>
+          <div class="vote-count">Points: <strong>${pts}</strong> &nbsp;·&nbsp; Ranked by <strong>${voterCt}</strong> juror${voterCt!==1?"s":""}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-family:var(--font-body);font-size:0.88rem;color:var(--slate)">Your rank:</span>
+          <button class="vote-btn rank-btn${myRank===1?" voted":""}" data-id="${filmId}" data-rank="1">#1</button>
+          <button class="vote-btn rank-btn${myRank===2?" voted":""}" data-id="${filmId}" data-rank="2">#2</button>
+          <button class="vote-btn rank-btn${myRank===3?" voted":""}" data-id="${filmId}" data-rank="3">#3</button>
+        </div>
       </div>
     </div>
   </div>`;
