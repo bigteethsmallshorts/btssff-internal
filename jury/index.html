@@ -115,7 +115,7 @@
 
   .card-jury-meta { padding:0.6rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap; }
   .contender-tag {
-    font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;
+    font-family:var(--font-display);font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;
     padding:3px 8px;border-radius:var(--radius-sm);font-weight:700;
   }
   .tag-top5    { background:#d4f0e0;color:#1a5c35; }
@@ -130,14 +130,14 @@
     color:var(--slate);margin-bottom:0.6rem;display:flex;align-items:center;justify-content:space-between;
   }
   .judge-scores-table { width:100%;border-collapse:collapse; }
-  .judge-scores-table td { padding:6px 8px;font-family:var(--font-body);font-size:0.85rem;color:var(--navy);border-bottom:1px solid rgba(1,22,50,0.06); }
+  .judge-scores-table td { padding:8px 10px;font-family:var(--font-body);font-size:0.92rem;color:var(--navy);border-bottom:1px solid rgba(1,22,50,0.06); }
   .judge-scores-table td:first-child { color:var(--slate);font-size:0.72rem; }
-  .judge-scores-table td.score-num { font-family:var(--font-display);font-weight:700;text-align:center;font-size:0.95rem; }
+  .judge-scores-table td.score-num { font-family:var(--font-display);font-weight:700;text-align:center;font-size:1.05rem; }
   .score-high { color:var(--rose); }
   .score-mid  { color:var(--slate); }
   .score-low  { color:rgba(1,22,50,0.35); }
-  .judge-comment-row td { padding:4px 8px 10px 8px;font-size:0.84rem;color:var(--slate);font-style:italic;border-bottom:1px solid rgba(1,22,50,0.06); }
-  .panel-note-row td { padding:4px 8px 10px 8px;font-size:0.84rem;color:#7a5700;background:#fef9ec;border-bottom:1px solid rgba(1,22,50,0.06); }
+  .judge-comment-row td { padding:6px 10px 12px 10px;font-size:0.92rem;color:var(--slate);font-style:italic;border-bottom:1px solid rgba(1,22,50,0.06); }
+  .panel-note-row td { padding:6px 10px 12px 10px;font-size:0.92rem;color:#7a5700;background:#fef9ec;border-bottom:1px solid rgba(1,22,50,0.06); }
 
   .breakdown-toggle {
     font-family:var(--font-display);font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;
@@ -151,7 +151,7 @@
     border-bottom: 1px solid var(--border);
   }
   .delib-header {
-    font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;
+    font-family:var(--font-display);font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;
     color:var(--slate);margin-bottom:0.75rem;
   }
   .delib-notes { margin-bottom: 0.75rem; }
@@ -160,12 +160,12 @@
     padding: 8px 10px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
     margin-bottom: 6px;
   }
-  .delib-note-author { font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy);margin-bottom:3px; }
-  .delib-note-text { font-family:var(--font-body);font-size:0.9rem;color:var(--navy);line-height:1.5; }
+  .delib-note-author { font-family:var(--font-display);font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy);margin-bottom:3px; }
+  .delib-note-text { font-family:var(--font-body);font-size:1.0rem;color:var(--navy);line-height:1.5; }
   .delib-note-time { font-family:var(--font-body);font-size:0.72rem;color:var(--slate);margin-top:2px; }
   .delib-input-wrap { display:flex;gap:6px; }
   .delib-input {
-    flex:1;font-family:var(--font-body);font-size:0.92rem;padding:8px 10px;
+    flex:1;font-family:var(--font-body);font-size:1.0rem;padding:8px 10px;
     border:1px solid var(--border);border-radius:var(--radius-sm);outline:none;color:var(--navy);
     resize:none;min-height:60px;
   }
@@ -178,12 +178,12 @@
     display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
   }
   .vote-count {
-    font-family:var(--font-display);font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate);
+    font-family:var(--font-display);font-size:0.85rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate);
   }
   .vote-count strong { color:var(--navy);font-size:0.75rem; }
-  .vote-names { font-family:var(--font-body);font-size:0.82rem;color:var(--slate);margin-top:2px; }
+  .vote-names { font-family:var(--font-body);font-size:0.9rem;color:var(--slate);margin-top:2px; }
   .vote-btn {
-    font-family:var(--font-display);font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;
+    font-family:var(--font-display);font-size:0.88rem;padding:10px 18px;letter-spacing:0.08em;text-transform:uppercase;
     padding:8px 14px;border-radius:var(--radius-sm);border:2px solid var(--border);
     background:white;cursor:pointer;color:var(--slate);transition:all 0.15s;
   }
@@ -307,23 +307,26 @@
     <div style="max-width:1400px;margin:0 auto">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem">
         <div style="flex:1">
-          <div style="font-family:var(--font-display);font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--denim);margin-bottom:0.5rem">How to deliberate</div>
+          <div style="font-family:var(--font-display);font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--denim);margin-bottom:0.75rem">Welcome to Jury Deliberation — here's what to do</div>
+          <div style="font-family:var(--font-body);font-size:0.88rem;color:var(--offwhite);margin-bottom:0.75rem;line-height:1.6">
+            Below are two tabs: <strong style="color:var(--denim)">Micro Shorts</strong> and <strong style="color:var(--denim)">Small Shorts</strong>. Each tab shows the <strong style="color:var(--rose)">top contenders</strong> — films with the highest average scores from our judges — plus any <strong style="color:#f5c842">wildcards</strong>, which are films that didn't make the top average but were ranked #1 or #2 by at least one judge. Every film deserves a fair look.
+          </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem">
             <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
-              <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 1</div>
-              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Click <strong style="color:var(--denim)">"Show individual scores"</strong> on any film to see every judge's rating and written comments.</div>
+              <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 1 — Watch &amp; Review</div>
+              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Click each film to expand it. Hit <strong style="color:var(--denim)">▶ Watch Film</strong> to rescreen it. Click <strong style="color:var(--denim)">"Show individual scores"</strong> to see every judge's ratings and comments.</div>
             </div>
             <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
-              <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 2</div>
-              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Add a <strong style="color:var(--denim)">deliberation note</strong> to share your thoughts. Good notes explain <em>why</em> — not just "I liked it." Help us decide!</div>
+              <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 2 — Add Notes</div>
+              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Write a <strong style="color:var(--denim)">deliberation note</strong> on each film. Notes are visible to all jurors in real time. Good notes explain <em>why</em> — not just "I liked it."</div>
             </div>
             <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
-              <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 3</div>
-              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Cast your <strong style="color:var(--denim)">ranked votes</strong> — pick your #1, #2, and #3 films. You <em>must</em> rank all three before your votes count.</div>
+              <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 3 — Rank Your Top 3</div>
+              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Use the <strong style="color:var(--denim)">#1 / #2 / #3</strong> buttons to rank your top three films. Do this for <em>both</em> tabs — Micro Shorts AND Small Shorts.</div>
             </div>
             <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
-              <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 4</div>
-              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Finish <strong style="color:var(--denim)">Micro Shorts first</strong>, then click the <strong style="color:var(--denim)">Small Shorts</strong> tab above and repeat.</div>
+              <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 4 — Submit When Done</div>
+              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">When you've ranked your top 3 in <em>both</em> categories, click <strong style="color:#3dffc0">I'm Done Voting</strong> at the bottom of the page. You can save your progress anytime and come back.</div>
             </div>
           </div>
         </div>
@@ -350,6 +353,16 @@
 
     <!-- Contenders -->
     <div class="contenders-grid" id="contendersGrid"></div>
+
+    <!-- Submit / Save bar -->
+    <div id="submitBar" style="background:white;border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.5rem;margin-top:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+      <div style="flex:1">
+        <div style="font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy);margin-bottom:3px">Your voting status</div>
+        <div style="font-family:var(--font-body);font-size:0.85rem;color:var(--slate)" id="votingStatusText">Check both tabs and rank your top 3 in each category.</div>
+      </div>
+      <button onclick="saveProgress()" style="font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid var(--border);padding:10px 18px;border-radius:var(--radius-sm);cursor:pointer;color:var(--slate)">💾 Save progress</button>
+      <button onclick="submitDoneVoting()" id="doneVotingBtn" style="font-family:var(--font-display);font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;background:#2a7a4b;color:white;border:none;padding:10px 20px;border-radius:var(--radius-sm);cursor:pointer">✓ I'm done voting</button>
+    </div>
 
   </div>
 </div>
@@ -689,6 +702,15 @@ function addNote(filmId, text) {
   flashToast("Note added ✓");
 }
 
+function copyPw(pw, el) {
+  navigator.clipboard.writeText(pw).then(() => {
+    const orig = el.innerHTML;
+    el.innerHTML = "✓ Copied!";
+    el.style.color = "#3dffc0";
+    setTimeout(() => { el.innerHTML = orig; el.style.color = ""; }, 1500);
+  });
+}
+
 function toggleCardBody(filmId) {
   const body = document.getElementById(`body-${filmId}`);
   const lbl  = document.getElementById(`expand-${filmId}`);
@@ -698,26 +720,47 @@ function toggleCardBody(filmId) {
   if (lbl) lbl.textContent = isOpen ? "▼ expand" : "▲ collapse";
 }
 
+function getExpandedCards() {
+  const expanded = {};
+  document.querySelectorAll(".card-jury-body").forEach(el => {
+    if (el.style.display !== "none") expanded[el.id.replace("body-","")] = true;
+  });
+  return expanded;
+}
+function restoreExpandedCards(expanded) {
+  Object.keys(expanded).forEach(filmId => {
+    const body = document.getElementById(`body-${filmId}`);
+    const lbl  = document.getElementById(`expand-${filmId}`);
+    if (body) { body.style.display = "block"; }
+    if (lbl)  { lbl.textContent = "▲ collapse"; }
+  });
+}
+
 function setRank(filmId, rank) {
   if (!votes[jurorName]) votes[jurorName] = {};
   const myVotes = votes[jurorName];
+  const expanded = getExpandedCards();
   // If this film already has this rank, remove it
   if (myVotes[`rank${rank}`] === filmId) {
     delete myVotes[`rank${rank}`];
     saveState();
     rerenderAllCards();
-    flashToast(`Rank #${rank} removed`);
+    restoreExpandedCards(expanded);
+    flashToast(`#${rank} vote removed`);
+    renderSummary();
     return;
   }
   // If this film already has a different rank, remove that
   [1,2,3].forEach(r => { if (myVotes[`rank${r}`] === filmId) delete myVotes[`rank${r}`]; });
-  // If another film has this rank, clear it
+  // If another film has this rank, clear it first
   if (myVotes[`rank${rank}`]) delete myVotes[`rank${rank}`];
   myVotes[`rank${rank}`] = filmId;
   saveState();
   rerenderAllCards();
+  restoreExpandedCards(expanded);
   flashToast(`Ranked #${rank} ✓`);
   updateAdminSummary();
+  renderSummary();
 }
 
 function getMyRankForFilm(filmId) {
@@ -892,7 +935,8 @@ function filmCardHTML(filmId, type) {
     <div class="card-jury-header" onclick="toggleCardBody('${filmId}')">
       <div style="display:flex;align-items:center;gap:0.75rem;flex:1;min-width:0;flex-wrap:wrap">
         <div class="card-jury-title">${esc(f.title)}</div>
-        ${f.watchUrl?`<a href="${esc(f.watchUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--denim);text-decoration:none;background:rgba(158,199,213,0.15);padding:4px 10px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0">▶ Watch Film${f.password?` <span style='font-size:0.52rem;opacity:0.75'>pw: ${esc(f.password)}</span>`:''}</a>`:''}
+        ${f.watchUrl?`<a href="${esc(f.watchUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--denim);text-decoration:none;background:rgba(158,199,213,0.15);padding:5px 12px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0">▶ Watch Film</a>`:''}
+        ${f.password?`<span onclick="event.stopPropagation();copyPw('${esc(f.password)}',this)" title="Click to copy password" style="font-family:var(--font-body);font-size:0.72rem;color:rgba(158,199,213,0.9);cursor:pointer;background:rgba(255,255,255,0.08);padding:4px 10px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0;border:1px solid rgba(158,199,213,0.3)">🔑 ${esc(f.password)}</span>`:''}
         ${rankLabel}
       </div>
       <div style="display:flex;align-items:center;gap:0.75rem;flex-shrink:0">
@@ -909,7 +953,7 @@ function filmCardHTML(filmId, type) {
 
     <div class="score-breakdown">
       <div class="breakdown-header">
-        <span>Judge scores — avg / orig / prod / cre / ent</span>
+        <span>Judge scores</span>
         <button class="breakdown-toggle" data-id="${filmId}">Show individual scores</button>
       </div>
       <table class="judge-scores-table" id="breakdown-${filmId}" style="display:none">
@@ -976,9 +1020,11 @@ function updateAdminSummary() {
     if (pts) voteMap[films[c.id]?.title||c.id] = pts;
   });
   const sorted = Object.entries(voteMap).sort((a,b)=>b[1]-a[1]);
-  document.getElementById("adminVoteSummary").textContent = sorted.length
-    ? "Votes: " + sorted.map(([t,v])=>`${t} (${v})`).join(" · ")
-    : "No votes yet";
+  const completed = getCompletedJurors();
+  const completedList = Object.keys(completed);
+  const voteStr = sorted.length ? "Points: " + sorted.map(([t,v])=>`${t}(${v})`).join(", ") : "No votes yet";
+  const doneStr = completedList.length ? " · Done: " + completedList.join(", ") : " · No submissions yet";
+  document.getElementById("adminVoteSummary").textContent = voteStr + doneStr;
 }
 
 // ─── ADMIN ACTIONS ────────────────────────────────────────────────────────────
@@ -1142,6 +1188,65 @@ function showPasteModalChunks(chunks, totalChars) {
       <button onclick="document.getElementById('pasteModal').remove()" style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid var(--border);padding:10px 16px;border-radius:var(--radius-sm);cursor:pointer;color:var(--slate);width:100%;margin-top:0.5rem">Done</button>
     </div>`;
   document.body.appendChild(modal);
+}
+
+// ─── PROGRESS & COMPLETION ───────────────────────────────────────────────────
+let completedJurors = {}; // { jurorName: timestamp }
+
+function getVotingCompleteness() {
+  const myVotes = votes[jurorName] || {};
+  const microContenders = contenders.Micro || [];
+  const smallContenders = contenders.Small || [];
+  const hasMicroVotes = myVotes.rank1 && microContenders.some(c=>c.id===myVotes.rank1||c.id===myVotes.rank2||c.id===myVotes.rank3);
+  const hasSmallVotes = myVotes.rank1 && smallContenders.some(c=>c.id===myVotes.rank1||c.id===myVotes.rank2||c.id===myVotes.rank3);
+  // Check if they have 3 votes in micro
+  const microVotes = microContenders.filter(c=>[myVotes.rank1,myVotes.rank2,myVotes.rank3].includes(c.id));
+  const smallVotes = smallContenders.filter(c=>[myVotes.rank1,myVotes.rank2,myVotes.rank3].includes(c.id));
+  return { microVotes: microVotes.length, smallVotes: smallVotes.length };
+}
+
+function updateVotingStatusText() {
+  const { microVotes, smallVotes } = getVotingCompleteness();
+  const el = document.getElementById("votingStatusText");
+  if (!el) return;
+  const microDone = microVotes >= 3;
+  const smallDone = smallVotes >= 3;
+  if (microDone && smallDone) {
+    el.innerHTML = `<span style="color:#2a7a4b">✓ Micro Shorts: ${microVotes}/3 votes</span> &nbsp;·&nbsp; <span style="color:#2a7a4b">✓ Small Shorts: ${smallVotes}/3 votes</span> &nbsp;·&nbsp; <strong>Ready to submit!</strong>`;
+  } else {
+    el.innerHTML = `${microDone?'<span style="color:#2a7a4b">✓':'<span style="color:var(--rose)">✗'} Micro Shorts: ${microVotes}/3 ranked</span> &nbsp;·&nbsp; ${smallDone?'<span style="color:#2a7a4b">✓':'<span style="color:var(--rose)">✗'} Small Shorts: ${smallVotes}/3 ranked</span>`;
+  }
+}
+
+function saveProgress() {
+  saveState();
+  flashToast("Progress saved ✓ — come back anytime");
+}
+
+function submitDoneVoting() {
+  const { microVotes, smallVotes } = getVotingCompleteness();
+  if (microVotes < 3 || smallVotes < 3) {
+    const missing = [];
+    if (microVotes < 3) missing.push(`Micro Shorts (${microVotes}/3 ranked)`);
+    if (smallVotes < 3) missing.push(`Small Shorts (${smallVotes}/3 ranked)`);
+    alert(`You haven't finished ranking yet!\n\nStill needed:\n• ${missing.join("\n• ")}\n\nPlease go back and rank your top 3 films in each category, then come back and click "I'm Done Voting."`);
+    return;
+  }
+  // Mark as complete
+  try {
+    const completed = JSON.parse(localStorage.getItem("btssff-jury-completed")||"{}");
+    completed[jurorName] = new Date().toLocaleString();
+    localStorage.setItem("btssff-jury-completed", JSON.stringify(completed));
+  } catch {}
+  saveState();
+  const btn = document.getElementById("doneVotingBtn");
+  if (btn) { btn.textContent = "✓ Voting complete!"; btn.style.background = "#2a7a4b"; btn.disabled = true; }
+  flashToast("Voting submitted! Thank you.");
+  updateAdminSummary();
+}
+
+function getCompletedJurors() {
+  try { return JSON.parse(localStorage.getItem("btssff-jury-completed")||"{}"); } catch { return {}; }
 }
 
 function exportDeliberation() {
