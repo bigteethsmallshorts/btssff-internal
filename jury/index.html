@@ -70,23 +70,22 @@
   .cat-tab:hover { color: var(--navy); }
   .cat-tab.active { color: var(--navy); border-bottom-color: var(--rose); font-weight: 700; }
 
-  /* ── Summary stats ── */
+  /* ── Summary stats — compact inline strip ── */
   .summary-bar {
-    display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;
-  }
-  .summary-card {
+    display: flex; gap: 1.5rem; margin-bottom: 1rem;
     background: white; border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 0.75rem 1rem; flex: 1; min-width: 140px;
+    padding: 0.6rem 1rem; align-items: center; flex-wrap: wrap;
   }
-  .summary-label { font-family:var(--font-display);font-size:0.52rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:4px; }
-  .summary-value { font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--navy); }
-  .summary-sub { font-family:var(--font-body);font-size:0.72rem;color:var(--slate);margin-top:2px; }
+  .summary-card { display:flex;align-items:center;gap:6px; border:none;padding:0;background:none;min-width:auto;flex:none; }
+  .summary-label { font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate); }
+  .summary-value { font-family:var(--font-display);font-size:0.85rem;font-weight:700;color:var(--navy); }
+  .summary-sub { display:none; }
 
-  /* ── Contenders grid ── */
+  /* ── Contenders list — thin cards, full width ── */
   .contenders-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
-    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
   }
 
   /* ── Film card ── */
@@ -102,14 +101,16 @@
   .film-card-jury.wildcard { border-left: 4px solid #b8860b; }
 
   .card-jury-header {
-    background: var(--navy); padding: 0.85rem 1rem;
-    display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem;
+    background: var(--navy); padding: 0.65rem 1rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+    cursor: pointer;
   }
-  .card-jury-title { font-family:var(--font-title);font-size:1.4rem;font-weight:500;color:var(--offwhite);line-height:1.2;flex:1; }
+  .card-jury-header:hover { background: #0a2040; }
+  .card-jury-title { font-family:var(--font-title);font-size:1.1rem;font-weight:500;color:var(--offwhite);line-height:1.2;flex:1; }
   .avg-badge {
-    font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:white;
+    font-family:var(--font-display);font-size:1rem;font-weight:700;color:white;
     background:var(--rose);border-radius:var(--radius-sm);
-    min-width:50px;height:50px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    min-width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
   }
 
   .card-jury-meta { padding:0.6rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap; }
@@ -673,6 +674,15 @@ function addNote(filmId, text) {
   flashToast("Note added ✓");
 }
 
+function toggleCardBody(filmId) {
+  const body = document.getElementById(`body-${filmId}`);
+  const lbl  = document.getElementById(`expand-${filmId}`);
+  if (!body) return;
+  const isOpen = body.style.display !== "none";
+  body.style.display = isOpen ? "none" : "block";
+  if (lbl) lbl.textContent = isOpen ? "▼ expand" : "▲ collapse";
+}
+
 function setRank(filmId, rank) {
   if (!votes[jurorName]) votes[jurorName] = {};
   const myVotes = votes[jurorName];
@@ -718,7 +728,30 @@ function getVoterCount(filmId) {
 
 function rerenderAllCards() {
   const cat = contenders[activeTab]||[];
-  cat.forEach(c => renderFilmCard(c.id));
+  cat.forEach(c => {
+    // Always use frozen type from cardTypeMap
+    const card = document.getElementById(`card-${c.id}`);
+    if (card) card.outerHTML = filmCardHTML(c.id, cardTypeMap[c.id]||c.type);
+    // Re-wire
+    const newCard = document.getElementById(`card-${c.id}`);
+    if (newCard) {
+      newCard.querySelectorAll(".rank-btn").forEach(btn => {
+        btn.addEventListener("click", () => setRank(btn.dataset.id, parseInt(btn.dataset.rank)));
+      });
+      newCard.querySelectorAll(".note-submit-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const ta = document.getElementById(`note-input-${btn.dataset.id}`);
+          if (ta) { addNote(btn.dataset.id, ta.value); ta.value = ""; }
+        });
+      });
+      newCard.querySelectorAll(".breakdown-toggle").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const bd = document.getElementById(`breakdown-${btn.dataset.id}`);
+          if (bd) { bd.style.display = bd.style.display==="none"?"table":"none"; btn.textContent = bd.style.display==="none"?"Show individual scores":"Hide scores"; }
+        });
+      });
+    }
+  });
   renderSummary();
   updateAdminSummary();
 }
@@ -755,27 +788,22 @@ function renderSummary() {
   const voted = new Set(cat.flatMap(c => votes[c.id]||[]));
 
   document.getElementById("summaryBar").innerHTML = `
-    <div class="summary-card">
-      <div class="summary-label">Top contenders</div>
-      <div class="summary-value">${top5.length}</div>
-      <div class="summary-sub">by average score</div>
-    </div>
-    <div class="summary-card" style="border-left:3px solid #b8860b">
-      <div class="summary-label">Wildcard additions</div>
-      <div class="summary-value">${wild.length}</div>
-      <div class="summary-sub">judge's top picks</div>
-    </div>
-    <div class="summary-card" style="border-left:3px solid var(--rose)">
-      <div class="summary-label">Total votes cast</div>
-      <div class="summary-value">${totalVotes}</div>
-      <div class="summary-sub">${voted.size} juror${voted.size!==1?"s":""} voted</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-label">Notes added</div>
-      <div class="summary-value">${cat.reduce((s,c)=>s+(notes[c.id]||[]).length,0)}</div>
-      <div class="summary-sub">across all contenders</div>
+    <div class="summary-card"><span class="summary-label">Top contenders</span><span class="summary-value" style="color:var(--rose)">${top5.length}</span></div>
+    <div style="width:1px;height:16px;background:var(--border)"></div>
+    <div class="summary-card"><span class="summary-label">Wildcards</span><span class="summary-value" style="color:#b8860b">${wild.length}</span></div>
+    <div style="width:1px;height:16px;background:var(--border)"></div>
+    <div class="summary-card"><span class="summary-label">Votes cast</span><span class="summary-value">${totalVotes}</span></div>
+    <div style="width:1px;height:16px;background:var(--border)"></div>
+    <div class="summary-card"><span class="summary-label">Notes</span><span class="summary-value">${cat.reduce((s,c)=>s+(notes[c.id]||[]).length,0)}</span></div>
+    <div style="margin-left:auto;font-family:var(--font-body);font-size:0.78rem;color:var(--slate)">Your votes: 
+      <strong style="color:${votes[jurorName]?.rank1?'#2a7a4b':'var(--slate)'}">▪ #1</strong>
+      <strong style="color:${votes[jurorName]?.rank2?'var(--denim)':'var(--slate)'}"> ▪ #2</strong>
+      <strong style="color:${votes[jurorName]?.rank3?'var(--slate)':'rgba(84,110,133,0.4)'}"> ▪ #3</strong>
     </div>`;
 }
+
+// Store card types so voting doesn't change them
+let cardTypeMap = {};
 
 function renderContenders() {
   const cat = contenders[activeTab] || [];
@@ -783,6 +811,8 @@ function renderContenders() {
   const top5  = cat.filter(c=>c.type==="top5").sort((a,b)=>(films[b.id]?.allJudgesAvg||0)-(films[a.id]?.allJudgesAvg||0));
   const wild  = cat.filter(c=>c.type==="wildcard").sort((a,b)=>(films[b.id]?.allJudgesAvg||0)-(films[a.id]?.allJudgesAvg||0));
   const sorted = [...top5, ...wild];
+  // Freeze types
+  sorted.forEach(c => { cardTypeMap[c.id] = c.type; });
 
   document.getElementById("contendersGrid").innerHTML = sorted.map(c => filmCardHTML(c.id, c.type)).join("");
   // Wire submit buttons
@@ -839,14 +869,23 @@ function filmCardHTML(filmId, type) {
     ? `<div class="vote-names">${myVotes.map(esc).join(", ")}</div>`
     : "";
 
+  const myRank = getMyRankForFilm(filmId);
+  const rankColors = {1:'#2a7a4b',2:'var(--denim)',3:'var(--slate)'};
+  const rankLabel = myRank ? `<span style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;background:${rankColors[myRank]};color:white;padding:2px 8px;border-radius:var(--radius-sm);margin-left:8px">My #${myRank}</span>` : "";
+
   return `<div class="film-card-jury ${type}" id="card-${filmId}">
-    <div class="card-jury-header">
-      <div>
+    <div class="card-jury-header" onclick="toggleCardBody('${filmId}')">
+      <div style="display:flex;align-items:center;gap:0.75rem;flex:1;min-width:0">
         <div class="card-jury-title">${esc(f.title)}</div>
-        <div style="font-family:var(--font-body);font-size:0.72rem;color:var(--denim);margin-top:3px">${esc(f.genre)} · ${f.ratedByCount} judges</div>
+        ${rankLabel}
+        <div style="font-family:var(--font-body);font-size:0.72rem;color:var(--denim);flex-shrink:0">${esc(f.genre)} · ${f.ratedByCount} judges</div>
       </div>
-      <div class="avg-badge">${avg.toFixed(1)}</div>
+      <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0">
+        <span style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--denim)" id="expand-${filmId}">▼ expand</span>
+        <div class="avg-badge">${avg.toFixed(1)}</div>
+      </div>
     </div>
+    <div class="card-jury-body" id="body-${filmId}" style="display:none">
     <div class="card-jury-meta">
       <span class="contender-tag ${type==="top5"?"tag-top5":"tag-wildcard"}">${type==="top5"?"Top contender":"Wildcard — judge's pick"}</span>
       <span style="font-family:var(--font-display);font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate)">${esc(f.cat)}</span>
@@ -892,7 +931,7 @@ function filmCardHTML(filmId, type) {
 function renderFilmCard(filmId) {
   const card = document.getElementById(`card-${filmId}`);
   if (!card) return;
-  const type = card.classList.contains("top-5") ? "top5" : "wildcard";
+  const type = cardTypeMap[filmId] || (card.classList.contains("film-card-jury top-5") ? "top5" : "wildcard");
   card.outerHTML = filmCardHTML(filmId, type);
   // Re-wire
   document.getElementById(`card-${filmId}`)?.querySelectorAll(".note-submit-btn").forEach(btn => {
