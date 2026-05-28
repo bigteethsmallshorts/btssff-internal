@@ -377,7 +377,10 @@ const ADMIN_PASSWORD_2 = "juryadmin2026";  // same as ADMIN_PASSWORD
 
 // Google Form for publishing jury data
 const JURY_DATA_FORM_ID    = "1FAIpQLScc7su3ztcNI42sub8LdK630G2j9-o-KRzv1DNtykXhUJP6yA";
-const JURY_DATA_FIELD      = "entry.338083048";
+const JURY_DATA_FIELD        = "entry.338083048";
+const JURY_NOTES_FIELD       = "entry.1146716923";
+const JURY_VOTES_FIELD       = "entry.1791110471";
+const JURY_COMPLETE_FIELD    = "entry.1213956775";
 const JURY_DATA_SHEET_ID   = "1HN1noc_KPfYpII8sjjjpZwocGOW8qibvHIT8eaTZZ2o";
 const ADMIN_PASSWORD = "juryadmin2026";
 const TOP_N          = 5; // top N per category
@@ -443,6 +446,38 @@ function checkGate() {
         films = data.films;
         contenders = data.contenders;
         loadState();
+        // Merge sheet notes
+        if (data.sheetNotes) {
+          Object.entries(data.sheetNotes).forEach(([filmId, noteList]) => {
+            if (!notes[filmId]) notes[filmId] = [];
+            noteList.forEach(note => {
+              const exists = notes[filmId].some(n=>n.author===note.author&&n.text===note.text);
+              if (!exists) notes[filmId].push(note);
+            });
+          });
+          try { localStorage.setItem("btssff-jury-notes", JSON.stringify(notes)); } catch {}
+        }
+        // Merge sheet votes — sheet wins for other jurors, local wins for self
+        if (data.sheetVotes) {
+          Object.entries(data.sheetVotes).forEach(([juror, jurorVotes]) => {
+            if (juror !== jurorName) {
+              // Other jurors' votes — always use sheet version
+              votes[juror] = jurorVotes;
+            } else if (!votes[jurorName] || Object.keys(votes[jurorName]).length === 0) {
+              // Own votes — only use sheet if local is empty
+              votes[jurorName] = jurorVotes;
+            }
+          });
+          try { localStorage.setItem("btssff-jury-votes", JSON.stringify(votes)); } catch {}
+        }
+        // Merge completions
+        if (data.sheetCompletions) {
+          try {
+            const local = JSON.parse(localStorage.getItem("btssff-jury-completed")||"{}");
+            const merged = {...data.sheetCompletions, ...local};
+            localStorage.setItem("btssff-jury-completed", JSON.stringify(merged));
+          } catch {}
+        }
         render();
         // Jurors don't get upload/export buttons
       } else {
@@ -684,16 +719,34 @@ function saveState() {
   try { localStorage.setItem("btssff-jury-votes", JSON.stringify(votes)); } catch {}
 }
 
+function submitFieldToForm(fieldName, value) {
+  const formId = JURY_DATA_FORM_ID;
+  let iframe = document.getElementById("jury-field-submitter");
+  if (!iframe) {
+    iframe = document.createElement("iframe");
+    iframe.id = "jury-field-submitter"; iframe.name = "jury-field-submitter";
+    iframe.style.display = "none"; document.body.appendChild(iframe);
+  }
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = `https://docs.google.com/forms/d/e/${formId}/formResponse`;
+  form.target = "jury-field-submitter";
+  const input = document.createElement("input");
+  input.type = "hidden"; input.name = fieldName; input.value = value;
+  form.appendChild(input);
+  document.body.appendChild(form); form.submit(); document.body.removeChild(form);
+}
+
 function addNote(filmId, text) {
   if (!text.trim()) return;
   if (!notes[filmId]) notes[filmId] = [];
   notes[filmId].push({ author: jurorName, text: text.trim(), time: new Date().toLocaleString() });
   saveState();
-  // Only update the notes section, don't re-render the whole card
+  submitNotesToForm();
+  // Update notes section in place
   const notesEl = document.getElementById(`notes-${filmId}`);
   if (notesEl) {
-    const filmNotes = notes[filmId];
-    notesEl.innerHTML = filmNotes.map(n => `<div class="delib-note">
+    notesEl.innerHTML = notes[filmId].map(n => `<div class="delib-note">
       <div class="delib-note-author">${esc(n.author)}</div>
       <div class="delib-note-text">${esc(n.text)}</div>
       <div class="delib-note-time">${n.time}</div>
@@ -701,6 +754,10 @@ function addNote(filmId, text) {
   }
   renderSummary();
   flashToast("Note added ✓");
+}
+
+function submitNotesToForm() {
+  submitFieldToForm(JURY_NOTES_FIELD, JSON.stringify(notes));
 }
 
 function copyPw(pw, el) {
@@ -745,6 +802,7 @@ function setRank(filmId, rank) {
   if (myVotes[`rank${rank}`] === filmId) {
     delete myVotes[`rank${rank}`];
     saveState();
+    submitFieldToForm(JURY_VOTES_FIELD, JSON.stringify({juror: jurorName, votes: myVotes, ts: Date.now()}));
     rerenderAllCards();
     restoreExpandedCards(expanded);
     flashToast(`#${rank} vote removed`);
@@ -757,6 +815,7 @@ function setRank(filmId, rank) {
   if (myVotes[`rank${rank}`]) delete myVotes[`rank${rank}`];
   myVotes[`rank${rank}`] = filmId;
   saveState();
+  submitFieldToForm(JURY_VOTES_FIELD, JSON.stringify({juror: jurorName, votes: myVotes, ts: Date.now()}));
   rerenderAllCards();
   restoreExpandedCards(expanded);
   flashToast(`Ranked #${rank} ✓`);
@@ -1165,20 +1224,63 @@ async function loadFromSheet() {
     if (!res.ok) return null;
     const rows = parseCSV(await res.text());
     if (rows.length < 2) return null;
-    // Check for data in row 2 (index 1), columns B onward
-    // Concatenate all non-empty cells in that row (skip timestamp in col A)
+
+    // Film data is in row 2 col B (possibly split across B,C,D...)
+    // Notes submissions are in later rows col C
     const dataRow = rows[1];
     let combined = "";
     for (let c = 1; c < dataRow.length; c++) {
       const cell = (dataRow[c]||"").trim();
       if (cell) combined += cell;
     }
+    let filmData = null;
     if (combined && combined.includes("{")) {
-      // Find the JSON start
-      const start = combined.indexOf("{");
-      return JSON.parse(combined.slice(start));
+      filmData = JSON.parse(combined.slice(combined.indexOf("{")));
     }
-    return null;
+
+    // Columns: A=timestamp, B=jury data, C=notes, D=votes, E=completion
+    let latestNotes = {};
+    const latestVotes = {};   // { jurorName: {rank1,rank2,rank3} }
+    const completions = {};   // { jurorName: timestamp }
+
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      // Notes (col C = index 2)
+      const notesCell = (row[2]||"").trim();
+      if (notesCell && notesCell.startsWith("{")) {
+        try {
+          const parsed = JSON.parse(notesCell);
+          Object.entries(parsed).forEach(([filmId, noteList]) => {
+            if (!latestNotes[filmId]) latestNotes[filmId] = [];
+            noteList.forEach(note => {
+              const exists = latestNotes[filmId].some(n=>n.author===note.author&&n.text===note.text);
+              if (!exists) latestNotes[filmId].push(note);
+            });
+          });
+        } catch {}
+      }
+      // Votes (col D = index 3)
+      const votesCell = (row[3]||"").trim();
+      if (votesCell && votesCell.startsWith("{")) {
+        try {
+          const parsed = JSON.parse(votesCell);
+          if (parsed.juror && parsed.votes) {
+            // Keep most recent per juror (rows are chronological)
+            latestVotes[parsed.juror] = parsed.votes;
+          }
+        } catch {}
+      }
+      // Completion (col E = index 4)
+      const completeCell = (row[4]||"").trim();
+      if (completeCell && completeCell.startsWith("{")) {
+        try {
+          const parsed = JSON.parse(completeCell);
+          if (parsed.juror) completions[parsed.juror] = parsed.completedAt;
+        } catch {}
+      }
+    }
+
+    return filmData ? { ...filmData, sheetNotes: latestNotes, sheetVotes: latestVotes, sheetCompletions: completions } : null;
   } catch(e) { console.error("loadFromSheet error:", e); return null; }
 }
 
@@ -1257,6 +1359,7 @@ function submitDoneVoting() {
     localStorage.setItem("btssff-jury-completed", JSON.stringify(completed));
   } catch {}
   saveState();
+  submitFieldToForm(JURY_COMPLETE_FIELD, JSON.stringify({juror: jurorName, completedAt: new Date().toLocaleString()}));
   const btn = document.getElementById("doneVotingBtn");
   if (btn) { btn.textContent = "✓ Voting complete!"; btn.style.background = "#2a7a4b"; btn.disabled = true; }
   flashToast("Voting submitted! Thank you.");
