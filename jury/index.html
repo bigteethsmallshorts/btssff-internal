@@ -959,35 +959,56 @@ function revealResults() {
 function publishForJurors() {
   if (!Object.keys(films).length) { flashToast("No data to publish"); return; }
 
+  // Trim to contender films only, and truncate long comments to save space
+  const contenderIds = new Set([
+    ...(contenders.Micro||[]).map(c=>c.id),
+    ...(contenders.Small||[]).map(c=>c.id),
+  ]);
+  const trim = s => (s||"").slice(0, 200); // truncate comments to 200 chars
+
   const payload = {
     publishedAt: new Date().toISOString(),
     contenders,
-    films: Object.fromEntries(Object.entries(films).map(([id, f]) => [id, {
-      id: f.id, title: f.title, cat: f.cat, size: f.size, genre: f.genre,
-      allJudgesAvg: f.allJudgesAvg, ratedByCount: f.ratedByCount,
-      watchUrl: f.watchUrl||"", password: f.password||"",
-      judges: f.judges.map(j => ({
-        name: j.name, avgRating: j.avgRating,
-        originality: j.originality, production: j.production,
-        creativity: j.creativity, entertainment: j.entertainment,
-        pacing: j.pacing, structure: j.structure, sound: j.sound,
-        comment: j.comment||"", panelNote: j.panelNote||""
-      }))
-    }]))
+    films: Object.fromEntries(
+      [...contenderIds].map(id => {
+        const f = films[id]; if (!f) return [id, null];
+        return [id, {
+          id: f.id, title: f.title, cat: f.cat, size: f.size, genre: f.genre,
+          allJudgesAvg: f.allJudgesAvg, ratedByCount: f.ratedByCount,
+          watchUrl: f.watchUrl||"", password: f.password||"",
+          judges: f.judges.map(j => ({
+            name: j.name, avgRating: j.avgRating,
+            originality: j.originality, production: j.production,
+            creativity: j.creativity, entertainment: j.entertainment,
+            comment: trim(j.comment), panelNote: trim(j.panelNote)
+          }))
+        }];
+      }).filter(([,v])=>v)
+    )
   };
 
   const json = JSON.stringify(payload);
+  console.log("Payload size:", json.length, "chars");
 
-  // Copy to clipboard + show instruction modal
-  navigator.clipboard.writeText(json).then(() => {
-    showPasteModal();
-  }).catch(() => {
-    // Fallback: show text area to manually copy
-    showPasteModal(json);
-  });
+  // Split into multiple cells if needed
+  const CELL_LIMIT = 45000;
+  if (json.length > CELL_LIMIT) {
+    // Split across multiple cells
+    const chunks = [];
+    for (let i = 0; i < json.length; i += CELL_LIMIT) {
+      chunks.push(json.slice(i, i + CELL_LIMIT));
+    }
+    showPasteModalChunks(chunks, json.length);
+  } else {
+    navigator.clipboard.writeText(json).then(() => {
+      showPasteModal(null, json.length);
+    }).catch(() => {
+      showPasteModal(json, json.length);
+    });
+  }
 }
 
-function showPasteModal(fallbackText) {
+function showPasteModal(fallbackText, charCount) {
   const existing = document.getElementById("pasteModal");
   if (existing) existing.remove();
 
@@ -1000,7 +1021,7 @@ function showPasteModal(fallbackText) {
       <div style="font-family:var(--font-body);font-size:0.88rem;color:var(--navy);line-height:1.7;margin-bottom:1.25rem">
         ${fallbackText
           ? `<strong>Step 1:</strong> Select all text in the box below and copy it (Cmd+A, Cmd+C)<br>`
-          : `<strong>Step 1:</strong> Data copied to clipboard ✓<br>`}
+          : `<strong>Step 1:</strong> Data copied to clipboard ✓ (${charCount||0} chars)<br>`}
         <strong>Step 2:</strong> Open the <a href="https://docs.google.com/spreadsheets/d/${JURY_DATA_SHEET_ID}/edit" target="_blank" style="color:var(--denim)">Jury Data sheet ↗</a><br>
         <strong>Step 3:</strong> Click cell <strong>B2</strong>, paste (Cmd+V), and press Enter
       </div>
@@ -1025,16 +1046,48 @@ async function loadFromSheet() {
     const res = await fetch(url);
     if (!res.ok) return null;
     const rows = parseCSV(await res.text());
-    // Find most recent row with data in column B (the Jury Data field)
-    // Rows: timestamp | jury data
-    for (let i = rows.length - 1; i >= 1; i--) {
-      const cell = (rows[i][1] || "").trim();
-      if (cell && cell.startsWith("{")) {
-        return JSON.parse(cell);
-      }
+    if (rows.length < 2) return null;
+    // Check for data in row 2 (index 1), columns B onward
+    // Concatenate all non-empty cells in that row (skip timestamp in col A)
+    const dataRow = rows[1];
+    let combined = "";
+    for (let c = 1; c < dataRow.length; c++) {
+      const cell = (dataRow[c]||"").trim();
+      if (cell) combined += cell;
+    }
+    if (combined && combined.includes("{")) {
+      // Find the JSON start
+      const start = combined.indexOf("{");
+      return JSON.parse(combined.slice(start));
     }
     return null;
-  } catch { return null; }
+  } catch(e) { console.error("loadFromSheet error:", e); return null; }
+}
+
+function showPasteModalChunks(chunks, totalChars) {
+  const existing = document.getElementById("pasteModal");
+  if (existing) existing.remove();
+  const modal = document.createElement("div");
+  modal.id = "pasteModal";
+  modal.style.cssText = "position:fixed;inset:0;background:rgba(1,22,50,0.85);z-index:500;display:flex;align-items:center;justify-content:center;padding:2rem";
+
+  const chunkHtml = chunks.map((chunk, i) => `
+    <div style="margin-bottom:0.75rem">
+      <div style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate);margin-bottom:3px">Paste into cell B${i+2} (${chunk.length} chars)</div>
+      <textarea onclick="this.select();navigator.clipboard.writeText(this.value)" style="width:100%;height:50px;font-size:0.6rem;border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px;font-family:monospace;resize:none;cursor:pointer" title="Click to copy">${chunk}</textarea>
+    </div>`).join("");
+
+  modal.innerHTML = `
+    <div style="background:white;border-radius:var(--radius-lg);padding:2rem;max-width:600px;width:100%;max-height:90vh;overflow-y:auto">
+      <div style="font-family:var(--font-display);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);margin-bottom:0.5rem">Data is ${totalChars} chars — split across ${chunks.length} cells</div>
+      <div style="font-family:var(--font-body);font-size:0.85rem;color:var(--navy);margin-bottom:1rem">
+        Click each box to copy it, then paste into the matching cell in the sheet.<br>
+        <a href="https://docs.google.com/spreadsheets/d/${JURY_DATA_SHEET_ID}/edit" target="_blank" style="color:var(--denim)">Open Jury Data sheet ↗</a>
+      </div>
+      ${chunkHtml}
+      <button onclick="document.getElementById('pasteModal').remove()" style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid var(--border);padding:10px 16px;border-radius:var(--radius-sm);cursor:pointer;color:var(--slate);width:100%;margin-top:0.5rem">Done</button>
+    </div>`;
+  document.body.appendChild(modal);
 }
 
 function exportDeliberation() {
