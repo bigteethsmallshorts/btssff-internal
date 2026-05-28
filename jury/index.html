@@ -255,6 +255,7 @@
   <div class="header-actions">
     <span id="jurorBadge" style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--denim)"></span>
     <button class="btn btn-ghost" id="uploadNewBtn" onclick="showUpload()" style="font-size:0.6rem;color:var(--denim);border-color:rgba(158,199,213,0.4);display:none">↑ New CSV</button>
+    <button class="btn btn-denim" id="publishBtn" onclick="publishForJurors()" style="font-size:0.6rem;display:none">📤 Publish for jurors</button>
     <button class="btn btn-ghost" onclick="exportDeliberation()" id="exportBtn" style="font-size:0.6rem;color:var(--denim);border-color:rgba(158,199,213,0.4);display:none">Export Report</button>
   </div>
 </header>
@@ -336,6 +337,12 @@
 <script>
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
 const JURY_PASSWORD  = "jury2026";
+const ADMIN_PASSWORD_2 = "juryadmin2026";  // same as ADMIN_PASSWORD
+
+// Google Form for publishing jury data
+const JURY_DATA_FORM_ID    = "1FAIpQLScc7su3ztcNI42sub8LdK630G2j9-o-KRzv1DNtykXhUJP6yA";
+const JURY_DATA_FIELD      = "entry.338083048";
+const JURY_DATA_SHEET_ID   = "1HN1noc_KPfYpII8sjjjpZwocGOW8qibvHIT8eaTZZ2o";
 const ADMIN_PASSWORD = "juryadmin2026";
 const TOP_N          = 5; // top N per category
 
@@ -373,17 +380,45 @@ function checkGate() {
   document.getElementById("jurorBadge").textContent = `Juror: ${jurorName}${isAdmin?" · Admin":""}`;
   loadState();
   // Check if we have cached data
-  const cached = localStorage.getItem("btssff-jury-csvdata");
-  if (cached) {
-    try {
-      allData = JSON.parse(cached);
-      const cachedSubs = localStorage.getItem("btssff-jury-submissions");
-      if (cachedSubs) submissionsData = JSON.parse(cachedSubs);
-      processData();
-      showApp();
-    } catch { showUploadScreen(); }
+  if (isAdmin) {
+    // Admin: check for cached CSV data
+    const cached = localStorage.getItem("btssff-jury-csvdata");
+    if (cached) {
+      try {
+        allData = JSON.parse(cached);
+        const cachedSubs = localStorage.getItem("btssff-jury-submissions");
+        if (cachedSubs) submissionsData = JSON.parse(cachedSubs);
+        processData();
+        showApp();
+      } catch { showUploadScreen(); }
+    } else {
+      showUploadScreen();
+    }
   } else {
-    showUploadScreen();
+    // Juror: load from published sheet
+    document.getElementById("gate").style.display = "none";
+    document.getElementById("jurorBadge").textContent = `Juror: ${jurorName}`;
+    // Show loading state
+    document.getElementById("uploadScreen").style.display = "none";
+    document.getElementById("appScreen").style.display = "block";
+    document.getElementById("contendersGrid").innerHTML = '<div class="loading-spinner">Loading films…</div>';
+    loadFromSheet().then(data => {
+      if (data) {
+        films = data.films;
+        contenders = data.contenders;
+        loadState();
+        render();
+        document.getElementById("uploadNewBtn").style.display = "";
+        document.getElementById("exportBtn").style.display = "";
+      } else {
+        document.getElementById("contendersGrid").innerHTML =
+          `<div style="text-align:center;padding:4rem;font-family:var(--font-body);color:var(--slate)">
+            <div style="font-size:2rem;margin-bottom:1rem">⏳</div>
+            <div style="font-family:var(--font-display);font-size:0.8rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);margin-bottom:0.5rem">Not published yet</div>
+            <div style="font-size:0.88rem">The programming team hasn't published the jury data yet. Check back soon or contact Keriann.</div>
+          </div>`;
+      }
+    });
   }
 }
 document.getElementById("gatePassInput").addEventListener("keydown", e => { if(e.key==="Enter") checkGate(); });
@@ -479,7 +514,10 @@ function showApp() {
   document.getElementById("appScreen").style.display = "block";
   document.getElementById("uploadNewBtn").style.display = "";
   document.getElementById("exportBtn").style.display = "";
-  if (isAdmin) document.getElementById("adminBar").style.display = "flex";
+  if (isAdmin) {
+    document.getElementById("adminBar").style.display = "flex";
+    document.getElementById("publishBtn").style.display = "";
+  }
   render();
 }
 
@@ -899,6 +937,79 @@ function revealResults() {
 }
 
 // ─── EXPORT ───────────────────────────────────────────────────────────────────
+// ─── PUBLISH / LOAD JURY DATA ────────────────────────────────────────────────
+
+async function publishForJurors() {
+  if (!Object.keys(films).length) { flashToast("No data to publish"); return; }
+
+  const btn = document.getElementById("publishBtn");
+  btn.textContent = "Publishing…"; btn.disabled = true;
+
+  // Build compact JSON blob of contender data
+  const payload = {
+    publishedAt: new Date().toISOString(),
+    contenders,
+    films: Object.fromEntries(Object.entries(films).map(([id, f]) => [id, {
+      id: f.id, title: f.title, cat: f.cat, size: f.size, genre: f.genre,
+      allJudgesAvg: f.allJudgesAvg, ratedByCount: f.ratedByCount,
+      watchUrl: f.watchUrl||"", password: f.password||"",
+      judges: f.judges.map(j => ({
+        name: j.name, avgRating: j.avgRating,
+        originality: j.originality, production: j.production,
+        creativity: j.creativity, entertainment: j.entertainment,
+        pacing: j.pacing, structure: j.structure, sound: j.sound,
+        comment: j.comment||"", panelNote: j.panelNote||""
+      }))
+    }]))
+  };
+
+  const json = JSON.stringify(payload);
+
+  // Submit to Google Form
+  let iframe = document.getElementById("jury-data-submitter");
+  if (!iframe) {
+    iframe = document.createElement("iframe");
+    iframe.id = "jury-data-submitter"; iframe.name = "jury-data-submitter";
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+  }
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = `https://docs.google.com/forms/d/e/${JURY_DATA_FORM_ID}/formResponse`;
+  form.target = "jury-data-submitter";
+  const input = document.createElement("input");
+  input.type = "hidden"; input.name = JURY_DATA_FIELD; input.value = json;
+  form.appendChild(input);
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+
+  setTimeout(() => {
+    btn.textContent = "✓ Published for jurors";
+    btn.style.background = "#2a7a4b";
+    btn.disabled = false;
+    flashToast("Jury data published — jurors can now load the page");
+  }, 2000);
+}
+
+async function loadFromSheet() {
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/${JURY_DATA_SHEET_ID}/gviz/tq?tqx=out:csv`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const rows = parseCSV(await res.text());
+    // Find most recent row with data in column B (the Jury Data field)
+    // Rows: timestamp | jury data
+    for (let i = rows.length - 1; i >= 1; i--) {
+      const cell = (rows[i][1] || "").trim();
+      if (cell && cell.startsWith("{")) {
+        return JSON.parse(cell);
+      }
+    }
+    return null;
+  } catch { return null; }
+}
+
 function exportDeliberation() {
   const lines = [];
   ["Micro","Small"].forEach(size => {
