@@ -310,12 +310,12 @@
         <div style="flex:1">
           <div style="font-family:var(--font-display);font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--denim);margin-bottom:0.75rem">Welcome to Jury Deliberation — here's what to do</div>
           <div style="font-family:var(--font-body);font-size:0.88rem;color:var(--offwhite);margin-bottom:0.75rem;line-height:1.6">
-            Below are two tabs: <strong style="color:var(--denim)">Micro Shorts</strong> and <strong style="color:var(--denim)">Small Shorts</strong>. Each tab shows the <strong style="color:var(--rose)">top contenders</strong> — films with the highest average scores from our judges — plus any <strong style="color:#f5c842">wildcards</strong>, which are films that didn't make the top average but were ranked #1 or #2 by at least one judge. Every film deserves a fair look.
+            Below are two tabs: <strong style="color:var(--denim)">Micro Shorts</strong> and <strong style="color:var(--denim)">Small Shorts</strong>. Each tab shows the <strong style="color:var(--rose)">top contenders</strong> — films with the highest average scores from our judges — plus any <strong style="color:#f5c842">wildcards</strong>, which are films that didn't make the top average but were a favorite for at least one judge. Every film deserves a fair look. Please reach out if you think a film should be added to this list for consideration.
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem">
             <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
-              <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 1 — Watch &amp; Review</div>
-              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Click each film to expand it. Hit <strong style="color:var(--denim)">▶ Watch Film</strong> to rescreen it. Click <strong style="color:var(--denim)">"Show individual scores"</strong> to see every judge's ratings and comments.</div>
+              <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 1 — Review Films</div>
+              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Click on each film to expand for more info. If you'd like to watch it again, hit <strong style="color:var(--denim)">▶ Watch Film</strong>. Click <strong style="color:var(--denim)">"Show individual scores"</strong> to see every judge's ratings.</div>
             </div>
             <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
               <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 2 — Add Notes</div>
@@ -1227,35 +1227,45 @@ async function loadFromSheet() {
   try {
     const url = `https://docs.google.com/spreadsheets/d/${JURY_DATA_SHEET_ID}/gviz/tq?tqx=out:csv`;
     const res = await fetch(url);
-    if (!res.ok) return null;
-    const rows = parseCSV(await res.text());
-    if (rows.length < 2) return null;
+    if (!res.ok) { console.error("Sheet fetch failed:", res.status); return null; }
+    const text = await res.text();
+    const rows = parseCSV(text);
+    if (rows.length < 2) { console.error("Sheet has no data rows"); return null; }
 
-    // Film data is in row 2 col B (possibly split across B,C,D...)
-    // Notes submissions are in later rows col C
-    const dataRow = rows[1];
-    let combined = "";
-    for (let c = 1; c < dataRow.length; c++) {
-      const cell = (dataRow[c]||"").trim();
-      if (cell) combined += cell;
-    }
     let filmData = null;
-    if (combined && combined.includes("{")) {
-      filmData = JSON.parse(combined.slice(combined.indexOf("{")));
-    }
+    const latestNotes = {};
+    const latestVotes = {};
+    const completions = {};
 
-    // Columns: A=timestamp, B=jury data, C=notes, D=votes, E=completion
-    let latestNotes = {};
-    const latestVotes = {};   // { jurorName: {rank1,rank2,rank3} }
-    const completions = {};   // { jurorName: timestamp }
-
+    // Each form submission is one row. Col A=timestamp, B=JuryData, C=NotesData, D=VotesData, E=CompletionStatus
+    // A row has film data if col B starts with {
+    // A row has notes if col C starts with {
+    // A row has votes if col D starts with {
+    // A row has completion if col E starts with {
     for (let i = 1; i < rows.length; i++) {
       const row = rows[i];
-      // Notes (col C = index 2)
-      const notesCell = (row[2]||"").trim();
-      if (notesCell && notesCell.startsWith("{")) {
+
+      // Col B — film data (may be split across B+C+D if large)
+      const colB = (row[1]||"").trim();
+      if (colB.startsWith("{") && !filmData) {
+        // Try to parse, concatenating adjacent cells if needed
+        let combined = colB;
+        let j = 2;
+        while (j < row.length) {
+          const next = (row[j]||"").trim();
+          // Stop concatenating when we hit a cell that looks like a separate JSON object
+          if (next.startsWith('{"juror"') || next.startsWith('{"filmId"')) break;
+          combined += next;
+          j++;
+        }
+        try { filmData = JSON.parse(combined); } catch(e) { console.error("Film data parse error:", e.message); }
+      }
+
+      // Col C — notes data
+      const colC = (row[2]||"").trim();
+      if (colC.startsWith("{")) {
         try {
-          const parsed = JSON.parse(notesCell);
+          const parsed = JSON.parse(colC);
           Object.entries(parsed).forEach(([filmId, noteList]) => {
             if (!latestNotes[filmId]) latestNotes[filmId] = [];
             noteList.forEach(note => {
@@ -1265,27 +1275,30 @@ async function loadFromSheet() {
           });
         } catch {}
       }
-      // Votes (col D = index 3)
-      const votesCell = (row[3]||"").trim();
-      if (votesCell && votesCell.startsWith("{")) {
+
+      // Col D — votes data
+      const colD = (row[3]||"").trim();
+      if (colD.startsWith("{")) {
         try {
-          const parsed = JSON.parse(votesCell);
+          const parsed = JSON.parse(colD);
           if (parsed.juror && parsed.allVotes) {
             latestVotes[parsed.juror] = parsed.allVotes;
           }
         } catch {}
       }
-      // Completion (col E = index 4)
-      const completeCell = (row[4]||"").trim();
-      if (completeCell && completeCell.startsWith("{")) {
+
+      // Col E — completion status
+      const colE = (row[4]||"").trim();
+      if (colE.startsWith("{")) {
         try {
-          const parsed = JSON.parse(completeCell);
+          const parsed = JSON.parse(colE);
           if (parsed.juror) completions[parsed.juror] = parsed.completedAt;
         } catch {}
       }
     }
 
-    return filmData ? { ...filmData, sheetNotes: latestNotes, sheetVotes: latestVotes, sheetCompletions: completions } : null;
+    if (!filmData) { console.error("No film data found in sheet"); return null; }
+    return { ...filmData, sheetNotes: latestNotes, sheetVotes: latestVotes, sheetCompletions: completions };
   } catch(e) { console.error("loadFromSheet error:", e); return null; }
 }
 
