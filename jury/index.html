@@ -319,7 +319,7 @@
             </div>
             <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
               <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 2 — Add Notes</div>
-              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Write a <strong style="color:var(--denim)">deliberation note</strong> on each film. Notes are visible to all jurors in real time. Good notes explain <em>why</em> — not just "I liked it."</div>
+              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Write a <strong style="color:var(--denim)">deliberation note</strong> on each film and click <strong style="color:var(--denim)">Post</strong> to save it. Notes are visible to all jurors. Thoughtful notes help us make an informed decision — and positive ones may be shared with the filmmaker.</div>
             </div>
             <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
               <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 3 — Rank Your Top 3</div>
@@ -394,7 +394,7 @@ let ratingsLoaded = false;
 let submissionsLoaded = false;
 let films        = {};   // { filmId: { title, category, size, genre, judges: [...] } }
 let contenders   = {};   // { "Micro": [...filmIds], "Small": [...filmIds] }
-let activeTab    = "Small";
+let activeTab    = "Micro";
 
 // Deliberation state (localStorage)
 let notes  = {};  // { filmId: [ { author, text, time } ] }
@@ -457,15 +457,13 @@ function checkGate() {
           });
           try { localStorage.setItem("btssff-jury-notes", JSON.stringify(notes)); } catch {}
         }
-        // Merge sheet votes — sheet wins for other jurors, local wins for self
+        // Merge sheet votes
         if (data.sheetVotes) {
-          Object.entries(data.sheetVotes).forEach(([juror, jurorVotes]) => {
+          Object.entries(data.sheetVotes).forEach(([juror, jurorAllVotes]) => {
             if (juror !== jurorName) {
-              // Other jurors' votes — always use sheet version
-              votes[juror] = jurorVotes;
+              votes[juror] = jurorAllVotes;
             } else if (!votes[jurorName] || Object.keys(votes[jurorName]).length === 0) {
-              // Own votes — only use sheet if local is empty
-              votes[jurorName] = jurorVotes;
+              votes[jurorName] = jurorAllVotes;
             }
           });
           try { localStorage.setItem("btssff-jury-votes", JSON.stringify(votes)); } catch {}
@@ -796,13 +794,14 @@ function restoreExpandedCards(expanded) {
 
 function setRank(filmId, rank) {
   if (!votes[jurorName]) votes[jurorName] = {};
-  const myVotes = votes[jurorName];
+  if (!votes[jurorName][activeTab]) votes[jurorName][activeTab] = {};
+  const myVotes = votes[jurorName][activeTab];
   const expanded = getExpandedCards();
   // If this film already has this rank, remove it
   if (myVotes[`rank${rank}`] === filmId) {
     delete myVotes[`rank${rank}`];
     saveState();
-    submitFieldToForm(JURY_VOTES_FIELD, JSON.stringify({juror: jurorName, votes: myVotes, ts: Date.now()}));
+    submitFieldToForm(JURY_VOTES_FIELD, JSON.stringify({juror: jurorName, allVotes: votes[jurorName], ts: Date.now()}));
     rerenderAllCards();
     restoreExpandedCards(expanded);
     flashToast(`#${rank} vote removed`);
@@ -815,7 +814,7 @@ function setRank(filmId, rank) {
   if (myVotes[`rank${rank}`]) delete myVotes[`rank${rank}`];
   myVotes[`rank${rank}`] = filmId;
   saveState();
-  submitFieldToForm(JURY_VOTES_FIELD, JSON.stringify({juror: jurorName, votes: myVotes, ts: Date.now()}));
+  submitFieldToForm(JURY_VOTES_FIELD, JSON.stringify({juror: jurorName, allVotes: votes[jurorName], ts: Date.now()}));
   rerenderAllCards();
   restoreExpandedCards(expanded);
   flashToast(`Ranked #${rank} ✓`);
@@ -824,24 +823,32 @@ function setRank(filmId, rank) {
 }
 
 function getMyRankForFilm(filmId) {
-  const myVotes = votes[jurorName]||{};
+  const myVotes = (votes[jurorName]||{})[activeTab]||{};
   for (let r=1;r<=3;r++) { if (myVotes[`rank${r}`]===filmId) return r; }
   return null;
 }
 
 function getVotePoints(filmId) {
-  // Sum points across all jurors: rank1=3pts, rank2=2pts, rank3=1pt
   let points = 0;
   Object.values(votes).forEach(jvotes => {
-    if (jvotes.rank1 === filmId) points += 3;
-    if (jvotes.rank2 === filmId) points += 2;
-    if (jvotes.rank3 === filmId) points += 1;
+    // jvotes is now {Micro:{rank1..}, Small:{rank1..}}
+    Object.values(jvotes).forEach(catVotes => {
+      if (typeof catVotes !== 'object' || Array.isArray(catVotes)) return;
+      if (catVotes.rank1 === filmId) points += 3;
+      if (catVotes.rank2 === filmId) points += 2;
+      if (catVotes.rank3 === filmId) points += 1;
+    });
   });
   return points;
 }
 
 function getVoterCount(filmId) {
-  return Object.values(votes).filter(jv => [jv.rank1,jv.rank2,jv.rank3].includes(filmId)).length;
+  return Object.values(votes).filter(jv => {
+    return Object.values(jv).some(catVotes =>
+      typeof catVotes==='object' && !Array.isArray(catVotes) &&
+      [catVotes.rank1,catVotes.rank2,catVotes.rank3].includes(filmId)
+    );
+  }).length;
 }
 
 function rerenderAllCards() {
@@ -945,10 +952,10 @@ function renderSummary() {
     <div class="summary-card"><span class="summary-label">Votes cast</span><span class="summary-value">${totalVotes}</span></div>
     <div style="width:1px;height:16px;background:var(--border)"></div>
     <div class="summary-card"><span class="summary-label">Notes</span><span class="summary-value">${cat.reduce((s,c)=>s+(notes[c.id]||[]).length,0)}</span></div>
-    <div style="margin-left:auto;font-family:var(--font-body);font-size:0.85rem;color:var(--slate)">Your votes: 
-      <strong style="color:${myV.rank1?'#2a7a4b':'rgba(84,110,133,0.4)'}">▪ #1</strong>
-      <strong style="color:${myV.rank2?'var(--denim)':'rgba(84,110,133,0.4)'}"> ▪ #2</strong>
-      <strong style="color:${myV.rank3?'var(--slate)':'rgba(84,110,133,0.4)'}"> ▪ #3</strong>
+    <div style="margin-left:auto;font-family:var(--font-body);font-size:0.85rem;color:var(--slate)">${activeTab} votes: 
+      <strong style="color:${myV[activeTab]?.rank1?'#2a7a4b':'rgba(84,110,133,0.4)'}">▪ #1</strong>
+      <strong style="color:${myV[activeTab]?.rank2?'var(--denim)':'rgba(84,110,133,0.4)'}"> ▪ #2</strong>
+      <strong style="color:${myV[activeTab]?.rank3?'var(--slate)':'rgba(84,110,133,0.4)'}"> ▪ #3</strong>
     </div>`;
 }
 
@@ -1124,7 +1131,7 @@ function revealResults() {
   const tally = cat.map(c => ({
     title: films[c.id]?.title||c.id,
     votes: getVotePoints(c.id),
-    voters: Object.entries(votes).filter(([,jv])=>[jv.rank1,jv.rank2,jv.rank3].includes(c.id)).map(([n,jv])=>`${n}(#${[jv.rank1,jv.rank2,jv.rank3].indexOf(c.id)+1})`).join(", ")
+    voters: Object.entries(votes).filter(([,jv])=>{const cv=jv[activeTab]||{};return[cv.rank1,cv.rank2,cv.rank3].includes(c.id);}).map(([n,jv])=>{const cv=jv[activeTab]||{};const r=[cv.rank1,cv.rank2,cv.rank3].indexOf(c.id)+1;return`${n}(#${r})`;}).join(", ")
   })).sort((a,b)=>b.votes-a.votes);
   alert("VOTE RESULTS — " + activeTab + " Shorts\n\n" + tally.map((t,i)=>`${i+1}. ${t.title} — ${t.votes} vote${t.votes!==1?"s":""} (${t.voters||"none"})`).join("\n"));
 }
@@ -1263,9 +1270,8 @@ async function loadFromSheet() {
       if (votesCell && votesCell.startsWith("{")) {
         try {
           const parsed = JSON.parse(votesCell);
-          if (parsed.juror && parsed.votes) {
-            // Keep most recent per juror (rows are chronological)
-            latestVotes[parsed.juror] = parsed.votes;
+          if (parsed.juror && parsed.allVotes) {
+            latestVotes[parsed.juror] = parsed.allVotes;
           }
         } catch {}
       }
@@ -1314,13 +1320,12 @@ let completedJurors = {}; // { jurorName: timestamp }
 
 function getVotingCompleteness() {
   const myVotes = votes[jurorName] || {};
+  const microCatVotes = myVotes.Micro || {};
+  const smallCatVotes = myVotes.Small || {};
   const microContenders = contenders.Micro || [];
   const smallContenders = contenders.Small || [];
-  const hasMicroVotes = myVotes.rank1 && microContenders.some(c=>c.id===myVotes.rank1||c.id===myVotes.rank2||c.id===myVotes.rank3);
-  const hasSmallVotes = myVotes.rank1 && smallContenders.some(c=>c.id===myVotes.rank1||c.id===myVotes.rank2||c.id===myVotes.rank3);
-  // Check if they have 3 votes in micro
-  const microVotes = microContenders.filter(c=>[myVotes.rank1,myVotes.rank2,myVotes.rank3].includes(c.id));
-  const smallVotes = smallContenders.filter(c=>[myVotes.rank1,myVotes.rank2,myVotes.rank3].includes(c.id));
+  const microVotes = microContenders.filter(c=>[microCatVotes.rank1,microCatVotes.rank2,microCatVotes.rank3].includes(c.id));
+  const smallVotes = smallContenders.filter(c=>[smallCatVotes.rank1,smallCatVotes.rank2,smallCatVotes.rank3].includes(c.id));
   return { microVotes: microVotes.length, smallVotes: smallVotes.length };
 }
 
