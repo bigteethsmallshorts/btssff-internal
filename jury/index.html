@@ -374,6 +374,7 @@
         <div style="font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy);margin-bottom:3px">Your voting status</div>
         <div style="font-family:var(--font-body);font-size:0.85rem;color:var(--slate)" id="votingStatusText">Check both tabs and rank your top 3 in each category.</div>
       </div>
+      <button onclick="revealResults()" style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid var(--denim);color:var(--denim);padding:10px 16px;border-radius:var(--radius-sm);cursor:pointer">📊 See current standings</button>
       <button onclick="saveProgress()" style="font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid var(--border);padding:10px 18px;border-radius:var(--radius-sm);cursor:pointer;color:var(--slate)">💾 Save progress</button>
       <button onclick="submitDoneVoting()" id="doneVotingBtn" style="font-family:var(--font-display);font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;background:#2a7a4b;color:white;border:none;padding:10px 20px;border-radius:var(--radius-sm);cursor:pointer">✓ I'm done voting</button>
     </div>
@@ -1081,14 +1082,16 @@ function filmCardHTML(filmId, type) {
   return `<div class="film-card-jury ${type}" id="card-${filmId}">
     <div class="card-jury-header" onclick="toggleCardBody('${filmId}')">
       <div style="display:flex;align-items:center;gap:0.75rem;flex:1;min-width:0;flex-wrap:wrap">
-        <div class="card-jury-title">${esc(f.title)}</div>
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
+          ${awardBadges}
+          <div class="card-jury-title">${esc(f.title)}</div>
+        </div>
         ${f.watchUrl?`<a href="${esc(f.watchUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--denim);text-decoration:none;background:rgba(158,199,213,0.15);padding:5px 12px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0">▶ Watch Film</a>`:""}
         ${f.password?`<span onclick="event.stopPropagation();copyPw('${esc(f.password)}',this)" title="Click to copy password" style="font-family:var(--font-body);font-size:0.78rem;color:rgba(158,199,213,0.9);cursor:pointer;background:rgba(255,255,255,0.08);padding:4px 10px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0;border:1px solid rgba(158,199,213,0.3)">🔑 ${esc(f.password)}</span>`:""}
         ${rankLabel}
-        ${awardBadges}
-        ${winnerBtn}
       </div>
       <div style="display:flex;align-items:center;gap:0.75rem;flex-shrink:0">
+        ${winnerBtn}
         <span style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--denim)" id="expand-${filmId}">▼ Details</span>
         <div class="avg-badge">${avg.toFixed(1)}</div>
       </div>
@@ -1167,18 +1170,21 @@ function renderFilmCard(filmId) {
 
 function updateAdminSummary() {
   if (!isAdmin) return;
-  const cat = contenders[activeTab]||[];
-  const voteMap = {};
-  cat.forEach(c => {
-    const pts = getVotePoints(c.id);
-    if (pts) voteMap[films[c.id]?.title||c.id] = pts;
-  });
-  const sorted = Object.entries(voteMap).sort((a,b)=>b[1]-a[1]);
+  // Count unique judges from film scores
+  const allJudges = new Set();
+  Object.values(films).forEach(f => (f.judges||[]).forEach(j => allJudges.add(j.name.split(" ")[0])));
+  const totalJudges = allJudges.size;
+  // Count who completed voting
   const completed = getCompletedJurors();
-  const completedList = Object.keys(completed);
-  const voteStr = sorted.length ? "Points: " + sorted.map(([t,v])=>`${t}(${v})`).join(", ") : "No votes yet";
-  const doneStr = completedList.length ? " · Done: " + completedList.join(", ") : " · No submissions yet";
-  document.getElementById("adminVoteSummary").textContent = voteStr + doneStr;
+  const completedNames = Object.keys(completed);
+  const doneCount = completedNames.length;
+  const el = document.getElementById("adminVoteSummary");
+  if (el) {
+    el.innerHTML = `<span style="font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase">`
+      + `Voting complete: <strong style="color:white">${doneCount}/${totalJudges}</strong>`
+      + (completedNames.length ? ` &nbsp;·&nbsp; <span style="color:rgba(158,199,213,0.7)">${completedNames.join(", ")}</span>` : ` &nbsp;·&nbsp; <span style="color:rgba(158,199,213,0.4)">None yet</span>`)
+      + `</span>`;
+  }
 }
 
 // ─── ADMIN ACTIONS ────────────────────────────────────────────────────────────
