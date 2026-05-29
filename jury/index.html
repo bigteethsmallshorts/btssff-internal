@@ -312,10 +312,13 @@
           <div style="font-family:var(--font-body);font-size:0.88rem;color:var(--offwhite);margin-bottom:0.75rem;line-height:1.6">
             Below are two tabs: <strong style="color:var(--denim)">Micro Shorts</strong> and <strong style="color:var(--denim)">Small Shorts</strong>. Each tab shows the <strong style="color:var(--rose)">top contenders</strong> — films with the highest average scores from our judges — plus any <strong style="color:#f5c842">wildcards</strong>, which are films that didn't make the top average but were a favorite for at least one judge. Every film deserves a fair look. Please reach out if you think a film should be added to this list for consideration.
           </div>
+          <div style="background:var(--rose);border-radius:var(--radius);padding:0.75rem 1rem;margin-bottom:0.75rem">
+            <div style="font-family:var(--font-display);font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:white;font-weight:700">What we need from you: &nbsp;<span style="font-weight:400">A ranking of your 1st, 2nd, and 3rd favorite films — and notes to help us deliberate.</span></div>
+          </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem">
             <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
               <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 1 — Review Films</div>
-              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Click on each film to expand for more info. If you'd like to watch it again, hit <strong style="color:var(--denim)">▶ Watch Film</strong>. Click <strong style="color:var(--denim)">"Show individual scores"</strong> to see every judge's ratings.</div>
+              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Click on each film to expand for more info. If you'd like to watch it again, hit <strong style="color:var(--denim)">▶ Watch Film</strong>. Click <strong style="color:var(--denim)">"Show individual scores"</strong> to see every judge's previous ratings. Or feel free to ignore those and start with fresh eyes.</div>
             </div>
             <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
               <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 2 — Add Notes</div>
@@ -327,7 +330,7 @@
             </div>
             <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
               <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 4 — Submit When Done</div>
-              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">When you've ranked your top 3 in <em>both</em> categories, click <strong style="color:#3dffc0">I'm Done Voting</strong> at the bottom of the page. You can save your progress anytime and come back.</div>
+              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">When you've ranked your top 3 in <em>both</em> categories, click <strong style="color:#3dffc0">I'm Done Voting</strong> at the bottom of the page. You can save your progress anytime and come back. When the button changes to <strong style="color:#3dffc0">"Voting Complete"</strong> — you're done! Thank you for contributing.</div>
             </div>
           </div>
         </div>
@@ -854,14 +857,17 @@ function getVoterCount(filmId) {
 function rerenderAllCards() {
   const cat = contenders[activeTab]||[];
 
-  // Save which cards are expanded AND which score tables are open
+  // Save expanded state, score table state, AND draft note text
   const expandedBodies = {};
   const expandedScores = {};
+  const draftNotes = {};
   cat.forEach(c => {
-    const body = document.getElementById(`body-${c.id}`);
+    const body   = document.getElementById(`body-${c.id}`);
     const scores = document.getElementById(`breakdown-${c.id}`);
-    if (body && body.style.display !== "none") expandedBodies[c.id] = true;
+    const ta     = document.getElementById(`note-input-${c.id}`);
+    if (body   && body.style.display   !== "none") expandedBodies[c.id] = true;
     if (scores && scores.style.display !== "none") expandedScores[c.id] = true;
+    if (ta     && ta.value.trim())                 draftNotes[c.id]     = ta.value;
   });
 
   // Re-render each card
@@ -885,6 +891,12 @@ function rerenderAllCards() {
       if (bd)  bd.style.display = "table";
       if (btn) btn.textContent = "▼ Hide scores";
     }
+  });
+
+  // Restore draft note text
+  Object.entries(draftNotes).forEach(([filmId, draft]) => {
+    const ta = document.getElementById(`note-input-${filmId}`);
+    if (ta) ta.value = draft;
   });
 
   renderSummary();
@@ -952,10 +964,11 @@ function renderSummary() {
     <div class="summary-card"><span class="summary-label">Votes cast</span><span class="summary-value">${totalVotes}</span></div>
     <div style="width:1px;height:16px;background:var(--border)"></div>
     <div class="summary-card"><span class="summary-label">Notes</span><span class="summary-value">${cat.reduce((s,c)=>s+(notes[c.id]||[]).length,0)}</span></div>
-    <div style="margin-left:auto;font-family:var(--font-body);font-size:0.85rem;color:var(--slate)">${activeTab} votes: 
-      <strong style="color:${myV[activeTab]?.rank1?'#2a7a4b':'rgba(84,110,133,0.4)'}">▪ #1</strong>
-      <strong style="color:${myV[activeTab]?.rank2?'var(--denim)':'rgba(84,110,133,0.4)'}"> ▪ #2</strong>
-      <strong style="color:${myV[activeTab]?.rank3?'var(--slate)':'rgba(84,110,133,0.4)'}"> ▪ #3</strong>
+    <div style="margin-left:auto;font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--slate);display:flex;gap:8px;align-items:center">
+      <span>${activeTab}:</span>
+      <span style="color:${myV[activeTab]?.rank1?'#2a7a4b':'rgba(84,110,133,0.3)'};font-size:0.85rem">${myV[activeTab]?.rank1?'✓':'○'} #1</span>
+      <span style="color:${myV[activeTab]?.rank2?'var(--denim)':'rgba(84,110,133,0.3)'};font-size:0.85rem">${myV[activeTab]?.rank2?'✓':'○'} #2</span>
+      <span style="color:${myV[activeTab]?.rank3?'var(--slate)':'rgba(84,110,133,0.3)'};font-size:0.85rem">${myV[activeTab]?.rank3?'✓':'○'} #3</span>
     </div>`;
 }
 
@@ -1126,14 +1139,79 @@ function clearAllNotes() {
   flashToast("Notes cleared");
 }
 function revealResults() {
-  // Show a summary modal of vote tallies
-  const cat = contenders[activeTab]||[];
-  const tally = cat.map(c => ({
-    title: films[c.id]?.title||c.id,
-    votes: getVotePoints(c.id),
-    voters: Object.entries(votes).filter(([,jv])=>{const cv=jv[activeTab]||{};return[cv.rank1,cv.rank2,cv.rank3].includes(c.id);}).map(([n,jv])=>{const cv=jv[activeTab]||{};const r=[cv.rank1,cv.rank2,cv.rank3].indexOf(c.id)+1;return`${n}(#${r})`;}).join(", ")
-  })).sort((a,b)=>b.votes-a.votes);
-  alert("VOTE RESULTS — " + activeTab + " Shorts\n\n" + tally.map((t,i)=>`${i+1}. ${t.title} — ${t.votes} vote${t.votes!==1?"s":""} (${t.voters||"none"})`).join("\n"));
+  const existing = document.getElementById("resultsModal");
+  if (existing) existing.remove();
+
+  const buildCategory = (size) => {
+    const cat = (contenders[size]||[]);
+    const tally = cat.map(c => {
+      const f = films[c.id]||{};
+      const pts = getVotePoints(c.id);
+      const voters = Object.entries(votes)
+        .filter(([,jv])=>{const cv=jv[size]||{};return[cv.rank1,cv.rank2,cv.rank3].includes(c.id);})
+        .map(([n,jv])=>{const cv=jv[size]||{};const r=[cv.rank1,cv.rank2,cv.rank3].indexOf(c.id)+1;return{name:n,rank:r};})
+        .sort((a,b)=>a.rank-b.rank);
+      const filmNotes = notes[c.id]||[];
+      return {id:c.id,title:f.title||c.id,type:c.type,pts,voters,filmNotes,avg:f.allJudgesAvg||0};
+    }).sort((a,b)=>b.pts-a.pts||b.avg-a.avg);
+
+    if(!tally.length) return `<p style="color:var(--slate);font-style:italic">No contenders</p>`;
+
+    return tally.map(t => {
+      const ptsBadge = t.pts>0
+        ? `<div style="background:var(--rose);color:white;font-family:var(--font-display);font-size:1rem;font-weight:700;min-width:52px;height:52px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0 6px">${t.pts}pt${t.pts!==1?'s':''}</div>`
+        : `<div style="background:var(--border);color:var(--slate);font-family:var(--font-display);font-size:0.6rem;font-weight:700;width:52px;height:52px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;text-align:center;line-height:1.3">No<br>votes</div>`;
+      const voterTags = t.voters.map(v=>
+        `<span style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;padding:3px 9px;border-radius:var(--radius-sm);background:${v.rank===1?'#2a7a4b':v.rank===2?'#2a6496':'#546E85'};color:white">${esc(v.name)} #${v.rank}</span>`
+      ).join(" ");
+      const notesHtml = t.filmNotes.length
+        ? t.filmNotes.map(n=>`<div style="background:#f8f9fa;border-left:3px solid var(--denim);padding:8px 12px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-bottom:6px">
+            <div style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy);margin-bottom:3px">${esc(n.author)}</div>
+            <div style="font-family:var(--font-body);font-size:0.88rem;color:var(--navy);line-height:1.5">${esc(n.text)}</div>
+          </div>`).join("")
+        : `<div style="font-style:italic;color:var(--slate);font-size:0.85rem">No notes</div>`;
+      const typeBadge = t.type==="top5"
+        ? `<span style="font-family:var(--font-display);font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;background:#d4f0e0;color:#1a5c35;padding:2px 7px;border-radius:var(--radius-sm)">Top contender</span>`
+        : `<span style="font-family:var(--font-display);font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;background:#fef3cd;color:#7a5700;padding:2px 7px;border-radius:var(--radius-sm)">Wildcard</span>`;
+
+      return `<div style="background:white;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:0.75rem;overflow:hidden;${t.pts>0?'border-left:4px solid var(--rose)':''}">
+        <div style="background:var(--navy);padding:0.75rem 1rem;display:flex;align-items:center;gap:0.75rem">
+          ${ptsBadge}
+          <div style="flex:1;min-width:0">
+            <div style="font-family:var(--font-title);font-size:1.1rem;font-weight:500;color:var(--offwhite);margin-bottom:4px">${esc(t.title)}</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+              ${typeBadge}
+              <span style="font-family:var(--font-body);font-size:0.72rem;color:var(--denim)">Avg score: ${t.avg.toFixed(1)}</span>
+              ${voterTags ? `<span style="color:rgba(158,199,213,0.4)">·</span> ${voterTags}` : `<span style="font-family:var(--font-body);font-size:0.72rem;color:rgba(158,199,213,0.4)">No votes yet</span>`}
+            </div>
+          </div>
+        </div>
+        <div style="padding:0.75rem 1rem">
+          <div style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:0.5rem">Deliberation notes</div>
+          ${notesHtml}
+        </div>
+      </div>`;
+    }).join("");
+  };
+
+  const modal = document.createElement("div");
+  modal.id = "resultsModal";
+  modal.style.cssText = "position:fixed;inset:0;background:var(--offwhite);z-index:500;overflow-y:auto;padding:2rem";
+  modal.innerHTML = `
+    <div style="max-width:900px;margin:0 auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+        <div>
+          <div style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--slate);margin-bottom:4px">BTSSFF · Jury Deliberation Results</div>
+          <h1 style="font-family:var(--font-display);font-size:1.6rem;letter-spacing:-0.01em;color:var(--navy)">Final Results</h1>
+        </div>
+        <button onclick="document.getElementById('resultsModal').remove()" style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid var(--border);padding:8px 16px;border-radius:var(--radius-sm);cursor:pointer;color:var(--slate)">← Back</button>
+      </div>
+      <h2 style="font-family:var(--font-display);font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:3px solid var(--rose)">Micro Shorts</h2>
+      ${buildCategory("Micro")}
+      <h2 style="font-family:var(--font-display);font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);margin:1.5rem 0 1rem;padding-bottom:0.5rem;border-bottom:3px solid var(--slate)">Small Shorts</h2>
+      ${buildCategory("Small")}
+    </div>`;
+  document.body.appendChild(modal);
 }
 
 // ─── EXPORT ───────────────────────────────────────────────────────────────────
