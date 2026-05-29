@@ -307,7 +307,14 @@
 <!-- Main app -->
 <div id="appScreen" style="display:none">
   <!-- Instructions banner -->
-  <div id="instructionsBanner" style="background:#011632;border-bottom:3px solid #9EC7D5;padding:1rem 2rem">
+  <div id="instructionsBanner" style="background:#011632;border-bottom:3px solid #9EC7D5">
+    <!-- Collapsed bar - hidden by default -->
+    <div id="instructionsCollapsedBar" style="display:none;padding:0.6rem 2rem;cursor:pointer;align-items:center;gap:0.75rem" onclick="toggleInstructions()">
+      <span style="font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--denim)">How to deliberate</span>
+      <span style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(158,199,213,0.5)">▶ Show instructions</span>
+    </div>
+    <!-- Expanded content -->
+    <div id="instructionsContent" style="display:block;padding:1rem 2rem">
     <div style="max-width:1400px;margin:0 auto">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem">
         <div style="flex:1">
@@ -404,7 +411,8 @@ let activeTab    = "Micro";
 
 // Deliberation state (localStorage)
 let notes   = {};  // { filmId: [ { author, text, time } ] }
-let winners = {};  // { filmId: true } — admin-selected award winners
+let winners = {};       // { filmId: true } — admin-selected Best Film winners
+let audienceWinners = {}; // { filmId: true } — admin-selected Audience Choice winners
 let votes  = {};  // { jurorName: { rank1: filmId, rank2: filmId, rank3: filmId } }
 // votes[jurorName].rank1/rank2/rank3 = filmId
 
@@ -711,7 +719,8 @@ function buildContenders() {
 // ─── STATE PERSISTENCE ────────────────────────────────────────────────────────
 function loadState() {
   try { notes   = JSON.parse(localStorage.getItem("btssff-jury-notes")||"{}"); } catch {}
-  try { winners = JSON.parse(localStorage.getItem("btssff-jury-winners")||"{}"); } catch {}
+  try { winners        = JSON.parse(localStorage.getItem("btssff-jury-winners")||"{}"); } catch {}
+  try { audienceWinners = JSON.parse(localStorage.getItem("btssff-jury-audience")||"{}"); } catch {}
   try {
     const rawVotes = JSON.parse(localStorage.getItem("btssff-jury-votes")||"{}");
     // Detect old format: keys were filmIds (arrays), new format: keys are juror names (objects with rank1/rank2/rank3)
@@ -721,9 +730,10 @@ function loadState() {
   } catch { votes = {}; }
 }
 function saveState() {
-  try { localStorage.setItem("btssff-jury-notes",   JSON.stringify(notes));   } catch {}
-  try { localStorage.setItem("btssff-jury-votes",   JSON.stringify(votes));   } catch {}
-  try { localStorage.setItem("btssff-jury-winners", JSON.stringify(winners)); } catch {}
+  try { localStorage.setItem("btssff-jury-notes",    JSON.stringify(notes));          } catch {}
+  try { localStorage.setItem("btssff-jury-votes",    JSON.stringify(votes));          } catch {}
+  try { localStorage.setItem("btssff-jury-winners",  JSON.stringify(winners));        } catch {}
+  try { localStorage.setItem("btssff-jury-audience", JSON.stringify(audienceWinners));} catch {}
 }
 
 function submitFieldToForm(fieldName, value) {
@@ -781,18 +791,17 @@ function toggleWinner(filmId, btn) {
   winners[filmId] = !winners[filmId];
   if (!winners[filmId]) delete winners[filmId];
   saveState();
-  btn.textContent   = winners[filmId] ? "🏆 Winner" : "Mark as winner";
-  btn.style.background = winners[filmId] ? "#c9a227" : "none";
-  btn.style.color   = winners[filmId] ? "white" : "var(--slate)";
-  btn.style.border  = winners[filmId] ? "none" : "1px solid var(--border)";
-  // Update card header glow
-  const card = document.getElementById(`card-${filmId}`);
-  if (card) {
-    card.style.borderLeft = winners[filmId] ? "4px solid #c9a227" : "";
-    const badge = card.querySelector(".winner-crown");
-    if (badge) badge.style.display = winners[filmId] ? "inline" : "none";
-  }
-  flashToast(winners[filmId] ? "🏆 Marked as winner!" : "Winner mark removed");
+  rerenderAllCards();
+  flashToast(winners[filmId] ? "🏆 Marked as Best Film winner!" : "Best Film mark removed");
+}
+
+function toggleAudienceWinner(filmId) {
+  if (!isAdmin) return;
+  audienceWinners[filmId] = !audienceWinners[filmId];
+  if (!audienceWinners[filmId]) delete audienceWinners[filmId];
+  saveState();
+  rerenderAllCards();
+  flashToast(audienceWinners[filmId] ? "🎟 Marked as Audience Choice!" : "Audience Choice mark removed");
 }
 
 function toggleInstructions() {
@@ -1054,8 +1063,19 @@ function filmCardHTML(filmId, type) {
   const rankLabel = myRank
     ? `<span style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;background:${myRank===1?'#2a7a4b':myRank===2?'#2a6496':'#546E85'};color:white;padding:3px 10px;border-radius:var(--radius-sm)">My #${myRank}</span>`
     : "";
+  // Award badges visible to everyone; buttons only for admin
+  const awardBadges = (winners[filmId]||audienceWinners[filmId]) && !isAdmin
+    ? `<span style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;${winners[filmId]?'background:#c9a227;':'background:#5a2d82;'}color:white;padding:3px 9px;border-radius:var(--radius-sm)">${winners[filmId]?'🏆 Best Film':'🎟 Audience Choice'}</span>`
+    : "";
   const winnerBtn = isAdmin
-    ? `<button onclick="event.stopPropagation();toggleWinner('${filmId}',this)" style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:var(--radius-sm);cursor:pointer;flex-shrink:0;background:${winners[filmId]?'#c9a227':'rgba(255,255,255,0.08)'};color:${winners[filmId]?'white':'rgba(158,199,213,0.7)'};border:${winners[filmId]?'none':'1px solid rgba(158,199,213,0.25)'}">${winners[filmId]?'🏆 Winner':'☆ Mark winner'}</button>`
+    ? `<div style="display:flex;gap:4px;flex-shrink:0" onclick="event.stopPropagation()">
+        <button onclick="toggleWinner('${filmId}',this)" style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;border-radius:var(--radius-sm);cursor:pointer;background:${winners[filmId]?'#c9a227':'rgba(255,255,255,0.06)'};color:${winners[filmId]?'white':'rgba(158,199,213,0.6)'};border:${winners[filmId]?'none':'1px solid rgba(158,199,213,0.2)'}">
+          ${winners[filmId]?'🏆 Best Film':'☆ Best Film'}
+        </button>
+        <button onclick="toggleAudienceWinner('${filmId}')" style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;border-radius:var(--radius-sm);cursor:pointer;background:${audienceWinners[filmId]?'#5a2d82':'rgba(255,255,255,0.06)'};color:${audienceWinners[filmId]?'white':'rgba(158,199,213,0.6)'};border:${audienceWinners[filmId]?'none':'1px solid rgba(158,199,213,0.2)'}">
+          ${audienceWinners[filmId]?'🎟 Audience Choice':'☆ Audience'}
+        </button>
+      </div>`
     : "";
 
   return `<div class="film-card-jury ${type}" id="card-${filmId}">
@@ -1065,6 +1085,7 @@ function filmCardHTML(filmId, type) {
         ${f.watchUrl?`<a href="${esc(f.watchUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--denim);text-decoration:none;background:rgba(158,199,213,0.15);padding:5px 12px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0">▶ Watch Film</a>`:""}
         ${f.password?`<span onclick="event.stopPropagation();copyPw('${esc(f.password)}',this)" title="Click to copy password" style="font-family:var(--font-body);font-size:0.78rem;color:rgba(158,199,213,0.9);cursor:pointer;background:rgba(255,255,255,0.08);padding:4px 10px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0;border:1px solid rgba(158,199,213,0.3)">🔑 ${esc(f.password)}</span>`:""}
         ${rankLabel}
+        ${awardBadges}
         ${winnerBtn}
       </div>
       <div style="display:flex;align-items:center;gap:0.75rem;flex-shrink:0">
