@@ -1062,7 +1062,7 @@ function filmCardHTML(filmId, type) {
     : `<div style="font-family:var(--font-body);font-size:0.9rem;color:var(--slate);font-style:italic;margin-bottom:0.75rem">No notes yet — be the first to weigh in.</div>`;
 
   const rankLabel = myRank
-    ? `<span style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;background:${myRank===1?'#2a7a4b':myRank===2?'#2a6496':'#546E85'};color:white;padding:3px 10px;border-radius:var(--radius-sm)">My #${myRank}</span>`
+    ? `<span style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;background:${myRank===1?'#2a7a4b':myRank===2?'#2a6496':'#546E85'};color:white;padding:3px 10px;border-radius:var(--radius-sm);flex-shrink:0">My #${myRank}</span>`
     : "";
   // Award badges visible to everyone; buttons only for admin
   const awardBadges = (winners[filmId]||audienceWinners[filmId]) && !isAdmin
@@ -1081,7 +1081,7 @@ function filmCardHTML(filmId, type) {
 
   return `<div class="film-card-jury ${type}" id="card-${filmId}">
     <div class="card-jury-header" onclick="toggleCardBody('${filmId}')">
-      <div style="display:flex;align-items:center;gap:0.75rem;flex:1;min-width:0;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:0.6rem;flex:1;min-width:0;flex-wrap:wrap">
         <div class="card-jury-title">${esc(f.title)}</div>
         ${f.watchUrl?`<a href="${esc(f.watchUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--denim);text-decoration:none;background:rgba(158,199,213,0.15);padding:5px 12px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0">▶ Watch Film</a>`:""}
         ${f.password?`<span onclick="event.stopPropagation();copyPw('${esc(f.password)}',this)" title="Click to copy password" style="font-family:var(--font-body);font-size:0.78rem;color:rgba(158,199,213,0.9);cursor:pointer;background:rgba(255,255,255,0.08);padding:4px 10px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0;border:1px solid rgba(158,199,213,0.3)">🔑 ${esc(f.password)}</span>`:""}
@@ -1253,14 +1253,7 @@ function revealResults() {
               ${voterTags ? `<span style="color:rgba(158,199,213,0.4)">·</span> ${voterTags}` : `<span style="font-family:var(--font-body);font-size:0.72rem;color:rgba(158,199,213,0.4)">No votes yet</span>`}
             </div>
           </div>
-          ${isAdmin?`<div style="display:flex;gap:4px;flex-shrink:0">
-            <button onclick="toggleWinner('${t.id}',this)" style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;padding:4px 10px;border-radius:var(--radius-sm);cursor:pointer;background:${winners[t.id]?'#c9a227':'rgba(255,255,255,0.08)'};color:${winners[t.id]?'white':'rgba(158,199,213,0.6)'};border:${winners[t.id]?'none':'1px solid rgba(158,199,213,0.2)'}">
-              ${winners[t.id]?'🏆 Best Film':'☆ Best Film'}
-            </button>
-            <button onclick="toggleAudienceWinner('${t.id}')" style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;padding:4px 10px;border-radius:var(--radius-sm);cursor:pointer;background:${audienceWinners[t.id]?'#5a2d82':'rgba(255,255,255,0.08)'};color:${audienceWinners[t.id]?'white':'rgba(158,199,213,0.6)'};border:${audienceWinners[t.id]?'none':'1px solid rgba(158,199,213,0.2)'}">
-              ${audienceWinners[t.id]?'🎟 Audience':'☆ Audience'}
-            </button>
-          </div>`:""}
+
         </div>
         <div style="padding:0.75rem 1rem">
           <div style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:0.5rem">Deliberation notes</div>
