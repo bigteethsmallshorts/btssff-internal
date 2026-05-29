@@ -1238,17 +1238,29 @@ function revealResults() {
         ? `<span style="font-family:var(--font-display);font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;background:#d4f0e0;color:#1a5c35;padding:2px 7px;border-radius:var(--radius-sm)">Top contender</span>`
         : `<span style="font-family:var(--font-display);font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;background:#fef3cd;color:#7a5700;padding:2px 7px;border-radius:var(--radius-sm)">Wildcard</span>`;
 
-      return `<div style="background:white;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:0.75rem;overflow:hidden;${t.pts>0?'border-left:4px solid var(--rose)':''}">
-        <div style="background:var(--navy);padding:0.75rem 1rem;display:flex;align-items:center;gap:0.75rem">
+      return `<div style="background:white;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:0.75rem;overflow:hidden;${winners[t.id]?'border-left:4px solid #c9a227':audienceWinners[t.id]?'border-left:4px solid #5a2d82':t.pts>0?'border-left:4px solid var(--rose)':''}">
+        <div style="background:${winners[t.id]?'#1c1600':audienceWinners[t.id]?'#1a0f2e':'var(--navy)'};padding:0.75rem 1rem;display:flex;align-items:center;gap:0.75rem">
           ${ptsBadge}
           <div style="flex:1;min-width:0">
-            <div style="font-family:var(--font-title);font-size:1.1rem;font-weight:500;color:var(--offwhite);margin-bottom:4px">${esc(t.title)}</div>
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:4px">
+              <span style="font-family:var(--font-title);font-size:1.1rem;font-weight:500;color:var(--offwhite)">${esc(t.title)}</span>
+              ${winners[t.id]?`<span style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:#c9a227;color:white;padding:2px 9px;border-radius:var(--radius-sm)">🏆 Best Film</span>`:""}
+              ${audienceWinners[t.id]?`<span style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:#5a2d82;color:white;padding:2px 9px;border-radius:var(--radius-sm)">🎟 Audience Choice</span>`:""}
+            </div>
             <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
               ${typeBadge}
               <span style="font-family:var(--font-body);font-size:0.72rem;color:var(--denim)">Avg score: ${t.avg.toFixed(1)}</span>
               ${voterTags ? `<span style="color:rgba(158,199,213,0.4)">·</span> ${voterTags}` : `<span style="font-family:var(--font-body);font-size:0.72rem;color:rgba(158,199,213,0.4)">No votes yet</span>`}
             </div>
           </div>
+          ${isAdmin?`<div style="display:flex;gap:4px;flex-shrink:0">
+            <button onclick="toggleWinner('${t.id}',this)" style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;padding:4px 10px;border-radius:var(--radius-sm);cursor:pointer;background:${winners[t.id]?'#c9a227':'rgba(255,255,255,0.08)'};color:${winners[t.id]?'white':'rgba(158,199,213,0.6)'};border:${winners[t.id]?'none':'1px solid rgba(158,199,213,0.2)'}">
+              ${winners[t.id]?'🏆 Best Film':'☆ Best Film'}
+            </button>
+            <button onclick="toggleAudienceWinner('${t.id}')" style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;padding:4px 10px;border-radius:var(--radius-sm);cursor:pointer;background:${audienceWinners[t.id]?'#5a2d82':'rgba(255,255,255,0.08)'};color:${audienceWinners[t.id]?'white':'rgba(158,199,213,0.6)'};border:${audienceWinners[t.id]?'none':'1px solid rgba(158,199,213,0.2)'}">
+              ${audienceWinners[t.id]?'🎟 Audience':'☆ Audience'}
+            </button>
+          </div>`:""}
         </div>
         <div style="padding:0.75rem 1rem">
           <div style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:0.5rem">Deliberation notes</div>
