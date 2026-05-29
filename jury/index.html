@@ -400,7 +400,8 @@ let contenders   = {};   // { "Micro": [...filmIds], "Small": [...filmIds] }
 let activeTab    = "Micro";
 
 // Deliberation state (localStorage)
-let notes  = {};  // { filmId: [ { author, text, time } ] }
+let notes   = {};  // { filmId: [ { author, text, time } ] }
+let winners = {};  // { filmId: true } — admin-selected award winners
 let votes  = {};  // { jurorName: { rank1: filmId, rank2: filmId, rank3: filmId } }
 // votes[jurorName].rank1/rank2/rank3 = filmId
 
@@ -706,7 +707,8 @@ function buildContenders() {
 
 // ─── STATE PERSISTENCE ────────────────────────────────────────────────────────
 function loadState() {
-  try { notes = JSON.parse(localStorage.getItem("btssff-jury-notes")||"{}"); } catch {}
+  try { notes   = JSON.parse(localStorage.getItem("btssff-jury-notes")||"{}"); } catch {}
+  try { winners = JSON.parse(localStorage.getItem("btssff-jury-winners")||"{}"); } catch {}
   try {
     const rawVotes = JSON.parse(localStorage.getItem("btssff-jury-votes")||"{}");
     // Detect old format: keys were filmIds (arrays), new format: keys are juror names (objects with rank1/rank2/rank3)
@@ -716,8 +718,9 @@ function loadState() {
   } catch { votes = {}; }
 }
 function saveState() {
-  try { localStorage.setItem("btssff-jury-notes", JSON.stringify(notes)); } catch {}
-  try { localStorage.setItem("btssff-jury-votes", JSON.stringify(votes)); } catch {}
+  try { localStorage.setItem("btssff-jury-notes",   JSON.stringify(notes));   } catch {}
+  try { localStorage.setItem("btssff-jury-votes",   JSON.stringify(votes));   } catch {}
+  try { localStorage.setItem("btssff-jury-winners", JSON.stringify(winners)); } catch {}
 }
 
 function submitFieldToForm(fieldName, value) {
@@ -768,6 +771,25 @@ function copyPw(pw, el) {
     el.style.color = "#3dffc0";
     setTimeout(() => { el.innerHTML = orig; el.style.color = ""; }, 1500);
   });
+}
+
+function toggleWinner(filmId, btn) {
+  if (!isAdmin) return;
+  winners[filmId] = !winners[filmId];
+  if (!winners[filmId]) delete winners[filmId];
+  saveState();
+  btn.textContent   = winners[filmId] ? "🏆 Winner" : "Mark as winner";
+  btn.style.background = winners[filmId] ? "#c9a227" : "none";
+  btn.style.color   = winners[filmId] ? "white" : "var(--slate)";
+  btn.style.border  = winners[filmId] ? "none" : "1px solid var(--border)";
+  // Update card header glow
+  const card = document.getElementById(`card-${filmId}`);
+  if (card) {
+    card.style.borderLeft = winners[filmId] ? "4px solid #c9a227" : "";
+    const badge = card.querySelector(".winner-crown");
+    if (badge) badge.style.display = winners[filmId] ? "inline" : "none";
+  }
+  flashToast(winners[filmId] ? "🏆 Marked as winner!" : "Winner mark removed");
 }
 
 function toggleCardBody(filmId) {
@@ -1463,6 +1485,69 @@ function submitDoneVoting() {
 
 function getCompletedJurors() {
   try { return JSON.parse(localStorage.getItem("btssff-jury-completed")||"{}"); } catch { return {}; }
+}
+
+function exportJuryResults() {
+  // Build CSV: one row per film, with all judge scores and notes as columns
+  // First collect all unique judge names
+  const allJudges = new Set();
+  Object.values(films).forEach(f => (f.judges||[]).forEach(j => allJudges.add(j.name)));
+  const judgeList = [...allJudges].sort();
+
+  const headers = [
+    "Tracking Number", "Title", "Category", "Size", "Avg Score", "Rated By",
+    "Judging Status", "ROS Order", "Award",
+    ...judgeList.map(j => `${j} - Avg`),
+    ...judgeList.map(j => `${j} - Originality`),
+    ...judgeList.map(j => `${j} - Production`),
+    ...judgeList.map(j => `${j} - Creativity`),
+    ...judgeList.map(j => `${j} - Entertainment`),
+    ...judgeList.map(j => `${j} - Comment`),
+    "Deliberation Notes"
+  ];
+
+  const rows = [headers];
+
+  // Get all films from both contender lists
+  const allContenderIds = new Set([
+    ...(contenders.Micro||[]).map(c=>c.id),
+    ...(contenders.Small||[]).map(c=>c.id),
+  ]);
+
+  [...allContenderIds].forEach(id => {
+    const f = films[id]; if (!f) return;
+    const isWinner = winners[id] ? "Award Winner - Best Film" : "";
+    const filmNotes = (notes[id]||[]).map(n=>`[${n.author}] ${n.text}`).join(" | ");
+
+    const judgeScores = {};
+    (f.judges||[]).forEach(j => { judgeScores[j.name] = j; });
+
+    rows.push([
+      f.id, f.title, f.cat, f.size,
+      f.allJudgesAvg?.toFixed(1)||"",
+      f.ratedByCount||"",
+      "", // judging status — fill from run of show export
+      "", // ROS order — fill from run of show export
+      isWinner,
+      ...judgeList.map(j => judgeScores[j]?.avgRating||""),
+      ...judgeList.map(j => judgeScores[j]?.originality||""),
+      ...judgeList.map(j => judgeScores[j]?.production||""),
+      ...judgeList.map(j => judgeScores[j]?.creativity||""),
+      ...judgeList.map(j => judgeScores[j]?.entertainment||""),
+      ...judgeList.map(j => judgeScores[j]?.comment||""),
+      filmNotes,
+    ]);
+  });
+
+  downloadCSV(rows, `btssff-jury-results-${new Date().toISOString().slice(0,10)}.csv`);
+  flashToast("Jury results exported ✓");
+}
+
+function downloadCSV(rows, filename) {
+  const csv = rows.map(r=>r.map(v=>`"${String(v||"").replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download = filename; a.click();
 }
 
 function exportDeliberation() {
