@@ -1065,8 +1065,8 @@ function filmCardHTML(filmId, type) {
   const rankLabel = myRank
     ? `<span style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;background:${myRank===1?'#2a7a4b':myRank===2?'#2a6496':'#546E85'};color:white;padding:3px 10px;border-radius:var(--radius-sm);flex-shrink:0">My #${myRank}</span>`
     : "";
-  // Award badges visible to everyone; buttons only for admin
-  const awardBadges = (winners[filmId]||audienceWinners[filmId]) && !isAdmin
+  // Award badges v
+  const awardBadges = (winners[filmId]||audienceWinners[filmId])
     ? `<span style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;${winners[filmId]?'background:#c9a227;':'background:#5a2d82;'}color:white;padding:3px 9px;border-radius:var(--radius-sm)">${winners[filmId]?'🏆 Best Film':'🎟 Audience Choice'}</span>`
     : "";
   const winnerBtn = isAdmin
