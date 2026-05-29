@@ -257,8 +257,11 @@
   <div class="header-actions">
     <span id="jurorBadge" style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--denim)"></span>
     <button class="btn btn-ghost" id="uploadNewBtn" onclick="showUpload()" style="font-size:0.6rem;color:var(--denim);border-color:rgba(158,199,213,0.4);display:none">↑ New CSV</button>
+    <div id="adminDangerBtns" style="display:none;gap:0.5rem">
+      <button onclick="clearAllVotesSafe()" style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid rgba(201,84,106,0.4);color:rgba(201,84,106,0.8);padding:5px 10px;border-radius:var(--radius-sm);cursor:pointer">🗑 Clear votes</button>
+      <button onclick="clearAllNotesSafe()" style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid rgba(201,84,106,0.4);color:rgba(201,84,106,0.8);padding:5px 10px;border-radius:var(--radius-sm);cursor:pointer">🗑 Clear notes</button>
+    </div>
     <button class="btn btn-denim" id="publishBtn" onclick="publishForJurors()" style="font-size:0.6rem;display:none">📋 Publish for jurors</button>
-    <button class="btn btn-ghost" onclick="exportDeliberation()" id="exportBtn" style="font-size:0.6rem;color:var(--denim);border-color:rgba(158,199,213,0.4);display:none">Export Report</button>
   </div>
 </header>
 
@@ -334,17 +337,16 @@
             </div>
           </div>
         </div>
-        <button onclick="document.getElementById('instructionsBanner').style.display='none'" style="background:none;border:none;color:var(--denim);cursor:pointer;font-size:1.2rem;flex-shrink:0;margin-top:4px">✕</button>
+        <button onclick="toggleInstructions()" style="background:none;border:none;color:var(--denim);cursor:pointer;font-size:0.65rem;flex-shrink:0;margin-top:4px;font-family:var(--font-display);letter-spacing:0.08em;text-transform:uppercase">▲ Collapse</button>
       </div>
     </div>
+    </div><!-- end instructionsContent -->
   </div>
   <div class="main-wrap">
 
     <!-- Admin bar (only visible to admin) -->
     <div class="admin-bar" id="adminBar" style="display:none">
       <span class="admin-label">Admin</span>
-      <button class="btn btn-ghost" onclick="clearAllVotes()" style="font-size:0.55rem">Clear all votes</button>
-      <button class="btn btn-ghost" onclick="clearAllNotes()" style="font-size:0.55rem">Clear all notes</button>
       <button onclick="revealResults()" style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:var(--rose);color:white;border:none;padding:7px 14px;border-radius:var(--radius-sm);cursor:pointer">📊 Reveal final results</button>
       <button onclick="exportJuryResults()" style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid rgba(158,199,213,0.4);color:var(--denim);padding:7px 14px;border-radius:var(--radius-sm);cursor:pointer">⬇ Export jury results</button>
       <span style="font-family:var(--font-body);font-size:0.72rem;color:var(--slate);margin-left:auto" id="adminVoteSummary"></span>
@@ -586,6 +588,7 @@ function showApp() {
   if (isAdmin) {
     document.getElementById("adminBar").style.display = "flex";
     document.getElementById("publishBtn").style.display = "";
+    document.getElementById("adminDangerBtns").style.display = "flex";
   }
   render();
 }
@@ -791,6 +794,14 @@ function toggleWinner(filmId, btn) {
     if (badge) badge.style.display = winners[filmId] ? "inline" : "none";
   }
   flashToast(winners[filmId] ? "🏆 Marked as winner!" : "Winner mark removed");
+}
+
+function toggleInstructions() {
+  const content = document.getElementById("instructionsContent");
+  const bar     = document.getElementById("instructionsCollapsedBar");
+  const isOpen  = content.style.display !== "none";
+  content.style.display = isOpen ? "none" : "block";
+  bar.style.display     = isOpen ? "flex" : "none";
 }
 
 function toggleCardBody(filmId) {
@@ -1044,6 +1055,9 @@ function filmCardHTML(filmId, type) {
   const rankLabel = myRank
     ? `<span style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;background:${myRank===1?'#2a7a4b':myRank===2?'#2a6496':'#546E85'};color:white;padding:3px 10px;border-radius:var(--radius-sm)">My #${myRank}</span>`
     : "";
+  const winnerBtn = isAdmin
+    ? `<button onclick="event.stopPropagation();toggleWinner('${filmId}',this)" style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:var(--radius-sm);cursor:pointer;flex-shrink:0;background:${winners[filmId]?'#c9a227':'rgba(255,255,255,0.08)'};color:${winners[filmId]?'white':'rgba(158,199,213,0.7)'};border:${winners[filmId]?'none':'1px solid rgba(158,199,213,0.25)'}">${winners[filmId]?'🏆 Winner':'☆ Mark winner'}</button>`
+    : "";
 
   return `<div class="film-card-jury ${type}" id="card-${filmId}">
     <div class="card-jury-header" onclick="toggleCardBody('${filmId}')">
@@ -1052,6 +1066,7 @@ function filmCardHTML(filmId, type) {
         ${f.watchUrl?`<a href="${esc(f.watchUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--denim);text-decoration:none;background:rgba(158,199,213,0.15);padding:5px 12px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0">▶ Watch Film</a>`:""}
         ${f.password?`<span onclick="event.stopPropagation();copyPw('${esc(f.password)}',this)" title="Click to copy password" style="font-family:var(--font-body);font-size:0.78rem;color:rgba(158,199,213,0.9);cursor:pointer;background:rgba(255,255,255,0.08);padding:4px 10px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0;border:1px solid rgba(158,199,213,0.3)">🔑 ${esc(f.password)}</span>`:""}
         ${rankLabel}
+        ${winnerBtn}
       </div>
       <div style="display:flex;align-items:center;gap:0.75rem;flex-shrink:0">
         <span style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--denim)" id="expand-${filmId}">▼ Details</span>
@@ -1147,20 +1162,22 @@ function updateAdminSummary() {
 }
 
 // ─── ADMIN ACTIONS ────────────────────────────────────────────────────────────
-function clearAllVotes() {
-  if (!confirm("Clear all votes?")) return;
+function clearAllVotesSafe() {
+  if (!confirm("⚠️ ADMIN WARNING\n\nThis will permanently delete ALL votes from ALL jurors — not just yours.\n\nThis cannot be undone. Are you sure?")) return;
   votes = {};
   saveState();
   render();
-  flashToast("Votes cleared");
+  flashToast("All votes cleared");
 }
-function clearAllNotes() {
-  if (!confirm("Clear all deliberation notes?")) return;
+function clearAllVotes() { clearAllVotesSafe(); }
+function clearAllNotesSafe() {
+  if (!confirm("⚠️ ADMIN WARNING\n\nThis will permanently delete ALL deliberation notes from ALL jurors — not just yours.\n\nThis cannot be undone. Are you sure?")) return;
   notes = {};
   saveState();
   render();
-  flashToast("Notes cleared");
+  flashToast("All notes cleared");
 }
+function clearAllNotes() { clearAllNotesSafe(); }
 function revealResults() {
   const existing = document.getElementById("resultsModal");
   if (existing) existing.remove();
