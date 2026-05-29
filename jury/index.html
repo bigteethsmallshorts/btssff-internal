@@ -1082,15 +1082,13 @@ function filmCardHTML(filmId, type) {
   return `<div class="film-card-jury ${type}" id="card-${filmId}">
     <div class="card-jury-header" onclick="toggleCardBody('${filmId}')">
       <div style="display:flex;align-items:center;gap:0.75rem;flex:1;min-width:0;flex-wrap:wrap">
-        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
-          ${awardBadges}
-          <div class="card-jury-title">${esc(f.title)}</div>
-        </div>
+        <div class="card-jury-title">${esc(f.title)}</div>
         ${f.watchUrl?`<a href="${esc(f.watchUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--denim);text-decoration:none;background:rgba(158,199,213,0.15);padding:5px 12px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0">▶ Watch Film</a>`:""}
         ${f.password?`<span onclick="event.stopPropagation();copyPw('${esc(f.password)}',this)" title="Click to copy password" style="font-family:var(--font-body);font-size:0.78rem;color:rgba(158,199,213,0.9);cursor:pointer;background:rgba(255,255,255,0.08);padding:4px 10px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0;border:1px solid rgba(158,199,213,0.3)">🔑 ${esc(f.password)}</span>`:""}
         ${rankLabel}
       </div>
-      <div style="display:flex;align-items:center;gap:0.75rem;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0">
+        ${awardBadges}
         ${winnerBtn}
         <span style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--denim)" id="expand-${filmId}">▼ Details</span>
         <div class="avg-badge">${avg.toFixed(1)}</div>
