@@ -1,0 +1,1660 @@
+<!-- BTSSFF Jury v2026-05-29-C -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jury Deliberation · BTSSFF</title>
+<link rel="stylesheet" href="../assets/css/btssff.css">
+<style>
+  body { background: var(--offwhite); min-height: 100vh; }
+
+  /* ── Header ── */
+  .page-header {
+    background: linear-gradient(135deg, #011632 0%, #0a2040 100%);
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 0 var(--denim), 0 4px 0 rgba(201,84,106,0.4);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .header-left { display:flex;align-items:center;gap:1.5rem; }
+  .header-actions { display:flex;gap:0.75rem;align-items:center; }
+
+  /* ── Gate ── */
+  .gate-overlay {
+    position: fixed; inset: 0; background: var(--navy);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 1.25rem; z-index: 9999;
+  }
+  .gate-form { display:flex;flex-direction:column;gap:0.65rem;width:300px;max-width:300px; }
+  .gate-field-label { font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--denim);margin-bottom:3px;display:block; }
+  .gate-input { background:rgba(255,255,255,0.08);border:1px solid rgba(158,199,213,0.4);color:white;font-family:var(--font-body);font-size:1rem;padding:10px 14px;border-radius:var(--radius);width:100%;outline:none; }
+  .gate-input:focus { border-color:var(--denim); }
+  .gate-input::placeholder { color:rgba(255,255,255,0.3); }
+  .gate-error { color:var(--rose);font-size:0.78rem;font-family:var(--font-body);min-height:1.2em; }
+
+  /* ── Upload screen ── */
+  .upload-screen {
+    max-width: 600px;
+    margin: 4rem auto;
+    text-align: center;
+    padding: 2rem;
+  }
+  .upload-box {
+    border: 2px dashed var(--denim);
+    border-radius: var(--radius-lg);
+    padding: 3rem 2rem;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .upload-box:hover { border-color: var(--navy); background: rgba(158,199,213,0.05); }
+  .upload-box.drag-over { border-color: var(--rose); background: rgba(201,84,106,0.05); }
+  .upload-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+  .upload-label { font-family:var(--font-display);font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);margin-bottom:0.5rem; }
+  .upload-sub { font-family:var(--font-body);font-size:0.85rem;color:var(--slate); }
+  input[type="file"] { display: none; }
+
+  /* ── Main layout ── */
+  .main-wrap { max-width: 1400px; margin: 0 auto; padding: 1.5rem 2rem; }
+
+  /* ── Category tabs ── */
+  .cat-tabs {
+    display: flex; gap: 0; margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--denim);
+  }
+  .cat-tab {
+    font-family:var(--font-display);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;
+    padding: 11px 24px; border: 1px solid var(--border); background: #f0f0f0; cursor: pointer;
+    color: var(--slate); margin-right: 4px; border-radius: var(--radius) var(--radius) 0 0;
+    transition: all 0.15s; border-bottom: none; margin-bottom: -1px;
+  }
+  .cat-tab:hover { background: #e0e8f0; color: var(--navy); }
+  .cat-tab.active.micro-tab { background: rgba(201,84,106,0.12); color: var(--navy); border-color: var(--rose); border-bottom: 2px solid white; font-weight: 700; }
+  .cat-tab.active.small-tab { background: rgba(84,110,133,0.12); color: var(--navy); border-color: var(--slate); border-bottom: 2px solid white; font-weight: 700; }
+
+  /* ── Summary stats — compact inline strip ── */
+  .summary-bar {
+    display: flex; gap: 1.5rem; margin-bottom: 1rem;
+    background: white; border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 0.6rem 1rem; align-items: center; flex-wrap: wrap;
+  }
+  .summary-card { display:flex;align-items:center;gap:6px; border:none;padding:0;background:none;min-width:auto;flex:none; }
+  .summary-label { font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate); }
+  .summary-value { font-family:var(--font-display);font-size:0.85rem;font-weight:700;color:var(--navy); }
+  .summary-sub { display:none; }
+
+  /* ── Contenders list — thin cards, full width ── */
+  .contenders-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* ── Film card ── */
+  .film-card-jury {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: box-shadow 0.15s;
+  }
+  .film-card-jury:hover { box-shadow: var(--shadow); }
+  .film-card-jury.top-5 { border-left: 4px solid var(--rose); }
+  .film-card-jury.wildcard { border-left: 4px solid #b8860b; }
+
+  .card-jury-header {
+    background: var(--navy); padding: 0.65rem 1rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+    cursor: pointer;
+  }
+  .card-jury-header:hover { background: #0a2040; }
+  .card-jury-title { font-family:var(--font-title);font-size:1.3rem;font-weight:500;color:var(--offwhite);line-height:1.2;flex:1; }
+  .avg-badge {
+    font-family:var(--font-display);font-size:1rem;font-weight:700;color:white;
+    background:var(--rose);border-radius:var(--radius-sm);
+    min-width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+
+  .card-jury-meta { padding:0.6rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap; }
+  .contender-tag {
+    font-family:var(--font-display);font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;
+    padding:3px 8px;border-radius:var(--radius-sm);font-weight:700;
+  }
+  .tag-top5    { background:#d4f0e0;color:#1a5c35; }
+  .tag-wildcard { background:#fef3cd;color:#7a5700; }
+
+  /* ── Score breakdown ── */
+  .score-breakdown {
+    padding: 0.75rem 1rem; border-bottom: 1px solid var(--border);
+  }
+  .breakdown-header {
+    font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;
+    color:var(--slate);margin-bottom:0.6rem;display:flex;align-items:center;justify-content:space-between;
+  }
+  .judge-scores-table { width:100%;border-collapse:collapse; }
+  .judge-scores-table td { padding:8px 10px;font-family:var(--font-body);font-size:0.92rem;color:var(--navy);border-bottom:1px solid rgba(1,22,50,0.06); }
+  .judge-scores-table td:first-child { color:var(--slate);font-size:0.72rem; }
+  .judge-scores-table td.score-num { font-family:var(--font-display);font-weight:700;text-align:center;font-size:1.05rem; }
+  .score-high { color:var(--rose); }
+  .score-mid  { color:var(--slate); }
+  .score-low  { color:rgba(1,22,50,0.35); }
+  .judge-comment-row td { padding:6px 10px 12px 10px;font-size:0.92rem;color:var(--slate);font-style:italic;border-bottom:1px solid rgba(1,22,50,0.06); }
+  .panel-note-row td { padding:6px 10px 12px 10px;font-size:0.92rem;color:#7a5700;background:#fef9ec;border-bottom:1px solid rgba(1,22,50,0.06); }
+
+  .breakdown-toggle {
+    font-family:var(--font-display);font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--denim);background:none;border:none;cursor:pointer;
+  }
+  .breakdown-toggle:hover { color:var(--navy); }
+
+  /* ── Deliberation section ── */
+  .deliberation {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .delib-header {
+    font-family:var(--font-display);font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;
+    color:var(--slate);margin-bottom:0.75rem;
+  }
+  .delib-notes { margin-bottom: 0.75rem; }
+  .delib-note {
+    background: #f8f9fa; border-left: 3px solid var(--denim);
+    padding: 8px 10px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    margin-bottom: 6px;
+  }
+  .delib-note-author { font-family:var(--font-display);font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy);margin-bottom:3px; }
+  .delib-note-text { font-family:var(--font-body);font-size:1.0rem;color:var(--navy);line-height:1.5; }
+  .delib-note-time { font-family:var(--font-body);font-size:0.72rem;color:var(--slate);margin-top:2px; }
+  .delib-input-wrap { display:flex;gap:6px; }
+  .delib-input {
+    flex:1;font-family:var(--font-body);font-size:1.0rem;padding:8px 10px;
+    border:1px solid var(--border);border-radius:var(--radius-sm);outline:none;color:var(--navy);
+    resize:none;min-height:60px;
+  }
+  .delib-input:focus { border-color:var(--denim); }
+
+  /* ── Vote section ── */
+  .vote-section {
+    padding: 0.75rem 1rem;
+    background: #fafaf8;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
+  }
+  .vote-count {
+    font-family:var(--font-display);font-size:0.85rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate);
+  }
+  .vote-count strong { color:var(--navy);font-size:0.75rem; }
+  .vote-names { font-family:var(--font-body);font-size:0.9rem;color:var(--slate);margin-top:2px; }
+  .vote-btn {
+    font-family:var(--font-display);font-size:0.88rem;padding:10px 18px;letter-spacing:0.08em;text-transform:uppercase;
+    padding:8px 14px;border-radius:var(--radius-sm);border:2px solid var(--border);
+    background:white;cursor:pointer;color:var(--slate);transition:all 0.15s;
+  }
+  .vote-btn:hover { border-color:var(--denim);color:var(--navy); }
+  .rank-btn[data-rank="1"].voted { background:#2a7a4b;color:white;border-color:#2a7a4b; }
+  .rank-btn[data-rank="2"].voted { background:var(--denim);color:var(--navy);border-color:var(--denim); }
+  .rank-btn[data-rank="3"].voted { background:var(--slate);color:white;border-color:var(--slate); }
+
+  /* ── Winner announcement ── */
+  .winner-section {
+    background: var(--navy); border-radius: var(--radius-lg); padding: 1.5rem;
+    margin-bottom: 1.5rem; text-align: center;
+  }
+  .winner-label { font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--denim);margin-bottom:0.5rem; }
+  .winner-title { font-family:var(--font-title);font-size:1.6rem;font-weight:500;color:var(--offwhite);margin-bottom:0.25rem; }
+  .winner-votes { font-family:var(--font-body);font-size:0.82rem;color:var(--denim); }
+
+  /* ── Admin controls ── */
+  .admin-bar {
+    background: white; border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 0.75rem 1rem; margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+  }
+  .admin-label { font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate); }
+
+  .save-toast { position:fixed;bottom:1.5rem;right:1.5rem;background:var(--navy);color:#3dffc0;font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;padding:10px 16px;border-radius:var(--radius);border:1px solid #3dffc0;opacity:0;transform:translateY(8px);transition:all 0.2s;z-index:200;pointer-events:none; }
+  .save-toast.show { opacity:1;transform:translateY(0); }
+
+  .loading-spinner { text-align:center;padding:4rem;color:var(--slate);font-family:var(--font-display);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase; }
+</style>
+</head>
+<body ondragover="event.preventDefault()" ondrop="event.preventDefault()">
+
+<!-- Gate -->
+<div class="gate-overlay" id="gate">
+  <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:1rem">
+    <img src="https://greggjaffe.com/brand-guide/images/BTSSFF_shorts-nolegs-logo_2025.png"
+         alt="BTSSFF" style="height:80px;width:auto;">
+    <div>
+      <div style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.2em;color:var(--denim);text-transform:uppercase;margin-bottom:6px">Big Teeth Small Shorts Film Fest</div>
+      <h1 style="font-size:2rem;letter-spacing:-0.02em;color:var(--offwhite)">Jury Deliberation</h1>
+      <p style="color:var(--denim);font-family:var(--font-body);font-size:0.9rem;margin-top:4px">Enter your name and access code</p>
+    </div>
+  </div>
+  <div class="gate-form">
+    <div>
+      <label class="gate-field-label">Your name</label>
+      <input class="gate-input" type="text" id="gateNameInput" placeholder="e.g. Gregg" autocomplete="off" autocapitalize="words" style="width:100%;box-sizing:border-box">
+    </div>
+    <div>
+      <label class="gate-field-label">Access code</label>
+      <input class="gate-input" type="password" id="gatePassInput" placeholder="Access code" autocomplete="off" style="width:100%;box-sizing:border-box">
+    </div>
+    <button class="btn btn-denim" style="width:100%;justify-content:center" onclick="checkGate()">Enter →</button>
+    <div class="gate-error" id="gateError"></div>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="page-header">
+  <div class="header-left">
+    <img src="https://greggjaffe.com/brand-guide/images/BTSSFF_shorts-nolegs-logo_2025.png"
+         alt="BTSSFF Logo" style="height:48px;width:auto;flex-shrink:0">
+    <div>
+      <div style="font-family:var(--font-display);font-size:0.75rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--denim);margin-bottom:3px">Big Teeth Small Shorts Film Fest</div>
+      <h1 style="font-size:1.8rem;letter-spacing:-0.02em;color:var(--offwhite);line-height:1">Jury Deliberation</h1>
+    </div>
+    <div style="width:2px;height:40px;background:var(--rose);flex-shrink:0"></div>
+  </div>
+  <div class="header-actions">
+    <span id="jurorBadge" style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--denim)"></span>
+    <button class="btn btn-ghost" id="uploadNewBtn" onclick="showUpload()" style="font-size:0.6rem;color:var(--denim);border-color:rgba(158,199,213,0.4);display:none">↑ New CSV</button>
+    <div id="adminDangerBtns" style="display:none;gap:0.5rem">
+      <button onclick="clearAllVotesSafe()" style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid rgba(201,84,106,0.4);color:rgba(201,84,106,0.8);padding:5px 10px;border-radius:var(--radius-sm);cursor:pointer">🗑 Clear votes</button>
+      <button onclick="clearAllNotesSafe()" style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid rgba(201,84,106,0.4);color:rgba(201,84,106,0.8);padding:5px 10px;border-radius:var(--radius-sm);cursor:pointer">🗑 Clear notes</button>
+    </div>
+    <button class="btn btn-denim" id="publishBtn" onclick="publishForJurors()" style="font-size:0.6rem;display:none">📋 Publish for jurors</button>
+  </div>
+</header>
+
+<!-- Upload screen -->
+<div id="uploadScreen" class="upload-screen" style="display:none">
+  <div style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--slate);margin-bottom:0.5rem">Admin — Upload two files</div>
+  <h2 style="font-family:var(--font-display);font-size:1.3rem;letter-spacing:0.05em;text-transform:uppercase;color:var(--navy);margin-bottom:0.5rem">Upload FilmFreeway Exports</h2>
+  <p style="font-family:var(--font-body);font-size:0.88rem;color:var(--slate);margin-bottom:1.5rem">Upload both files below, then click Load. Everything runs in your browser.</p>
+
+  <div style="text-align:left;margin-bottom:1rem">
+    <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);margin-bottom:6px">
+      File 1 — Jury Ratings CSV &nbsp;<span id="ratingsCheck" style="color:#2a7a4b;display:none">✓ Loaded</span>
+    </div>
+    <div class="upload-box" id="uploadBox1" style="padding:1.25rem;cursor:pointer"
+         onclick="document.getElementById('csvRatings').click()">
+      <div class="upload-icon" style="font-size:1.5rem;margin-bottom:0.4rem">🎬</div>
+      <div class="upload-label">Jury scores + comments from FilmFreeway</div>
+      <div class="upload-sub">Click to browse or drag and drop</div>
+    </div>
+    <input type="file" id="csvRatings" accept=".csv" style="display:none">
+  </div>
+
+  <div style="text-align:left;margin-bottom:1.5rem">
+    <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);margin-bottom:6px">
+      File 2 — Film Submissions CSV &nbsp;<span id="submissionsCheck" style="color:#2a7a4b;display:none">✓ Loaded</span>
+    </div>
+    <div class="upload-box" id="uploadBox2" style="padding:1.25rem;cursor:pointer"
+         onclick="document.getElementById('csvSubmissions').click()">
+      <div class="upload-icon" style="font-size:1.5rem;margin-bottom:0.4rem">📋</div>
+      <div class="upload-label">Original submissions with Vimeo links + passwords</div>
+      <div class="upload-sub">Click to browse or drag and drop</div>
+    </div>
+    <input type="file" id="csvSubmissions" accept=".csv" style="display:none">
+  </div>
+
+  <button id="processBtn" onclick="processBothFiles()"
+    style="width:100%;padding:12px;font-family:var(--font-display);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;background:var(--navy);color:white;border:none;border-radius:var(--radius);cursor:pointer;display:none">
+    Load films →
+  </button>
+  <div id="uploadError" style="color:var(--rose);font-family:var(--font-body);font-size:0.82rem;margin-top:1rem;display:none"></div>
+</div>
+
+<!-- Main app -->
+<div id="appScreen" style="display:none">
+  <!-- Instructions banner -->
+  <div id="instructionsBanner" style="background:#011632;border-bottom:3px solid #9EC7D5">
+    <!-- Collapsed bar - hidden by default -->
+    <div id="instructionsCollapsedBar" style="display:none;padding:0.6rem 2rem;cursor:pointer;align-items:center;gap:0.75rem" onclick="toggleInstructions()">
+      <span style="font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--denim)">How to deliberate</span>
+      <span style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(158,199,213,0.5)">▶ Show instructions</span>
+    </div>
+    <!-- Expanded content -->
+    <div id="instructionsContent" style="display:block;padding:1rem 2rem">
+    <div style="max-width:1400px;margin:0 auto">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem">
+        <div style="flex:1">
+          <div style="font-family:var(--font-display);font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--denim);margin-bottom:0.75rem">Welcome to Jury Deliberation — here's what to do</div>
+          <div style="font-family:var(--font-body);font-size:0.88rem;color:var(--offwhite);margin-bottom:0.75rem;line-height:1.6">
+            Below are two tabs: <strong style="color:var(--denim)">Micro Shorts</strong> and <strong style="color:var(--denim)">Small Shorts</strong>. Each tab shows the <strong style="color:var(--rose)">top contenders</strong> — films with the highest average scores from our judges — plus any <strong style="color:#f5c842">wildcards</strong>, which are films that didn't make the top average but were a favorite for at least one judge. Every film deserves a fair look. Please reach out if you think a film should be added to this list for consideration.
+          </div>
+          <div style="background:var(--rose);border-radius:var(--radius);padding:0.75rem 1rem;margin-bottom:0.75rem">
+            <div style="font-family:var(--font-display);font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:white;font-weight:700">What we need from you: &nbsp;<span style="font-weight:400">A ranking of your 1st, 2nd, and 3rd favorite films — and notes to help us deliberate.</span></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem">
+            <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
+              <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 1 — Review Films</div>
+              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Click on each film to expand for more info. If you'd like to watch it again, hit <strong style="color:var(--denim)">▶ Watch Film</strong>. Click <strong style="color:var(--denim)">"Show individual scores"</strong> to see every judge's previous ratings. Or feel free to ignore those and start with fresh eyes.</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
+              <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 2 — Add Notes</div>
+              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Write a <strong style="color:var(--denim)">deliberation note</strong> on each film and click <strong style="color:var(--denim)">Post</strong> to save it. Notes are visible to all jurors. Thoughtful notes help us make an informed decision — and positive ones may be shared with the filmmaker.</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
+              <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 3 — Rank Your Top 3</div>
+              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">Use the <strong style="color:var(--denim)">#1 / #2 / #3</strong> buttons to rank your top three films. Do this for <em>both</em> tabs — Micro Shorts AND Small Shorts.</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:0.75rem">
+              <div style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose);margin-bottom:4px">Step 4 — Submit When Done</div>
+              <div style="font-family:var(--font-body);font-size:0.82rem;color:var(--offwhite)">When you've ranked your top 3 in <em>both</em> categories, click <strong style="color:#3dffc0">I'm Done Voting</strong> at the bottom of the page. You can save your progress anytime and come back. When the button changes to <strong style="color:#3dffc0">"Voting Complete"</strong> — you're done! Thank you for contributing.</div>
+            </div>
+          </div>
+        </div>
+        <button onclick="toggleInstructions()" style="background:none;border:none;color:var(--denim);cursor:pointer;font-size:0.65rem;flex-shrink:0;margin-top:4px;font-family:var(--font-display);letter-spacing:0.08em;text-transform:uppercase">▲ Collapse</button>
+      </div>
+    </div>
+    </div><!-- end instructionsContent -->
+  </div>
+  <div class="main-wrap">
+
+    <!-- Admin bar (only visible to admin) -->
+    <div class="admin-bar" id="adminBar" style="display:none">
+      <span class="admin-label">Admin</span>
+      <button onclick="revealResults()" style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:var(--rose);color:white;border:none;padding:7px 14px;border-radius:var(--radius-sm);cursor:pointer">📊 Reveal final results</button>
+      <button onclick="exportJuryResults()" style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid rgba(158,199,213,0.4);color:var(--denim);padding:7px 14px;border-radius:var(--radius-sm);cursor:pointer">⬇ Export jury results</button>
+      <span style="font-family:var(--font-body);font-size:0.72rem;color:var(--slate);margin-left:auto" id="adminVoteSummary"></span>
+    </div>
+
+    <!-- Category tabs -->
+    <div class="cat-tabs" id="catTabs"></div>
+
+    <!-- Summary stats -->
+    <div class="summary-bar" id="summaryBar"></div>
+
+    <!-- Contenders -->
+    <div class="contenders-grid" id="contendersGrid"></div>
+
+    <!-- Submit / Save bar -->
+    <div id="submitBar" style="background:white;border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.5rem;margin-top:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+      <div style="flex:1">
+        <div style="font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy);margin-bottom:3px">Your voting status</div>
+        <div style="font-family:var(--font-body);font-size:0.85rem;color:var(--slate)" id="votingStatusText">Check both tabs and rank your top 3 in each category.</div>
+      </div>
+      <button onclick="revealResults()" style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid var(--denim);color:var(--denim);padding:10px 16px;border-radius:var(--radius-sm);cursor:pointer">📊 See current standings</button>
+      <button onclick="saveProgress()" style="font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid var(--border);padding:10px 18px;border-radius:var(--radius-sm);cursor:pointer;color:var(--slate)">💾 Save progress</button>
+      <button onclick="submitDoneVoting()" id="doneVotingBtn" style="font-family:var(--font-display);font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;background:#2a7a4b;color:white;border:none;padding:10px 20px;border-radius:var(--radius-sm);cursor:pointer">✓ I'm done voting</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="save-toast" id="saveToast"></div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const JURY_PASSWORD  = "jury2026";
+const ADMIN_PASSWORD_2 = "juryadmin2026";  // same as ADMIN_PASSWORD
+
+// Google Form for publishing jury data
+const JURY_DATA_FORM_ID    = "1FAIpQLScc7su3ztcNI42sub8LdK630G2j9-o-KRzv1DNtykXhUJP6yA";
+const JURY_DATA_FIELD        = "entry.338083048";
+const JURY_NOTES_FIELD       = "entry.1146716923";
+const JURY_VOTES_FIELD       = "entry.1791110471";
+const JURY_COMPLETE_FIELD    = "entry.1213956775";
+const JURY_DATA_SHEET_ID   = "1HN1noc_KPfYpII8sjjjpZwocGOW8qibvHIT8eaTZZ2o";
+const ADMIN_PASSWORD = "juryadmin2026";
+const TOP_N          = 5; // top N per category
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let jurorName    = "";
+let isAdmin      = false;
+let allData      = [];   // raw rows from ratings CSV
+let submissionsData = []; // raw rows from submissions CSV
+let ratingsLoaded = false;
+let submissionsLoaded = false;
+let films        = {};   // { filmId: { title, category, size, genre, judges: [...] } }
+let contenders   = {};   // { "Micro": [...filmIds], "Small": [...filmIds] }
+let activeTab    = "Micro";
+
+// Deliberation state (localStorage)
+let notes   = {};  // { filmId: [ { author, text, time } ] }
+let winners = {};       // { filmId: true } — admin-selected Best Film winners
+let audienceWinners = {}; // { filmId: true } — admin-selected Audience Choice winners
+let votes  = {};  // { jurorName: { rank1: filmId, rank2: filmId, rank3: filmId } }
+// votes[jurorName].rank1/rank2/rank3 = filmId
+
+// ─── GATE ─────────────────────────────────────────────────────────────────────
+function checkGate() {
+  const rawName = document.getElementById("gateNameInput").value.trim();
+  const pass    = document.getElementById("gatePassInput").value.trim().toLowerCase();
+  const errEl   = document.getElementById("gateError");
+  errEl.textContent = "";
+  if (!rawName) { errEl.textContent = "Please enter your name."; return; }
+  if (pass !== JURY_PASSWORD && pass !== ADMIN_PASSWORD) {
+    errEl.textContent = "Incorrect access code.";
+    document.getElementById("gatePassInput").value = "";
+    return;
+  }
+  jurorName = rawName.charAt(0).toUpperCase() + rawName.slice(1).toLowerCase();
+  isAdmin   = (pass === ADMIN_PASSWORD);
+  document.getElementById("gate").style.display = "none";
+  document.getElementById("jurorBadge").textContent = `Juror: ${jurorName}${isAdmin?" · Admin":""}`;
+  loadState();
+  // Check if we have cached data
+  if (isAdmin) {
+    // Admin: check for cached CSV data
+    const cached = localStorage.getItem("btssff-jury-csvdata");
+    if (cached) {
+      try {
+        allData = JSON.parse(cached);
+        const cachedSubs = localStorage.getItem("btssff-jury-submissions");
+        if (cachedSubs) submissionsData = JSON.parse(cachedSubs);
+        processData();
+        showApp();
+      } catch { showUploadScreen(); }
+    } else {
+      showUploadScreen();
+    }
+  } else {
+    // Juror: load from published sheet
+    document.getElementById("gate").style.display = "none";
+    document.getElementById("jurorBadge").textContent = `Juror: ${jurorName}`;
+    // Show loading state
+    document.getElementById("uploadScreen").style.display = "none";
+    document.getElementById("appScreen").style.display = "block";
+    document.getElementById("contendersGrid").innerHTML = '<div class="loading-spinner">Loading films…</div>';
+    loadFromSheet().then(data => {
+      if (data) {
+        films = data.films;
+        contenders = data.contenders;
+        loadState();
+        // Merge sheet notes
+        if (data.sheetNotes) {
+          Object.entries(data.sheetNotes).forEach(([filmId, noteList]) => {
+            if (!notes[filmId]) notes[filmId] = [];
+            noteList.forEach(note => {
+              const exists = notes[filmId].some(n=>n.author===note.author&&n.text===note.text);
+              if (!exists) notes[filmId].push(note);
+            });
+          });
+          try { localStorage.setItem("btssff-jury-notes", JSON.stringify(notes)); } catch {}
+        }
+        // Merge sheet votes
+        if (data.sheetVotes) {
+          Object.entries(data.sheetVotes).forEach(([juror, jurorAllVotes]) => {
+            if (juror !== jurorName) {
+              votes[juror] = jurorAllVotes;
+            } else if (!votes[jurorName] || Object.keys(votes[jurorName]).length === 0) {
+              votes[jurorName] = jurorAllVotes;
+            }
+          });
+          try { localStorage.setItem("btssff-jury-votes", JSON.stringify(votes)); } catch {}
+        }
+        // Merge completions
+        if (data.sheetCompletions) {
+          try {
+            const local = JSON.parse(localStorage.getItem("btssff-jury-completed")||"{}");
+            const merged = {...data.sheetCompletions, ...local};
+            localStorage.setItem("btssff-jury-completed", JSON.stringify(merged));
+          } catch {}
+        }
+        render();
+        // Jurors don't get upload/export buttons
+      } else {
+        document.getElementById("contendersGrid").innerHTML =
+          `<div style="text-align:center;padding:4rem;font-family:var(--font-body);color:var(--slate)">
+            <div style="font-size:2rem;margin-bottom:1rem">⏳</div>
+            <div style="font-family:var(--font-display);font-size:0.8rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);margin-bottom:0.5rem">Not published yet</div>
+            <div style="font-size:0.88rem">The programming team hasn't published the jury data yet. Check back soon or contact Keriann.</div>
+          </div>`;
+      }
+    });
+  }
+}
+document.getElementById("gatePassInput").addEventListener("keydown", e => { if(e.key==="Enter") checkGate(); });
+document.getElementById("gateNameInput").addEventListener("keydown", e => { if(e.key==="Enter") document.getElementById("gatePassInput").focus(); });
+
+// ─── FILE HANDLING ────────────────────────────────────────────────────────────
+// drag/drop wired in showUploadScreen()
+
+function readRatings(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      allData = parseCSV(e.target.result);
+      ratingsLoaded = true;
+      document.getElementById('ratingsCheck').style.display = 'inline';
+      document.getElementById('uploadBox1').style.borderColor = '#2a7a4b';
+      checkBothLoaded();
+    } catch(err) { showUploadError("Ratings file error: " + err.message); }
+  };
+  reader.readAsText(file);
+}
+
+function readSubmissions(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      submissionsData = parseCSV(e.target.result);
+      submissionsLoaded = true;
+      document.getElementById('submissionsCheck').style.display = 'inline';
+      document.getElementById('uploadBox2').style.borderColor = '#2a7a4b';
+      checkBothLoaded();
+    } catch(err) { showUploadError("Submissions file error: " + err.message); }
+  };
+  reader.readAsText(file);
+}
+
+function checkBothLoaded() {
+  const btn = document.getElementById('processBtn');
+  btn.style.display = 'block';
+  if (ratingsLoaded && submissionsLoaded) {
+    btn.textContent = "Load films →";
+    btn.style.background = "var(--navy)";
+  } else if (ratingsLoaded && !submissionsLoaded) {
+    btn.textContent = "Load films (no watch links — upload submissions file too)";
+    btn.style.background = "var(--slate)";
+  } else if (!ratingsLoaded && submissionsLoaded) {
+    btn.textContent = "Waiting for ratings file…";
+    btn.style.background = "var(--slate)";
+  }
+}
+
+function processBothFiles() {
+  try {
+    localStorage.setItem("btssff-jury-csvdata", JSON.stringify(allData));
+    localStorage.setItem("btssff-jury-submissions", JSON.stringify(submissionsData));
+    processData();
+    showApp();
+  } catch(err) { showUploadError("Could not process files: " + err.message); }
+}
+
+function showUploadError(msg) {
+  const el = document.getElementById("uploadError");
+  el.style.display = "block"; el.textContent = msg;
+}
+
+function showUploadScreen() {
+  document.getElementById("uploadScreen").style.display = "block";
+  document.getElementById("appScreen").style.display = "none";
+  // Wire file inputs with addEventListener (more reliable than onchange)
+  setTimeout(() => {
+    const r = document.getElementById("csvRatings");
+    const s = document.getElementById("csvSubmissions");
+    const b1 = document.getElementById("uploadBox1");
+    const b2 = document.getElementById("uploadBox2");
+    if (r) { r.replaceWith(r.cloneNode(true)); document.getElementById("csvRatings").addEventListener("change", e => { if(e.target.files[0]) readRatings(e.target.files[0]); }); }
+    if (s) { s.replaceWith(s.cloneNode(true)); document.getElementById("csvSubmissions").addEventListener("change", e => { if(e.target.files[0]) readSubmissions(e.target.files[0]); }); }
+    if (b1) { b1.addEventListener("dragover", e => { e.preventDefault(); e.stopPropagation(); b1.classList.add("drag-over"); }); b1.addEventListener("dragleave", () => b1.classList.remove("drag-over")); b1.addEventListener("drop", e => { e.preventDefault(); e.stopPropagation(); b1.classList.remove("drag-over"); if(e.dataTransfer.files[0]) readRatings(e.dataTransfer.files[0]); }); }
+    if (b2) { b2.addEventListener("dragover", e => { e.preventDefault(); e.stopPropagation(); b2.classList.add("drag-over"); }); b2.addEventListener("dragleave", () => b2.classList.remove("drag-over")); b2.addEventListener("drop", e => { e.preventDefault(); e.stopPropagation(); b2.classList.remove("drag-over"); if(e.dataTransfer.files[0]) readSubmissions(e.dataTransfer.files[0]); }); }
+  }, 50);
+}
+function showUpload() {
+  localStorage.removeItem("btssff-jury-csvdata");
+  localStorage.removeItem("btssff-jury-submissions");
+  ratingsLoaded = false; submissionsLoaded = false;
+  showUploadScreen();
+}
+function showApp() {
+  document.getElementById("uploadScreen").style.display = "none";
+  document.getElementById("appScreen").style.display = "block";
+  document.getElementById("uploadNewBtn").style.display = "";
+  if (isAdmin) {
+    document.getElementById("adminBar").style.display = "flex";
+    document.getElementById("publishBtn").style.display = "";
+    document.getElementById("adminDangerBtns").style.display = "flex";
+  }
+  render();
+}
+
+// ─── DATA PROCESSING ──────────────────────────────────────────────────────────
+function processData() {
+  films = {};
+  if (!allData.length) return;
+  const headers = allData[0];
+  const get = (row, col) => (row[headers.indexOf(col)]||"").trim();
+
+  allData.slice(1).forEach(row => {
+    const id    = get(row, "Tracking Number");
+    const title = get(row, "Project Title");
+    const cat   = get(row, "Entry Category");
+    if (!id || !title) return;
+
+    const size  = /micro/i.test(cat) ? "Micro" : "Small";
+    const genre = cat.replace(/^(micro|small)\s+short\s*/i,"").trim();
+
+    if (!films[id]) {
+      films[id] = { id, title, cat, size, genre, judges: [], watchUrl: "", password: "" };
+    }
+
+    const judgeFirst = get(row,"First Name");
+    const judgeLast  = get(row,"Last Name");
+    const judgeName  = `${judgeFirst} ${judgeLast}`.trim();
+    if (!judgeName) return;
+
+    const avgRating = parseFloat(get(row,"Judge's Average Rating")) || 0;
+    const allAvg    = parseFloat(get(row,"All Judges' Average Rating")) || 0;
+
+    films[id].allJudgesAvg = allAvg;
+    films[id].ratedByCount = parseInt(get(row,"Rated By # of Judges")) || 0;
+
+    films[id].judges.push({
+      name:           judgeName,
+      avgRating,
+      originality:    parseFloat(get(row,"Originality"))||0,
+      production:     parseFloat(get(row,"Production Value (keep format in mind when deciding this)"))||0,
+      creativity:     parseFloat(get(row,"Creativity"))||0,
+      entertainment:  parseFloat(get(row,"Entertainment Value"))||0,
+      pacing:         parseFloat(get(row,"Pacing (did the length of the film feel appropriate for the content)"))||0,
+      structure:      parseFloat(get(row,"Structure (storytelling, editing, overall make of the film for the story you think they were trying to tell)"))||0,
+      sound:          parseFloat(get(row,"Sound / Music"))||0,
+      comment:        get(row,"Comment"),
+      panelNote:      get(row,"If you'd like to call out any additional notes for the judges panel to consider, please include here. (Optional)"),
+    });
+  });
+
+  // Merge watch links from submissions CSV
+  if (submissionsData.length > 1) {
+    const sh = submissionsData[0].map(x=>x.trim());
+    const sget = (row, col) => (row[sh.indexOf(col.trim())]||"").trim();
+    submissionsData.slice(1).forEach(row => {
+      const id = sget(row, "Tracking Number");
+      if (id && films[id]) {
+        films[id].watchUrl  = sget(row, "Submission Link") || films[id].watchUrl;
+        films[id].password  = sget(row, "Submission Password");
+      }
+    });
+  }
+
+  // Build contenders
+  contenders = buildContenders();
+}
+
+function buildContenders() {
+  const result = { Micro: [], Small: [] };
+
+  ["Micro","Small"].forEach(size => {
+    const sizeFilms = Object.values(films).filter(f => f.size === size);
+    // Sort by all-judges average desc
+    sizeFilms.sort((a,b) => b.allJudgesAvg - a.allJudgesAvg);
+
+    // Top N (include ties at the Nth position)
+    const topSet = new Set();
+    let cutoffScore = null;
+    let count = 0;
+    for (const f of sizeFilms) {
+      if (count < TOP_N) {
+        topSet.add(f.id);
+        cutoffScore = f.allJudgesAvg;
+        count++;
+      } else if (f.allJudgesAvg === cutoffScore) {
+        topSet.add(f.id); // include ties
+      } else {
+        break;
+      }
+    }
+
+    // Wildcards: any film where a judge ranked it #1 or #2 among their own scores
+    // (not already in top set)
+    const wildcardSet = new Set();
+    ["Micro","Small"].forEach(() => {
+      // For each judge, find their top-2 films in this size category
+      const judgeTopFilms = {};
+      sizeFilms.forEach(f => {
+        f.judges.forEach(j => {
+          if (!judgeTopFilms[j.name]) judgeTopFilms[j.name] = [];
+          judgeTopFilms[j.name].push({ id: f.id, score: j.avgRating });
+        });
+      });
+      Object.values(judgeTopFilms).forEach(list => {
+        list.sort((a,b) => b.score - a.score);
+        list.slice(0,2).forEach(item => {
+          if (!topSet.has(item.id)) wildcardSet.add(item.id);
+        });
+      });
+    });
+
+    result[size] = [
+      ...Array.from(topSet).map(id => ({ id, type: "top5" })),
+      ...Array.from(wildcardSet).map(id => ({ id, type: "wildcard" })),
+    ];
+  });
+
+  return result;
+}
+
+// ─── STATE PERSISTENCE ────────────────────────────────────────────────────────
+function loadState() {
+  try { notes   = JSON.parse(localStorage.getItem("btssff-jury-notes")||"{}"); } catch {}
+  try { winners        = JSON.parse(localStorage.getItem("btssff-jury-winners")||"{}"); } catch {}
+  try { audienceWinners = JSON.parse(localStorage.getItem("btssff-jury-audience")||"{}"); } catch {}
+  try {
+    const rawVotes = JSON.parse(localStorage.getItem("btssff-jury-votes")||"{}");
+    // Detect old format: keys were filmIds (arrays), new format: keys are juror names (objects with rank1/rank2/rank3)
+    const isOldFormat = Object.values(rawVotes).some(v => Array.isArray(v));
+    votes = isOldFormat ? {} : rawVotes;
+    if (isOldFormat) localStorage.removeItem("btssff-jury-votes");
+  } catch { votes = {}; }
+}
+function saveState() {
+  try { localStorage.setItem("btssff-jury-notes",    JSON.stringify(notes));          } catch {}
+  try { localStorage.setItem("btssff-jury-votes",    JSON.stringify(votes));          } catch {}
+  try { localStorage.setItem("btssff-jury-winners",  JSON.stringify(winners));        } catch {}
+  try { localStorage.setItem("btssff-jury-audience", JSON.stringify(audienceWinners));} catch {}
+}
+
+function submitFieldToForm(fieldName, value) {
+  const formId = JURY_DATA_FORM_ID;
+  let iframe = document.getElementById("jury-field-submitter");
+  if (!iframe) {
+    iframe = document.createElement("iframe");
+    iframe.id = "jury-field-submitter"; iframe.name = "jury-field-submitter";
+    iframe.style.display = "none"; document.body.appendChild(iframe);
+  }
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = `https://docs.google.com/forms/d/e/${formId}/formResponse`;
+  form.target = "jury-field-submitter";
+  const input = document.createElement("input");
+  input.type = "hidden"; input.name = fieldName; input.value = value;
+  form.appendChild(input);
+  document.body.appendChild(form); form.submit(); document.body.removeChild(form);
+}
+
+function addNote(filmId, text) {
+  if (!text.trim()) return;
+  if (!notes[filmId]) notes[filmId] = [];
+  notes[filmId].push({ author: jurorName, text: text.trim(), time: new Date().toLocaleString() });
+  saveState();
+  submitNotesToForm();
+  // Update notes section in place
+  const notesEl = document.getElementById(`notes-${filmId}`);
+  if (notesEl) {
+    notesEl.innerHTML = notes[filmId].map(n => `<div class="delib-note">
+      <div class="delib-note-author">${esc(n.author)}</div>
+      <div class="delib-note-text">${esc(n.text)}</div>
+      <div class="delib-note-time">${n.time}</div>
+    </div>`).join("");
+  }
+  renderSummary();
+  flashToast("Note added ✓");
+}
+
+function submitNotesToForm() {
+  submitFieldToForm(JURY_NOTES_FIELD, JSON.stringify(notes));
+}
+
+function copyPw(pw, el) {
+  navigator.clipboard.writeText(pw).then(() => {
+    const orig = el.innerHTML;
+    el.innerHTML = "✓ Copied!";
+    el.style.color = "#3dffc0";
+    setTimeout(() => { el.innerHTML = orig; el.style.color = ""; }, 1500);
+  });
+}
+
+function toggleWinner(filmId, btn) {
+  if (!isAdmin) return;
+  winners[filmId] = !winners[filmId];
+  if (!winners[filmId]) delete winners[filmId];
+  saveState();
+  rerenderAllCards();
+  flashToast(winners[filmId] ? "🏆 Marked as Best Film winner!" : "Best Film mark removed");
+}
+
+function toggleAudienceWinner(filmId) {
+  if (!isAdmin) return;
+  audienceWinners[filmId] = !audienceWinners[filmId];
+  if (!audienceWinners[filmId]) delete audienceWinners[filmId];
+  saveState();
+  rerenderAllCards();
+  flashToast(audienceWinners[filmId] ? "🎟 Marked as Audience Choice!" : "Audience Choice mark removed");
+}
+
+function toggleInstructions() {
+  const content = document.getElementById("instructionsContent");
+  const bar     = document.getElementById("instructionsCollapsedBar");
+  const isOpen  = content.style.display !== "none";
+  content.style.display = isOpen ? "none" : "block";
+  bar.style.display     = isOpen ? "flex" : "none";
+}
+
+function toggleCardBody(filmId) {
+  const body = document.getElementById(`body-${filmId}`);
+  const lbl  = document.getElementById(`expand-${filmId}`);
+  if (!body) return;
+  const isOpen = body.style.display !== "none";
+  body.style.display = isOpen ? "none" : "block";
+  if (lbl) lbl.textContent = isOpen ? "▼ Details" : "▲ Collapse";
+}
+
+function getExpandedCards() {
+  const expanded = {};
+  document.querySelectorAll(".card-jury-body").forEach(el => {
+    if (el.style.display !== "none") expanded[el.id.replace("body-","")] = true;
+  });
+  return expanded;
+}
+function restoreExpandedCards(expanded) {
+  Object.keys(expanded).forEach(filmId => {
+    const body = document.getElementById(`body-${filmId}`);
+    const lbl  = document.getElementById(`expand-${filmId}`);
+    if (body) { body.style.display = "block"; }
+    if (lbl)  { lbl.textContent = "▲ collapse"; }
+  });
+}
+
+function setRank(filmId, rank) {
+  if (!votes[jurorName]) votes[jurorName] = {};
+  if (!votes[jurorName][activeTab]) votes[jurorName][activeTab] = {};
+  const myVotes = votes[jurorName][activeTab];
+  const expanded = getExpandedCards();
+  // If this film already has this rank, remove it
+  if (myVotes[`rank${rank}`] === filmId) {
+    delete myVotes[`rank${rank}`];
+    saveState();
+    submitFieldToForm(JURY_VOTES_FIELD, JSON.stringify({juror: jurorName, allVotes: votes[jurorName], ts: Date.now()}));
+    rerenderAllCards();
+    restoreExpandedCards(expanded);
+    flashToast(`#${rank} vote removed`);
+    renderSummary();
+    return;
+  }
+  // If this film already has a different rank, remove that
+  [1,2,3].forEach(r => { if (myVotes[`rank${r}`] === filmId) delete myVotes[`rank${r}`]; });
+  // If another film has this rank, clear it first
+  if (myVotes[`rank${rank}`]) delete myVotes[`rank${rank}`];
+  myVotes[`rank${rank}`] = filmId;
+  saveState();
+  submitFieldToForm(JURY_VOTES_FIELD, JSON.stringify({juror: jurorName, allVotes: votes[jurorName], ts: Date.now()}));
+  rerenderAllCards();
+  restoreExpandedCards(expanded);
+  flashToast(`Ranked #${rank} ✓`);
+  updateAdminSummary();
+  renderSummary();
+}
+
+function getMyRankForFilm(filmId) {
+  const myVotes = (votes[jurorName]||{})[activeTab]||{};
+  for (let r=1;r<=3;r++) { if (myVotes[`rank${r}`]===filmId) return r; }
+  return null;
+}
+
+function getVotePoints(filmId) {
+  let points = 0;
+  Object.values(votes).forEach(jvotes => {
+    // jvotes is now {Micro:{rank1..}, Small:{rank1..}}
+    Object.values(jvotes).forEach(catVotes => {
+      if (typeof catVotes !== 'object' || Array.isArray(catVotes)) return;
+      if (catVotes.rank1 === filmId) points += 3;
+      if (catVotes.rank2 === filmId) points += 2;
+      if (catVotes.rank3 === filmId) points += 1;
+    });
+  });
+  return points;
+}
+
+function getVoterCount(filmId) {
+  return Object.values(votes).filter(jv => {
+    return Object.values(jv).some(catVotes =>
+      typeof catVotes==='object' && !Array.isArray(catVotes) &&
+      [catVotes.rank1,catVotes.rank2,catVotes.rank3].includes(filmId)
+    );
+  }).length;
+}
+
+function rerenderAllCards() {
+  const cat = contenders[activeTab]||[];
+
+  // Save expanded state, score table state, AND draft note text
+  const expandedBodies = {};
+  const expandedScores = {};
+  const draftNotes = {};
+  cat.forEach(c => {
+    const body   = document.getElementById(`body-${c.id}`);
+    const scores = document.getElementById(`breakdown-${c.id}`);
+    const ta     = document.getElementById(`note-input-${c.id}`);
+    if (body   && body.style.display   !== "none") expandedBodies[c.id] = true;
+    if (scores && scores.style.display !== "none") expandedScores[c.id] = true;
+    if (ta     && ta.value.trim())                 draftNotes[c.id]     = ta.value;
+  });
+
+  // Re-render each card
+  cat.forEach(c => {
+    const card = document.getElementById(`card-${c.id}`);
+    if (card) card.outerHTML = filmCardHTML(c.id, cardTypeMap[c.id]||c.type);
+    wireCard(c.id);
+  });
+
+  // Restore expanded state
+  cat.forEach(c => {
+    if (expandedBodies[c.id]) {
+      const body = document.getElementById(`body-${c.id}`);
+      const lbl  = document.getElementById(`expand-${c.id}`);
+      if (body) body.style.display = "block";
+      if (lbl)  lbl.textContent = "▲ Collapse";
+    }
+    if (expandedScores[c.id]) {
+      const bd  = document.getElementById(`breakdown-${c.id}`);
+      const btn = document.querySelector(`[data-id="${c.id}"].breakdown-toggle`);
+      if (bd)  bd.style.display = "table";
+      if (btn) btn.textContent = "▼ Hide scores";
+    }
+  });
+
+  // Restore draft note text
+  Object.entries(draftNotes).forEach(([filmId, draft]) => {
+    const ta = document.getElementById(`note-input-${filmId}`);
+    if (ta) ta.value = draft;
+  });
+
+  renderSummary();
+  updateAdminSummary();
+}
+
+function wireCard(filmId) {
+  const card = document.getElementById(`card-${filmId}`);
+  if (!card) return;
+  card.querySelectorAll(".rank-btn").forEach(btn => {
+    btn.addEventListener("click", e => { e.stopPropagation(); setRank(btn.dataset.id, parseInt(btn.dataset.rank)); });
+  });
+  card.querySelectorAll(".note-submit-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const ta = document.getElementById(`note-input-${btn.dataset.id}`);
+      if (ta) { addNote(btn.dataset.id, ta.value); ta.value = ""; }
+    });
+  });
+  card.querySelectorAll(".breakdown-toggle").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const bd = document.getElementById(`breakdown-${btn.dataset.id}`);
+      if (bd) { bd.style.display = bd.style.display==="none"?"table":"none"; btn.textContent = bd.style.display==="none"?"▶ Show scores":"▼ Hide scores"; }
+    });
+  });
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  renderTabs();
+  renderSummary();
+  renderContenders();
+  updateAdminSummary();
+}
+
+function renderTabs() {
+  const tabs = Object.keys(contenders);
+  document.getElementById("catTabs").innerHTML = tabs.map(cat =>
+    `<button class="cat-tab ${cat===activeTab?"active":""} ${cat.toLowerCase()}-tab" onclick="setTab('${cat}')">${cat} Shorts
+      <span style="font-size:0.6rem;opacity:0.7;margin-left:4px">${contenders[cat].length} films</span>
+    </button>`
+  ).join("");
+}
+
+function setTab(cat) {
+  activeTab = cat;
+  renderTabs();
+  renderSummary();
+  renderContenders();
+}
+
+function renderSummary() {
+  const cat = contenders[activeTab] || [];
+  const top5 = cat.filter(c=>c.type==="top5");
+  const wild = cat.filter(c=>c.type==="wildcard");
+  const totalVotes = cat.reduce((sum,c) => sum + getVoterCount(c.id), 0);
+  const myV = votes[jurorName]||{};
+
+  updateVotingStatusText();
+  document.getElementById("summaryBar").innerHTML = `
+    <div class="summary-card"><span class="summary-label">Top contenders</span><span class="summary-value" style="color:var(--rose)">${top5.length}</span></div>
+    <div style="width:1px;height:16px;background:var(--border)"></div>
+    <div class="summary-card"><span class="summary-label">Wildcards</span><span class="summary-value" style="color:#b8860b">${wild.length}</span></div>
+    <div style="width:1px;height:16px;background:var(--border)"></div>
+    <div class="summary-card"><span class="summary-label">Votes cast</span><span class="summary-value">${totalVotes}</span></div>
+    <div style="width:1px;height:16px;background:var(--border)"></div>
+    <div class="summary-card"><span class="summary-label">Notes</span><span class="summary-value">${cat.reduce((s,c)=>s+(notes[c.id]||[]).length,0)}</span></div>
+    <div style="margin-left:auto;font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--slate);display:flex;gap:8px;align-items:center">
+      <span>${activeTab}:</span>
+      <span style="color:${myV[activeTab]?.rank1?'#2a7a4b':'rgba(84,110,133,0.3)'};font-size:0.85rem">${myV[activeTab]?.rank1?'✓':'○'} #1</span>
+      <span style="color:${myV[activeTab]?.rank2?'var(--denim)':'rgba(84,110,133,0.3)'};font-size:0.85rem">${myV[activeTab]?.rank2?'✓':'○'} #2</span>
+      <span style="color:${myV[activeTab]?.rank3?'var(--slate)':'rgba(84,110,133,0.3)'};font-size:0.85rem">${myV[activeTab]?.rank3?'✓':'○'} #3</span>
+    </div>`;
+}
+
+// Store card types so voting doesn't change them
+let cardTypeMap = {};
+
+function renderContenders() {
+  const cat = contenders[activeTab] || [];
+  const top5  = cat.filter(c=>c.type==="top5").sort((a,b)=>(films[b.id]?.allJudgesAvg||0)-(films[a.id]?.allJudgesAvg||0));
+  const wild  = cat.filter(c=>c.type==="wildcard").sort((a,b)=>(films[b.id]?.allJudgesAvg||0)-(films[a.id]?.allJudgesAvg||0));
+  const sorted = [...top5, ...wild];
+  sorted.forEach(c => { cardTypeMap[c.id] = c.type; });
+  document.getElementById("contendersGrid").innerHTML = sorted.map(c => filmCardHTML(c.id, c.type)).join("");
+  sorted.forEach(c => wireCard(c.id));
+}
+
+function filmCardHTML(filmId, type) {
+  const f = films[filmId]; if (!f) return "";
+  const avg = f.allJudgesAvg;
+  const myRank = getMyRankForFilm(filmId); // uses votes[jurorName]
+  const filmNotes = notes[filmId]||[];
+  const pts = getVotePoints(filmId);
+  const voterCt = getVoterCount(filmId);
+
+  const sortedJudges = [...(f.judges||[])].sort((a,b)=>b.avgRating-a.avgRating);
+
+  const judgeRows = sortedJudges.map(j => {
+    const sc = j.avgRating;
+    const cls = sc>=8?"score-high":sc>=6?"score-mid":"score-low";
+    return `<tr>
+      <td style="padding:8px 10px;font-size:0.9rem">${esc(j.name)}</td>
+      <td class="score-num ${cls}" style="padding:8px 10px;text-align:center">${sc}</td>
+      <td style="padding:8px 10px;text-align:center;font-size:0.9rem">${j.originality||"—"}</td>
+      <td style="padding:8px 10px;text-align:center;font-size:0.9rem">${j.production||"—"}</td>
+      <td style="padding:8px 10px;text-align:center;font-size:0.9rem">${j.creativity||"—"}</td>
+      <td style="padding:8px 10px;text-align:center;font-size:0.9rem">${j.entertainment||"—"}</td>
+    </tr>
+    ${j.comment?`<tr class="judge-comment-row"><td colspan="6" style="padding:6px 10px 10px;font-size:0.9rem">💬 ${esc(j.comment)}</td></tr>`:""}
+    ${j.panelNote?`<tr class="panel-note-row"><td colspan="6" style="padding:6px 10px 10px;font-size:0.9rem">📌 ${esc(j.panelNote)}</td></tr>`:""}`;
+  }).join("");
+
+  const notesHtml = filmNotes.length
+    ? filmNotes.map(n=>`<div class="delib-note">
+        <div class="delib-note-author">${esc(n.author)}</div>
+        <div class="delib-note-text">${esc(n.text)}</div>
+        <div class="delib-note-time">${n.time}</div>
+      </div>`).join("")
+    : `<div style="font-family:var(--font-body);font-size:0.9rem;color:var(--slate);font-style:italic;margin-bottom:0.75rem">No notes yet — be the first to weigh in.</div>`;
+
+  const rankLabel = myRank
+    ? `<span style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;background:${myRank===1?'#2a7a4b':myRank===2?'#2a6496':'#546E85'};color:white;padding:3px 10px;border-radius:var(--radius-sm);flex-shrink:0">My #${myRank}</span>`
+    : "";
+  // Award badges visible to everyone; buttons only for admin
+  const awardBadges = (winners[filmId]||audienceWinners[filmId]) && !isAdmin
+    ? `<span style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;${winners[filmId]?'background:#c9a227;':'background:#5a2d82;'}color:white;padding:3px 9px;border-radius:var(--radius-sm)">${winners[filmId]?'🏆 Best Film':'🎟 Audience Choice'}</span>`
+    : "";
+  const winnerBtn = isAdmin
+    ? `<div style="display:flex;gap:4px;flex-shrink:0" onclick="event.stopPropagation()">
+        <button onclick="toggleWinner('${filmId}',this)" style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;border-radius:var(--radius-sm);cursor:pointer;background:${winners[filmId]?'#c9a227':'rgba(255,255,255,0.06)'};color:${winners[filmId]?'white':'rgba(158,199,213,0.6)'};border:${winners[filmId]?'none':'1px solid rgba(158,199,213,0.2)'}">
+          ${winners[filmId]?'🏆 Best Film':'☆ Best Film'}
+        </button>
+        <button onclick="toggleAudienceWinner('${filmId}')" style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;border-radius:var(--radius-sm);cursor:pointer;background:${audienceWinners[filmId]?'#5a2d82':'rgba(255,255,255,0.06)'};color:${audienceWinners[filmId]?'white':'rgba(158,199,213,0.6)'};border:${audienceWinners[filmId]?'none':'1px solid rgba(158,199,213,0.2)'}">
+          ${audienceWinners[filmId]?'🎟 Audience Choice':'☆ Audience'}
+        </button>
+      </div>`
+    : "";
+
+  return `<div class="film-card-jury ${type}" id="card-${filmId}">
+    <div class="card-jury-header" onclick="toggleCardBody('${filmId}')">
+      <div style="display:flex;align-items:center;gap:0.6rem;flex:1;min-width:0;flex-wrap:wrap">
+        <div class="card-jury-title">${esc(f.title)}</div>
+        ${f.watchUrl?`<a href="${esc(f.watchUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--denim);text-decoration:none;background:rgba(158,199,213,0.15);padding:5px 12px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0">▶ Watch Film</a>`:""}
+        ${f.password?`<span onclick="event.stopPropagation();copyPw('${esc(f.password)}',this)" title="Click to copy password" style="font-family:var(--font-body);font-size:0.78rem;color:rgba(158,199,213,0.9);cursor:pointer;background:rgba(255,255,255,0.08);padding:4px 10px;border-radius:var(--radius-sm);white-space:nowrap;flex-shrink:0;border:1px solid rgba(158,199,213,0.3)">🔑 ${esc(f.password)}</span>`:""}
+        ${rankLabel}
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0">
+        ${awardBadges}
+        ${winnerBtn}
+        <span style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--denim)" id="expand-${filmId}">▼ Details</span>
+        <div class="avg-badge">${avg.toFixed(1)}</div>
+      </div>
+    </div>
+    <div class="card-jury-body" id="body-${filmId}" style="display:none">
+      <div class="card-jury-meta">
+        <span class="contender-tag ${type==="top5"?"tag-top5":"tag-wildcard"}">${type==="top5"?"Top contender":"Wildcard — judge's pick"}</span>
+        <span style="font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate)">${esc(f.cat)}</span>
+      </div>
+
+      <div class="score-breakdown">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;border-bottom:1px solid var(--border)">
+          <span style="font-family:var(--font-display);font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate)">Judge scores</span>
+          <button class="breakdown-toggle" data-id="${filmId}" style="font-family:var(--font-display);font-size:0.68rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--denim);background:none;border:1px solid rgba(158,199,213,0.4);padding:5px 14px;border-radius:var(--radius-sm);cursor:pointer">▶ Show scores</button>
+        </div>
+        <table class="judge-scores-table" id="breakdown-${filmId}" style="display:none;width:100%">
+          <thead><tr style="background:#f8f9fa">
+            <td style="padding:8px 10px;font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--slate)">Judge</td>
+            <td style="padding:8px 10px;font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--slate);text-align:center">Avg</td>
+            <td style="padding:8px 10px;font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--slate);text-align:center">Originality</td>
+            <td style="padding:8px 10px;font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--slate);text-align:center">Production</td>
+            <td style="padding:8px 10px;font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--slate);text-align:center">Creativity</td>
+            <td style="padding:8px 10px;font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--slate);text-align:center">Entertainment</td>
+          </tr></thead>
+          <tbody>${judgeRows}</tbody>
+        </table>
+      </div>
+
+      <div class="deliberation">
+        <div class="delib-header">Deliberation notes</div>
+        <div class="delib-notes" id="notes-${filmId}">${notesHtml}</div>
+        <div class="delib-input-wrap">
+          <textarea class="delib-input" id="note-input-${filmId}" placeholder="Add your thoughts on this film…" rows="2"></textarea>
+          <button class="btn btn-navy note-submit-btn" data-id="${filmId}" style="align-self:flex-end;font-size:0.72rem;padding:10px 14px">Post</button>
+        </div>
+      </div>
+
+      <div class="vote-section">
+        <div>
+          <div class="vote-count">Points: <strong>${pts}</strong> &nbsp;·&nbsp; Ranked by <strong>${voterCt}</strong> juror${voterCt!==1?"s":""}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-family:var(--font-body);font-size:0.88rem;color:var(--slate)">Your rank:</span>
+          <button class="vote-btn rank-btn${myRank===1?" voted":""}" data-id="${filmId}" data-rank="1">#1</button>
+          <button class="vote-btn rank-btn${myRank===2?" voted":""}" data-id="${filmId}" data-rank="2">#2</button>
+          <button class="vote-btn rank-btn${myRank===3?" voted":""}" data-id="${filmId}" data-rank="3">#3</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderFilmCard(filmId) {
+  const card = document.getElementById(`card-${filmId}`);
+  if (!card) return;
+  const type = cardTypeMap[filmId] || (card.classList.contains("film-card-jury top-5") ? "top5" : "wildcard");
+  card.outerHTML = filmCardHTML(filmId, type);
+  // Re-wire
+  document.getElementById(`card-${filmId}`)?.querySelectorAll(".note-submit-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const ta = document.getElementById(`note-input-${btn.dataset.id}`);
+      if (ta) { addNote(btn.dataset.id, ta.value); ta.value = ""; }
+    });
+  });
+  document.getElementById(`card-${filmId}`)?.querySelectorAll(".rank-btn").forEach(btn => {
+    btn.addEventListener("click", () => setRank(btn.dataset.id, parseInt(btn.dataset.rank)));
+  });
+  document.getElementById(`card-${filmId}`)?.querySelectorAll(".breakdown-toggle").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const bd = document.getElementById(`breakdown-${btn.dataset.id}`);
+      if (bd) { bd.style.display = bd.style.display==="none"?"table":"none"; btn.textContent = bd.style.display==="none"?"Show individual scores":"Hide scores"; }
+    });
+  });
+  renderSummary();
+}
+
+function updateAdminSummary() {
+  if (!isAdmin) return;
+  // Count unique judges from film scores
+  const allJudges = new Set();
+  Object.values(films).forEach(f => (f.judges||[]).forEach(j => allJudges.add(j.name.split(" ")[0])));
+  const totalJudges = allJudges.size;
+  // Count who completed voting
+  const completed = getCompletedJurors();
+  const completedNames = Object.keys(completed);
+  const doneCount = completedNames.length;
+  const el = document.getElementById("adminVoteSummary");
+  if (el) {
+    el.innerHTML = `<span style="font-family:var(--font-display);font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase">`
+      + `Voting complete: <strong style="color:white">${doneCount}/${totalJudges}</strong>`
+      + (completedNames.length ? ` &nbsp;·&nbsp; <span style="color:rgba(158,199,213,0.7)">${completedNames.join(", ")}</span>` : ` &nbsp;·&nbsp; <span style="color:rgba(158,199,213,0.4)">None yet</span>`)
+      + `</span>`;
+  }
+}
+
+// ─── ADMIN ACTIONS ────────────────────────────────────────────────────────────
+function clearAllVotesSafe() {
+  if (!confirm("⚠️ ADMIN WARNING\n\nThis will permanently delete ALL votes from ALL jurors — not just yours.\n\nThis cannot be undone. Are you sure?")) return;
+  votes = {};
+  saveState();
+  render();
+  flashToast("All votes cleared");
+}
+function clearAllVotes() { clearAllVotesSafe(); }
+function clearAllNotesSafe() {
+  if (!confirm("⚠️ ADMIN WARNING\n\nThis will permanently delete ALL deliberation notes from ALL jurors — not just yours.\n\nThis cannot be undone. Are you sure?")) return;
+  notes = {};
+  saveState();
+  render();
+  flashToast("All notes cleared");
+}
+function clearAllNotes() { clearAllNotesSafe(); }
+function revealResults() {
+  const existing = document.getElementById("resultsModal");
+  if (existing) existing.remove();
+
+  const buildCategory = (size) => {
+    const cat = (contenders[size]||[]);
+    const tally = cat.map(c => {
+      const f = films[c.id]||{};
+      const pts = getVotePoints(c.id);
+      const voters = Object.entries(votes)
+        .filter(([,jv])=>{const cv=jv[size]||{};return[cv.rank1,cv.rank2,cv.rank3].includes(c.id);})
+        .map(([n,jv])=>{const cv=jv[size]||{};const r=[cv.rank1,cv.rank2,cv.rank3].indexOf(c.id)+1;return{name:n,rank:r};})
+        .sort((a,b)=>a.rank-b.rank);
+      const filmNotes = notes[c.id]||[];
+      return {id:c.id,title:f.title||c.id,type:c.type,pts,voters,filmNotes,avg:f.allJudgesAvg||0};
+    }).sort((a,b)=>b.pts-a.pts||b.avg-a.avg);
+
+    if(!tally.length) return `<p style="color:var(--slate);font-style:italic">No contenders</p>`;
+
+    return tally.map(t => {
+      const ptsBadge = t.pts>0
+        ? `<div style="background:var(--rose);color:white;font-family:var(--font-display);font-size:1rem;font-weight:700;min-width:52px;height:52px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0 6px">${t.pts}pt${t.pts!==1?'s':''}</div>`
+        : `<div style="background:var(--border);color:var(--slate);font-family:var(--font-display);font-size:0.6rem;font-weight:700;width:52px;height:52px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;text-align:center;line-height:1.3">No<br>votes</div>`;
+      const voterTags = t.voters.map(v=>
+        `<span style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;padding:3px 9px;border-radius:var(--radius-sm);background:${v.rank===1?'#2a7a4b':v.rank===2?'#2a6496':'#546E85'};color:white">${esc(v.name)} #${v.rank}</span>`
+      ).join(" ");
+      const notesHtml = t.filmNotes.length
+        ? t.filmNotes.map(n=>`<div style="background:#f8f9fa;border-left:3px solid var(--denim);padding:8px 12px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-bottom:6px">
+            <div style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy);margin-bottom:3px">${esc(n.author)}</div>
+            <div style="font-family:var(--font-body);font-size:0.88rem;color:var(--navy);line-height:1.5">${esc(n.text)}</div>
+          </div>`).join("")
+        : `<div style="font-style:italic;color:var(--slate);font-size:0.85rem">No notes</div>`;
+      const typeBadge = t.type==="top5"
+        ? `<span style="font-family:var(--font-display);font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;background:#d4f0e0;color:#1a5c35;padding:2px 7px;border-radius:var(--radius-sm)">Top contender</span>`
+        : `<span style="font-family:var(--font-display);font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;background:#fef3cd;color:#7a5700;padding:2px 7px;border-radius:var(--radius-sm)">Wildcard</span>`;
+
+      return `<div style="background:white;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:0.75rem;overflow:hidden;${winners[t.id]?'border-left:4px solid #c9a227':audienceWinners[t.id]?'border-left:4px solid #5a2d82':t.pts>0?'border-left:4px solid var(--rose)':''}">
+        <div style="background:${winners[t.id]?'#1c1600':audienceWinners[t.id]?'#1a0f2e':'var(--navy)'};padding:0.75rem 1rem;display:flex;align-items:center;gap:0.75rem">
+          ${ptsBadge}
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:4px">
+              <span style="font-family:var(--font-title);font-size:1.1rem;font-weight:500;color:var(--offwhite)">${esc(t.title)}</span>
+              ${winners[t.id]?`<span style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:#c9a227;color:white;padding:2px 9px;border-radius:var(--radius-sm)">🏆 Best Film</span>`:""}
+              ${audienceWinners[t.id]?`<span style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:#5a2d82;color:white;padding:2px 9px;border-radius:var(--radius-sm)">🎟 Audience Choice</span>`:""}
+            </div>
+            <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+              ${typeBadge}
+              <span style="font-family:var(--font-body);font-size:0.72rem;color:var(--denim)">Avg score: ${t.avg.toFixed(1)}</span>
+              ${voterTags ? `<span style="color:rgba(158,199,213,0.4)">·</span> ${voterTags}` : `<span style="font-family:var(--font-body);font-size:0.72rem;color:rgba(158,199,213,0.4)">No votes yet</span>`}
+            </div>
+          </div>
+
+        </div>
+        <div style="padding:0.75rem 1rem">
+          <div style="font-family:var(--font-display);font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:0.5rem">Deliberation notes</div>
+          ${notesHtml}
+        </div>
+      </div>`;
+    }).join("");
+  };
+
+  const modal = document.createElement("div");
+  modal.id = "resultsModal";
+  modal.style.cssText = "position:fixed;inset:0;background:var(--offwhite);z-index:500;overflow-y:auto;padding:2rem";
+  modal.innerHTML = `
+    <div style="max-width:1400px;margin:0 auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+        <div>
+          <div style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--slate);margin-bottom:4px">BTSSFF · Jury Deliberation Results</div>
+          <h1 style="font-family:var(--font-display);font-size:1.6rem;letter-spacing:-0.01em;color:var(--navy)">Final Results</h1>
+        </div>
+        <button onclick="document.getElementById('resultsModal').remove()" style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid var(--border);padding:8px 16px;border-radius:var(--radius-sm);cursor:pointer;color:var(--slate)">← Back</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start">
+        <div>
+          <h2 style="font-family:var(--font-display);font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:3px solid var(--rose)">Micro Shorts</h2>
+          ${buildCategory("Micro")}
+        </div>
+        <div>
+          <h2 style="font-family:var(--font-display);font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:3px solid var(--slate)">Small Shorts</h2>
+          ${buildCategory("Small")}
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+// ─── EXPORT ───────────────────────────────────────────────────────────────────
+// ─── PUBLISH / LOAD JURY DATA ────────────────────────────────────────────────
+
+function publishForJurors() {
+  if (!Object.keys(films).length) { flashToast("No data to publish"); return; }
+
+  // Trim to contender films only, and truncate long comments to save space
+  const contenderIds = new Set([
+    ...(contenders.Micro||[]).map(c=>c.id),
+    ...(contenders.Small||[]).map(c=>c.id),
+  ]);
+  const trim = s => (s||"").slice(0, 200); // truncate comments to 200 chars
+
+  const payload = {
+    publishedAt: new Date().toISOString(),
+    contenders,
+    films: Object.fromEntries(
+      [...contenderIds].map(id => {
+        const f = films[id]; if (!f) return [id, null];
+        return [id, {
+          id: f.id, title: f.title, cat: f.cat, size: f.size, genre: f.genre,
+          allJudgesAvg: f.allJudgesAvg, ratedByCount: f.ratedByCount,
+          watchUrl: f.watchUrl||"", password: f.password||"",
+          judges: f.judges.map(j => ({
+            name: j.name, avgRating: j.avgRating,
+            originality: j.originality, production: j.production,
+            creativity: j.creativity, entertainment: j.entertainment,
+            comment: trim(j.comment), panelNote: trim(j.panelNote)
+          }))
+        }];
+      }).filter(([,v])=>v)
+    )
+  };
+
+  const json = JSON.stringify(payload);
+  console.log("Payload size:", json.length, "chars");
+
+  // Split into multiple cells if needed
+  const CELL_LIMIT = 45000;
+  if (json.length > CELL_LIMIT) {
+    // Split across multiple cells
+    const chunks = [];
+    for (let i = 0; i < json.length; i += CELL_LIMIT) {
+      chunks.push(json.slice(i, i + CELL_LIMIT));
+    }
+    showPasteModalChunks(chunks, json.length);
+  } else {
+    navigator.clipboard.writeText(json).then(() => {
+      showPasteModal(null, json.length);
+    }).catch(() => {
+      showPasteModal(json, json.length);
+    });
+  }
+}
+
+function showPasteModal(fallbackText, charCount) {
+  const existing = document.getElementById("pasteModal");
+  if (existing) existing.remove();
+
+  const modal = document.createElement("div");
+  modal.id = "pasteModal";
+  modal.style.cssText = "position:fixed;inset:0;background:rgba(1,22,50,0.85);z-index:500;display:flex;align-items:center;justify-content:center;padding:2rem";
+  modal.innerHTML = `
+    <div style="background:white;border-radius:var(--radius-lg);padding:2rem;max-width:560px;width:100%">
+      <div style="font-family:var(--font-display);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);margin-bottom:0.5rem">Publish for jurors — 3 steps</div>
+      <div style="font-family:var(--font-body);font-size:0.88rem;color:var(--navy);line-height:1.7;margin-bottom:1.25rem">
+        ${fallbackText
+          ? `<strong>Step 1:</strong> Select all text in the box below and copy it (Cmd+A, Cmd+C)<br>`
+          : `<strong>Step 1:</strong> Data copied to clipboard ✓ (${charCount||0} chars)<br>`}
+        <strong>Step 2:</strong> Open the <a href="https://docs.google.com/spreadsheets/d/${JURY_DATA_SHEET_ID}/edit" target="_blank" style="color:var(--denim)">Jury Data sheet ↗</a><br>
+        <strong>Step 3:</strong> Click cell <strong>B2</strong>, paste (Cmd+V), and press Enter
+      </div>
+      ${fallbackText ? `<textarea style="width:100%;height:80px;font-size:0.65rem;border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px;font-family:monospace;resize:none;margin-bottom:1rem" onclick="this.select()">${fallbackText}</textarea>` : ""}
+      <div style="display:flex;gap:0.75rem">
+        <a href="https://docs.google.com/spreadsheets/d/${JURY_DATA_SHEET_ID}/edit" target="_blank"
+           style="flex:1;text-align:center;font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:var(--navy);color:white;padding:10px;border-radius:var(--radius-sm);text-decoration:none">
+          Open sheet →
+        </a>
+        <button onclick="document.getElementById('pasteModal').remove()"
+          style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid var(--border);padding:10px 16px;border-radius:var(--radius-sm);cursor:pointer;color:var(--slate)">
+          Done
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function loadFromSheet() {
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/${JURY_DATA_SHEET_ID}/gviz/tq?tqx=out:csv`;
+    const res = await fetch(url);
+    if (!res.ok) { console.error("Sheet fetch failed:", res.status); return null; }
+    const text = await res.text();
+    const rows = parseCSV(text);
+    if (rows.length < 2) { console.error("Sheet has no data rows"); return null; }
+
+    let filmData = null;
+    const latestNotes = {};
+    const latestVotes = {};
+    const completions = {};
+
+    // Each form submission is one row. Col A=timestamp, B=JuryData, C=NotesData, D=VotesData, E=CompletionStatus
+    // A row has film data if col B starts with {
+    // A row has notes if col C starts with {
+    // A row has votes if col D starts with {
+    // A row has completion if col E starts with {
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+
+      // Col B — film data (may be split across B+C+D if large)
+      const colB = (row[1]||"").trim();
+      if (colB.startsWith("{") && !filmData) {
+        // Try to parse, concatenating adjacent cells if needed
+        let combined = colB;
+        let j = 2;
+        while (j < row.length) {
+          const next = (row[j]||"").trim();
+          // Stop concatenating when we hit a cell that looks like a separate JSON object
+          if (next.startsWith('{"juror"') || next.startsWith('{"filmId"')) break;
+          combined += next;
+          j++;
+        }
+        try { filmData = JSON.parse(combined); } catch(e) { console.error("Film data parse error:", e.message); }
+      }
+
+      // Col C — notes data
+      const colC = (row[2]||"").trim();
+      if (colC.startsWith("{")) {
+        try {
+          const parsed = JSON.parse(colC);
+          Object.entries(parsed).forEach(([filmId, noteList]) => {
+            if (!latestNotes[filmId]) latestNotes[filmId] = [];
+            noteList.forEach(note => {
+              const exists = latestNotes[filmId].some(n=>n.author===note.author&&n.text===note.text);
+              if (!exists) latestNotes[filmId].push(note);
+            });
+          });
+        } catch {}
+      }
+
+      // Col D — votes data
+      const colD = (row[3]||"").trim();
+      if (colD.startsWith("{")) {
+        try {
+          const parsed = JSON.parse(colD);
+          if (parsed.juror && parsed.allVotes) {
+            latestVotes[parsed.juror] = parsed.allVotes;
+          }
+        } catch {}
+      }
+
+      // Col E — completion status
+      const colE = (row[4]||"").trim();
+      if (colE.startsWith("{")) {
+        try {
+          const parsed = JSON.parse(colE);
+          if (parsed.juror) completions[parsed.juror] = parsed.completedAt;
+        } catch {}
+      }
+    }
+
+    if (!filmData) { console.error("No film data found in sheet"); return null; }
+    return { ...filmData, sheetNotes: latestNotes, sheetVotes: latestVotes, sheetCompletions: completions };
+  } catch(e) { console.error("loadFromSheet error:", e); return null; }
+}
+
+function showPasteModalChunks(chunks, totalChars) {
+  const existing = document.getElementById("pasteModal");
+  if (existing) existing.remove();
+  const modal = document.createElement("div");
+  modal.id = "pasteModal";
+  modal.style.cssText = "position:fixed;inset:0;background:rgba(1,22,50,0.85);z-index:500;display:flex;align-items:center;justify-content:center;padding:2rem";
+
+  const chunkHtml = chunks.map((chunk, i) => `
+    <div style="margin-bottom:0.75rem">
+      <div style="font-family:var(--font-display);font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate);margin-bottom:3px">Paste into cell B${i+2} (${chunk.length} chars)</div>
+      <textarea onclick="this.select();navigator.clipboard.writeText(this.value)" style="width:100%;height:50px;font-size:0.6rem;border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px;font-family:monospace;resize:none;cursor:pointer" title="Click to copy">${chunk}</textarea>
+    </div>`).join("");
+
+  modal.innerHTML = `
+    <div style="background:white;border-radius:var(--radius-lg);padding:2rem;max-width:600px;width:100%;max-height:90vh;overflow-y:auto">
+      <div style="font-family:var(--font-display);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);margin-bottom:0.5rem">Data is ${totalChars} chars — split across ${chunks.length} cells</div>
+      <div style="font-family:var(--font-body);font-size:0.85rem;color:var(--navy);margin-bottom:1rem">
+        Click each box to copy it, then paste into the matching cell in the sheet.<br>
+        <a href="https://docs.google.com/spreadsheets/d/${JURY_DATA_SHEET_ID}/edit" target="_blank" style="color:var(--denim)">Open Jury Data sheet ↗</a>
+      </div>
+      ${chunkHtml}
+      <button onclick="document.getElementById('pasteModal').remove()" style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid var(--border);padding:10px 16px;border-radius:var(--radius-sm);cursor:pointer;color:var(--slate);width:100%;margin-top:0.5rem">Done</button>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+// ─── PROGRESS & COMPLETION ───────────────────────────────────────────────────
+let completedJurors = {}; // { jurorName: timestamp }
+
+function getVotingCompleteness() {
+  const myVotes = votes[jurorName] || {};
+  const microCatVotes = myVotes.Micro || {};
+  const smallCatVotes = myVotes.Small || {};
+  const microContenders = contenders.Micro || [];
+  const smallContenders = contenders.Small || [];
+  const microVotes = microContenders.filter(c=>[microCatVotes.rank1,microCatVotes.rank2,microCatVotes.rank3].includes(c.id));
+  const smallVotes = smallContenders.filter(c=>[smallCatVotes.rank1,smallCatVotes.rank2,smallCatVotes.rank3].includes(c.id));
+  return { microVotes: microVotes.length, smallVotes: smallVotes.length };
+}
+
+function updateVotingStatusText() {
+  const { microVotes, smallVotes } = getVotingCompleteness();
+  const el = document.getElementById("votingStatusText");
+  if (!el) return;
+  const microDone = microVotes >= 3;
+  const smallDone = smallVotes >= 3;
+  if (microDone && smallDone) {
+    el.innerHTML = `<span style="color:#2a7a4b">✓ Micro Shorts: ${microVotes}/3 votes</span> &nbsp;·&nbsp; <span style="color:#2a7a4b">✓ Small Shorts: ${smallVotes}/3 votes</span> &nbsp;·&nbsp; <strong>Ready to submit!</strong>`;
+  } else {
+    el.innerHTML = `${microDone?'<span style="color:#2a7a4b">✓':'<span style="color:var(--rose)">✗'} Micro Shorts: ${microVotes}/3 ranked</span> &nbsp;·&nbsp; ${smallDone?'<span style="color:#2a7a4b">✓':'<span style="color:var(--rose)">✗'} Small Shorts: ${smallVotes}/3 ranked</span>`;
+  }
+}
+
+function saveProgress() {
+  saveState();
+  flashToast("Progress saved ✓ — come back anytime");
+}
+
+function submitDoneVoting() {
+  const { microVotes, smallVotes } = getVotingCompleteness();
+  if (microVotes < 3 || smallVotes < 3) {
+    const missing = [];
+    if (microVotes < 3) missing.push(`Micro Shorts (${microVotes}/3 ranked)`);
+    if (smallVotes < 3) missing.push(`Small Shorts (${smallVotes}/3 ranked)`);
+    alert(`You haven't finished ranking yet!\n\nStill needed:\n• ${missing.join("\n• ")}\n\nPlease go back and rank your top 3 films in each category, then come back and click "I'm Done Voting."`);
+    return;
+  }
+  // Mark as complete
+  try {
+    const completed = JSON.parse(localStorage.getItem("btssff-jury-completed")||"{}");
+    completed[jurorName] = new Date().toLocaleString();
+    localStorage.setItem("btssff-jury-completed", JSON.stringify(completed));
+  } catch {}
+  saveState();
+  submitFieldToForm(JURY_COMPLETE_FIELD, JSON.stringify({juror: jurorName, completedAt: new Date().toLocaleString()}));
+  const btn = document.getElementById("doneVotingBtn");
+  if (btn) { btn.textContent = "✓ Voting complete!"; btn.style.background = "#2a7a4b"; btn.disabled = true; }
+  flashToast("Voting submitted! Thank you.");
+  updateAdminSummary();
+}
+
+function getCompletedJurors() {
+  try { return JSON.parse(localStorage.getItem("btssff-jury-completed")||"{}"); } catch { return {}; }
+}
+
+function exportJuryResults() {
+  // Build CSV: one row per film, with all judge scores and notes as columns
+  // First collect all unique judge names
+  const allJudges = new Set();
+  Object.values(films).forEach(f => (f.judges||[]).forEach(j => allJudges.add(j.name)));
+  const judgeList = [...allJudges].sort();
+
+  const headers = [
+    "Tracking Number", "Title", "Category", "Size", "Avg Score", "Rated By",
+    "Judging Status", "ROS Order", "Award",
+    ...judgeList.map(j => `${j} - Avg`),
+    ...judgeList.map(j => `${j} - Originality`),
+    ...judgeList.map(j => `${j} - Production`),
+    ...judgeList.map(j => `${j} - Creativity`),
+    ...judgeList.map(j => `${j} - Entertainment`),
+    ...judgeList.map(j => `${j} - Comment`),
+    "Deliberation Notes"
+  ];
+
+  const rows = [headers];
+
+  // Get all films from both contender lists
+  const allContenderIds = new Set([
+    ...(contenders.Micro||[]).map(c=>c.id),
+    ...(contenders.Small||[]).map(c=>c.id),
+  ]);
+
+  [...allContenderIds].forEach(id => {
+    const f = films[id]; if (!f) return;
+    const isWinner = winners[id] ? "Award Winner - Best Film" : "";
+    const filmNotes = (notes[id]||[]).map(n=>`[${n.author}] ${n.text}`).join(" | ");
+
+    const judgeScores = {};
+    (f.judges||[]).forEach(j => { judgeScores[j.name] = j; });
+
+    rows.push([
+      f.id, f.title, f.cat, f.size,
+      f.allJudgesAvg?.toFixed(1)||"",
+      f.ratedByCount||"",
+      "", // judging status — fill from run of show export
+      "", // ROS order — fill from run of show export
+      isWinner,
+      ...judgeList.map(j => judgeScores[j]?.avgRating||""),
+      ...judgeList.map(j => judgeScores[j]?.originality||""),
+      ...judgeList.map(j => judgeScores[j]?.production||""),
+      ...judgeList.map(j => judgeScores[j]?.creativity||""),
+      ...judgeList.map(j => judgeScores[j]?.entertainment||""),
+      ...judgeList.map(j => judgeScores[j]?.comment||""),
+      filmNotes,
+    ]);
+  });
+
+  downloadCSV(rows, `btssff-jury-results-${new Date().toISOString().slice(0,10)}.csv`);
+  flashToast("Jury results exported ✓");
+}
+
+function downloadCSV(rows, filename) {
+  const csv = rows.map(r=>r.map(v=>`"${String(v||"").replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download = filename; a.click();
+}
+
+function exportDeliberation() {
+  const lines = [];
+  ["Micro","Small"].forEach(size => {
+    lines.push(`=== ${size.toUpperCase()} SHORTS — TOP CONTENDERS ===\n`);
+    const cat = contenders[size]||[];
+    const sorted = [...cat].sort((a,b)=>(films[b.id]?.allJudgesAvg||0)-(films[a.id]?.allJudgesAvg||0));
+    sorted.forEach((c,i) => {
+      const f = films[c.id]; if (!f) return;
+      lines.push(`${i+1}. ${f.title} (${c.type==="top5"?"Top contender":"Wildcard"})`);
+      lines.push(`   Average: ${f.allJudgesAvg.toFixed(1)} · Rated by ${f.ratedByCount} judges`);
+      lines.push(`   Points: ${getVotePoints(c.id)} · Voters: ${Object.entries(votes).filter(([,jv])=>[jv.rank1,jv.rank2,jv.rank3].includes(c.id)).map(([n,jv])=>`${n}(#${[jv.rank1,jv.rank2,jv.rank3].indexOf(c.id)+1})`).join(", ")||"none"}`);
+      f.judges.sort((a,b)=>b.avgRating-a.avgRating).forEach(j => {
+        lines.push(`   ${j.name}: ${j.avgRating} avg`);
+        if (j.comment) lines.push(`     Comment: ${j.comment}`);
+        if (j.panelNote) lines.push(`     Panel note: ${j.panelNote}`);
+      });
+      const filmNotes = notes[c.id]||[];
+      if (filmNotes.length) {
+        lines.push(`   Deliberation notes:`);
+        filmNotes.forEach(n => lines.push(`     [${n.author}] ${n.text}`));
+      }
+      lines.push("");
+    });
+    lines.push("");
+  });
+
+  const blob = new Blob([lines.join("\n")], {type:"text/plain"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `btssff-jury-deliberation-${new Date().toISOString().slice(0,10)}.txt`;
+  a.click();
+  flashToast("Report exported ✓");
+}
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+function flashToast(msg) {
+  const el=document.getElementById("saveToast");
+  el.textContent=msg;el.classList.add("show");
+  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),2000);
+}
+function parseCSV(text) {
+  const rows=[];let row=[],field="",inQ=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i],n=text[i+1];
+    if(inQ){if(c==='"'&&n==='"'){field+='"';i++;}else if(c==='"'){inQ=false;}else{field+=c;}}
+    else{if(c==='"'){inQ=true;}else if(c===','){row.push(field);field="";}else if(c==='\n'){row.push(field);rows.push(row);row=[];field="";}else if(c!=='\r'){field+=c;}}
+  }
+  if(field||row.length){row.push(field);rows.push(row);}
+  return rows;
+}
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+</script>
+</body>
+</html>
