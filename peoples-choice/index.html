@@ -4,18 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>People's Choice · BTSSFF</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
   --navy:    #011632;
   --denim:   #9EC7D5;
   --slate:   #546E85;
   --rose:    #C9546A;
   --offwhite:#F5F3EF;
-  --text-on-navy: #F5F3EF;
   --muted:   #7A9BB0;
   --border:  rgba(158,199,213,0.2);
   --surface: rgba(255,255,255,0.05);
@@ -24,837 +21,782 @@
   --bronze:  #C47A3A;
   --green:   #3DFFC0;
 }
+html, body { height: 100%; overflow: hidden; }
+body { background: var(--navy); color: var(--offwhite); font-family: 'DM Sans','Tablet Gothic',sans-serif; font-size: 13px; }
+.ff { font-family: 'Arial Black','Impact',sans-serif; font-weight:900; text-transform:uppercase; letter-spacing:0.04em; }
 
-html, body {
-  height: 100%;
-  overflow: hidden;
+/* ── LOGIN SCREEN ── */
+#loginScreen {
+  position:fixed; inset:0; background:var(--navy);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  z-index:1000; gap:20px;
 }
+.login-box {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  padding: 36px 40px;
+  width: 340px;
+  text-align: center;
+}
+.login-logo { font-family:'Arial Black',sans-serif; font-weight:900; font-size:22px; text-transform:uppercase; letter-spacing:0.06em; color:var(--offwhite); margin-bottom:4px; }
+.login-sub { font-size:11px; color:var(--muted); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:28px; }
+.login-label { font-size:10px; color:var(--muted); letter-spacing:0.12em; text-transform:uppercase; text-align:left; margin-bottom:6px; }
+.login-input {
+  width:100%; background:rgba(255,255,255,0.06); border:1px solid var(--border);
+  color:var(--offwhite); font-family:'DM Sans',sans-serif; font-size:15px;
+  padding:10px 12px; margin-bottom:16px;
+}
+.login-input:focus { outline:none; border-color:var(--denim); }
+.login-btn {
+  width:100%; font-family:'Arial Black',sans-serif; font-weight:900; font-size:14px;
+  text-transform:uppercase; letter-spacing:0.06em;
+  background:var(--rose); color:#fff; border:none; padding:13px; cursor:pointer;
+}
+.login-btn:hover { background:#a8384f; }
+.login-err { font-size:12px; color:var(--rose); margin-top:10px; min-height:18px; }
 
-body {
-  background: var(--navy);
-  color: var(--text-on-navy);
-  font-family: 'DM Sans', 'Tablet Gothic', sans-serif;
-  font-size: 13px;
-  line-height: 1.4;
+/* ── SETUP SCREEN ── */
+#setupScreen {
+  position:fixed; inset:0; background:var(--navy);
+  display:none; flex-direction:column; align-items:center; justify-content:flex-start;
+  z-index:999; padding:40px 20px; overflow-y:auto;
 }
+.setup-box { width:100%; max-width:600px; }
+.setup-title { font-family:'Arial Black',sans-serif; font-size:18px; text-transform:uppercase; color:var(--offwhite); margin-bottom:4px; }
+.setup-sub { font-size:12px; color:var(--muted); margin-bottom:28px; }
+.setup-section { margin-bottom:24px; }
+.setup-label { font-size:10px; color:var(--denim); letter-spacing:0.14em; text-transform:uppercase; margin-bottom:8px; }
+.setup-input {
+  width:100%; background:rgba(255,255,255,0.06); border:1px solid var(--border);
+  color:var(--offwhite); font-family:'DM Sans',sans-serif; font-size:13px;
+  padding:9px 11px; margin-bottom:8px;
+}
+.setup-input:focus { outline:none; border-color:var(--denim); }
+.setup-hint { font-size:11px; color:var(--muted); line-height:1.5; }
+.setup-hint code { background:rgba(255,255,255,0.08); padding:1px 5px; font-size:11px; color:var(--denim); }
+.btn-setup-save {
+  font-family:'Arial Black',sans-serif; font-weight:900; font-size:13px;
+  text-transform:uppercase; letter-spacing:0.06em;
+  background:var(--rose); color:#fff; border:none; padding:11px 24px; cursor:pointer;
+  margin-right:10px;
+}
+.btn-setup-save:hover { background:#a8384f; }
+.btn-setup-cancel { background:none; border:1px solid var(--border); color:var(--muted); font-size:12px; padding:10px 18px; cursor:pointer; }
+.btn-setup-cancel:hover { color:var(--offwhite); border-color:var(--muted); }
 
-/* FatFrank fallback stack */
-.ff {
-  font-family: 'FatFrank', 'Arial Black', 'Impact', sans-serif;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-/* HEADER */
-.site-header {
-  background: var(--navy);
-  border-bottom: 2px solid var(--denim);
-  padding: 0 20px;
-  height: 46px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-shrink: 0;
-}
-.site-header h1 {
-  font-family: 'Arial Black', 'Impact', sans-serif;
-  font-weight: 900;
-  font-size: 18px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--offwhite);
-}
-.header-pill {
-  background: var(--rose);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 3px 10px;
-  border-radius: 0;
-}
-.header-count {
-  margin-left: auto;
-  color: var(--denim);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-/* TABS */
-.tabs {
-  display: flex;
-  background: rgba(0,0,0,0.3);
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-  height: 36px;
-}
-.tab-btn {
-  font-family: 'Arial Black', sans-serif;
-  font-weight: 900;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 0 20px;
-  background: none;
-  border: none;
-  border-bottom: 3px solid transparent;
-  color: var(--muted);
+/* ── CSV UPLOAD AREA ── */
+.csv-drop {
+  border: 2px dashed var(--border);
+  padding: 24px;
+  text-align: center;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
-  margin-bottom: -1px;
+  transition: border-color 0.15s;
+  margin-bottom: 8px;
 }
-.tab-btn:hover { color: var(--offwhite); }
-.tab-btn.active { color: var(--denim); border-bottom-color: var(--denim); }
-
-.app-body {
-  height: calc(100vh - 82px);
-  display: flex;
-  flex-direction: column;
+.csv-drop:hover, .csv-drop.drag { border-color: var(--denim); }
+.csv-drop-label { font-size:13px; color:var(--muted); }
+.csv-drop-label span { color:var(--denim); text-decoration:underline; cursor:pointer; }
+#csvFileInput { display:none; }
+.csv-preview { font-size:11px; color:var(--green); margin-top:6px; }
+.film-edit-area { margin-top:12px; }
+.film-list-editor {
+  width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border);
+  color:var(--offwhite); font-family:'DM Sans',sans-serif; font-size:12px;
+  padding:10px; min-height:80px; resize:vertical; line-height:1.6;
 }
+.film-list-editor:focus { outline:none; border-color:var(--denim); }
 
-.panel { display: none; flex: 1; overflow: hidden; }
-.panel.active { display: flex; }
+/* ── MAIN APP ── */
+#app { display:none; flex-direction:column; height:100%; }
+.site-header {
+  background:var(--navy); border-bottom:2px solid var(--denim);
+  padding:0 16px; height:44px; display:flex; align-items:center; gap:12px; flex-shrink:0;
+}
+.site-header h1 { font-family:'Arial Black',sans-serif; font-size:16px; text-transform:uppercase; letter-spacing:0.05em; color:var(--offwhite); }
+.header-pill { background:var(--rose); color:#fff; font-size:9px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; padding:3px 9px; }
+.header-count { margin-left:auto; color:var(--denim); font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; }
+.btn-header { background:none; border:1px solid var(--border); color:var(--muted); font-size:10px; font-family:'DM Sans',sans-serif; padding:4px 10px; cursor:pointer; letter-spacing:0.08em; text-transform:uppercase; }
+.btn-header:hover { color:var(--offwhite); border-color:var(--muted); }
+
+.tabs { display:flex; background:rgba(0,0,0,0.3); border-bottom:1px solid var(--border); flex-shrink:0; height:34px; }
+.tab-btn { font-family:'Arial Black',sans-serif; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; padding:0 18px; background:none; border:none; border-bottom:3px solid transparent; color:var(--muted); cursor:pointer; margin-bottom:-1px; }
+.tab-btn:hover { color:var(--offwhite); }
+.tab-btn.active { color:var(--denim); border-bottom-color:var(--denim); }
+
+.app-body { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+.panel { display:none; flex:1; overflow:hidden; }
+.panel.active { display:flex; }
 
 /* ── ENTRY PANEL ── */
-#panel-entry {
-  flex-direction: row;
-}
-
-/* FILMS COLUMN */
-.films-col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-right: 1px solid var(--border);
-}
-
-.films-scroll {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px 12px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto;
-  gap: 5px;
-  align-content: start;
-}
-.films-scroll::-webkit-scrollbar { width: 4px; }
-.films-scroll::-webkit-scrollbar-thumb { background: var(--border); }
+#panel-entry { flex-direction:row; }
+.films-col { flex:1; display:flex; flex-direction:column; overflow:hidden; border-right:1px solid var(--border); }
+.films-scroll { flex:1; overflow-y:auto; padding:8px 10px; }
+.films-scroll::-webkit-scrollbar { width:4px; }
+.films-scroll::-webkit-scrollbar-thumb { background:var(--border); }
 
 .cat-header {
-  grid-column: 1 / -1;
-  font-family: 'Arial Black', sans-serif;
-  font-weight: 900;
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--navy);
-  background: var(--denim);
-  padding: 4px 10px;
-  margin-top: 4px;
+  font-family:'Arial Black',sans-serif; font-size:9px; letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--navy); background:var(--denim); padding:4px 10px; margin-bottom:5px;
 }
-.cat-header:first-child { margin-top: 0; }
 
-/* FILM CARD — the main workhorse */
+/* MICRO: 2 columns */
+.micro-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px; margin-bottom:8px; }
+/* SMALL: 5 columns */
+.small-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin-bottom:8px; }
+
 .film-card {
-  display: flex;
-  flex-direction: column;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 0;
-  overflow: hidden;
-  transition: border-color 0.1s;
+  display:flex; flex-direction:column; background:var(--surface);
+  border:1px solid var(--border); overflow:hidden; transition:border-color 0.1s;
 }
-.film-card.r1 { border-color: var(--gold); background: rgba(245,200,66,0.08); }
-.film-card.r2 { border-color: var(--silver); background: rgba(176,184,200,0.08); }
-.film-card.r3 { border-color: var(--bronze); background: rgba(196,122,58,0.08); }
+.film-card.r1 { border-color:var(--gold); background:rgba(245,200,66,0.08); }
+.film-card.r2 { border-color:var(--silver); background:rgba(176,184,200,0.08); }
+.film-card.r3 { border-color:var(--bronze); background:rgba(196,122,58,0.08); }
 
-.film-title-row {
-  display: flex;
-  align-items: center;
-  padding: 5px 8px 4px;
-  gap: 6px;
-  border-bottom: 1px solid var(--border);
-}
-.film-title {
-  font-weight: 600;
-  font-size: 12px;
-  color: var(--offwhite);
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  line-height: 1.2;
-}
-.film-prog-num {
-  font-size: 10px;
-  color: var(--muted);
-  flex-shrink: 0;
-}
-.film-score-badge {
-  font-family: 'Arial Black', sans-serif;
-  font-weight: 900;
-  font-size: 13px;
-  color: var(--gold);
-  flex-shrink: 0;
-  min-width: 22px;
-  text-align: right;
-  display: none;
-}
-.film-score-badge.visible { display: block; }
+.film-title-row { display:flex; align-items:center; padding:4px 7px 3px; gap:4px; border-bottom:1px solid var(--border); min-height:28px; }
+.film-title { font-weight:600; font-size:11px; color:var(--offwhite); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.2; }
+.film-prog-num { font-size:9px; color:var(--muted); flex-shrink:0; }
+.film-score-badge { font-family:'Arial Black',sans-serif; font-size:12px; color:var(--gold); flex-shrink:0; min-width:18px; text-align:right; display:none; }
+.film-score-badge.on { display:block; }
 
-/* RANK BUTTONS ROW — the main interaction */
-.rank-row {
-  display: flex;
-  height: 38px;
-}
+.rank-row { display:flex; height:34px; }
 .rank-btn {
-  flex: 1;
-  border: none;
-  border-right: 1px solid var(--border);
-  background: rgba(0,0,0,0.2);
-  color: var(--muted);
-  cursor: pointer;
-  font-family: 'Arial Black', sans-serif;
-  font-weight: 900;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.1s, color 0.1s, transform 0.06s;
-  flex-direction: column;
-  gap: 1px;
-  padding: 0;
+  flex:1; border:none; border-right:1px solid var(--border);
+  background:rgba(0,0,0,0.2); color:var(--muted); cursor:pointer;
+  font-family:'Arial Black',sans-serif; font-size:14px;
+  display:flex; align-items:center; justify-content:center;
+  flex-direction:column; gap:1px; transition:background 0.1s,color 0.1s,transform 0.06s;
 }
-.rank-btn:last-child { border-right: none; }
-.rank-btn:hover { background: rgba(255,255,255,0.08); color: var(--offwhite); }
-.rank-btn:active { transform: scale(0.94); }
-.rank-btn .pts-label { font-size: 8px; font-family: 'DM Sans', sans-serif; font-weight: 400; letter-spacing: 0.05em; text-transform: uppercase; color: inherit; opacity: 0.6; }
-
-.rank-btn.active-1 { background: var(--gold); color: #000; }
-.rank-btn.active-2 { background: var(--silver); color: #000; }
-.rank-btn.active-3 { background: var(--bronze); color: #000; }
-.rank-btn.active-1 .pts-label,
-.rank-btn.active-2 .pts-label,
-.rank-btn.active-3 .pts-label { opacity: 0.7; }
+.rank-btn:last-child { border-right:none; }
+.rank-btn:hover { background:rgba(255,255,255,0.08); color:var(--offwhite); }
+.rank-btn:active { transform:scale(0.92); }
+.rank-btn .pl { font-size:7px; font-family:'DM Sans',sans-serif; font-weight:400; text-transform:uppercase; letter-spacing:0.05em; opacity:0.6; }
+.rank-btn.a1 { background:var(--gold); color:#000; }
+.rank-btn.a2 { background:var(--silver); color:#000; }
+.rank-btn.a3 { background:var(--bronze); color:#000; }
 
 /* SIDEBAR */
-.sidebar {
-  width: 260px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  background: rgba(0,0,0,0.25);
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-.sidebar::-webkit-scrollbar { width: 4px; }
-.sidebar::-webkit-scrollbar-thumb { background: var(--border); }
+.sidebar { width:252px; flex-shrink:0; display:flex; flex-direction:column; background:rgba(0,0,0,0.25); overflow-y:auto; }
+.sidebar::-webkit-scrollbar { width:4px; }
+.sidebar::-webkit-scrollbar-thumb { background:var(--border); }
+.sb { padding:10px 13px; border-bottom:1px solid var(--border); }
+.sbl { font-size:9px; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+.ballot-ticker { text-align:center; padding:10px 13px; border-bottom:1px solid var(--border); }
+.bnum { font-family:'Arial Black',sans-serif; font-size:34px; color:var(--denim); display:block; line-height:1; }
+.bsub { font-size:9px; color:var(--muted); letter-spacing:0.1em; text-transform:uppercase; }
 
-.sb-section {
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--border);
-}
-.sb-label {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 7px;
-}
+.sel-row { display:flex; align-items:center; gap:6px; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+.sel-row:last-child { border-bottom:none; }
+.sel-cat { font-size:8px; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; width:32px; flex-shrink:0; }
+.sel-rank { font-family:'Arial Black',sans-serif; font-size:10px; width:18px; text-align:center; flex-shrink:0; }
+.sel-name { font-size:10px; color:var(--offwhite); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.sel-pts { font-size:9px; color:var(--muted); flex-shrink:0; }
+.sel-x { background:none; border:none; cursor:pointer; color:var(--muted); font-size:13px; line-height:1; padding:0 2px; }
+.sel-x:hover { color:var(--rose); }
+.sel-empty { font-size:11px; color:var(--muted); text-align:center; padding:8px 0; }
 
-/* selection summary */
-.sel-row {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 4px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-.sel-row:last-child { border-bottom: none; }
-.sel-rank {
-  font-family: 'Arial Black', sans-serif;
-  font-weight: 900;
-  font-size: 11px;
-  width: 22px;
-  text-align: center;
-  flex-shrink: 0;
-}
-.sel-name { font-size: 11px; color: var(--offwhite); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sel-pts  { font-size: 10px; color: var(--muted); flex-shrink: 0; }
-.sel-x    { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 14px; line-height: 1; padding: 0 2px; }
-.sel-x:hover { color: var(--rose); }
-.sel-empty { font-size: 11px; color: var(--muted); text-align: center; padding: 6px 0; }
+.sb-input { width:100%; background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--offwhite); font-family:'DM Sans',sans-serif; font-size:13px; padding:7px 9px; }
+.sb-input:focus { outline:none; border-color:var(--denim); }
+.sb-input::placeholder { color:var(--muted); }
+textarea.sb-input { min-height:56px; resize:vertical; }
 
-.sb-input {
-  width: 100%;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid var(--border);
-  border-radius: 0;
-  color: var(--offwhite);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  padding: 7px 9px;
-  transition: border-color 0.12s;
-  resize: vertical;
-}
-.sb-input:focus { outline: none; border-color: var(--denim); }
-.sb-input::placeholder { color: var(--muted); }
-textarea.sb-input { min-height: 60px; }
+.btn-submit { font-family:'Arial Black',sans-serif; font-size:14px; letter-spacing:0.06em; text-transform:uppercase; background:var(--rose); color:#fff; border:none; padding:13px 16px; cursor:pointer; width:100%; }
+.btn-submit:hover { background:#a8384f; }
+.btn-clear { width:100%; background:none; border:1px solid var(--border); color:var(--muted); font-family:'DM Sans',sans-serif; font-size:11px; padding:7px; cursor:pointer; }
+.btn-clear:hover { color:var(--offwhite); border-color:var(--muted); }
 
-.btn-submit {
-  font-family: 'Arial Black', sans-serif;
-  font-weight: 900;
-  font-size: 15px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  background: var(--rose);
-  color: #fff;
-  border: none;
-  border-radius: 0;
-  padding: 14px 16px;
-  cursor: pointer;
-  width: 100%;
-  transition: background 0.15s;
-}
-.btn-submit:hover { background: #a8384f; }
-.btn-submit:active { background: #8c2a3e; }
+.sync-status { font-size:10px; text-align:center; padding:6px; color:var(--muted); }
+.sync-status.ok { color:var(--green); }
+.sync-status.err { color:var(--rose); }
 
-.btn-clear {
-  width: 100%;
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 0;
-  color: var(--muted);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
-  padding: 7px;
-  cursor: pointer;
-  transition: color 0.12s, border-color 0.12s;
-}
-.btn-clear:hover { color: var(--offwhite); border-color: var(--muted); }
+/* ── RESULTS ── */
+#panel-results { flex-direction:column; overflow-y:auto; }
+#panel-results::-webkit-scrollbar { width:5px; }
+#panel-results::-webkit-scrollbar-thumb { background:var(--border); }
+.results-inner { padding:18px 20px; max-width:1000px; }
+.results-toolbar { display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+.btn-act { font-family:'Arial Black',sans-serif; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; padding:8px 15px; cursor:pointer; border:1.5px solid; }
+.btn-act.primary { background:var(--rose); color:#fff; border-color:var(--rose); }
+.btn-act.primary:hover { background:#a8384f; border-color:#a8384f; }
+.btn-act.export { background:none; color:var(--green); border-color:var(--green); }
+.btn-act.export:hover { background:rgba(61,255,192,0.08); }
+.btn-act.danger { background:none; color:var(--muted); border-color:var(--border); }
+.btn-act.danger:hover { color:var(--rose); border-color:var(--rose); }
+.stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:18px; }
+.stat-card { background:var(--surface); border:1px solid var(--border); padding:12px 14px; text-align:center; }
+.stat-val { font-family:'Arial Black',sans-serif; font-size:28px; color:var(--denim); display:block; line-height:1; }
+.stat-lbl { font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; margin-top:3px; }
+.results-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:18px; }
+.r-card { background:var(--surface); border:1px solid var(--border); overflow:hidden; }
+.r-card-head { font-family:'Arial Black',sans-serif; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--navy); background:var(--denim); padding:6px 13px; }
+.lb-row { display:flex; align-items:center; gap:8px; padding:6px 13px; border-bottom:1px solid rgba(255,255,255,0.04); }
+.lb-row:last-child { border-bottom:none; }
+.lb-pos { font-family:'Arial Black',sans-serif; font-size:11px; width:20px; text-align:center; flex-shrink:0; }
+.lb-name { flex:1; font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.lb-bar-wrap { width:50px; flex-shrink:0; background:rgba(255,255,255,0.06); height:4px; }
+.lb-bar { height:100%; }
+.lb-val { font-family:'Arial Black',sans-serif; font-size:13px; flex-shrink:0; min-width:26px; text-align:right; }
+.full-card { background:var(--surface); border:1px solid var(--border); overflow:hidden; margin-bottom:14px; }
+.comment-item { padding:9px 13px; border-bottom:1px solid rgba(255,255,255,0.04); font-size:12px; }
+.comment-item:last-child { border-bottom:none; }
+.comment-meta { color:var(--muted); font-size:10px; margin-bottom:3px; }
+.emails-wrap { padding:12px 13px; display:flex; flex-wrap:wrap; gap:6px; }
+.email-chip { background:rgba(158,199,213,0.1); border:1px solid var(--border); padding:3px 10px; font-size:11px; color:var(--denim); }
+.no-votes { text-align:center; color:var(--muted); padding:60px 20px; font-size:14px; }
 
-.ballot-ticker {
-  text-align: center;
-  padding: 10px;
-}
-.ballot-num {
-  font-family: 'Arial Black', sans-serif;
-  font-weight: 900;
-  font-size: 36px;
-  color: var(--denim);
-  display: block;
-  line-height: 1;
-}
-.ballot-sub { font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
-
-/* ── RESULTS PANEL ── */
-#panel-results {
-  flex-direction: column;
-  overflow-y: auto;
-}
-#panel-results::-webkit-scrollbar { width: 5px; }
-#panel-results::-webkit-scrollbar-thumb { background: var(--border); }
-
-.results-inner {
-  padding: 20px 24px;
-  max-width: 1000px;
-}
-
-.results-toolbar {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-.btn-act {
-  font-family: 'Arial Black', sans-serif;
-  font-weight: 900;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 8px 16px;
-  border-radius: 0;
-  cursor: pointer;
-  border: 1.5px solid;
-  transition: all 0.12s;
-}
-.btn-act.primary { background: var(--rose); color: #fff; border-color: var(--rose); }
-.btn-act.primary:hover { background: #a8384f; border-color: #a8384f; }
-.btn-act.export { background: none; color: var(--green); border-color: var(--green); }
-.btn-act.export:hover { background: rgba(61,255,192,0.08); }
-.btn-act.danger { background: none; color: var(--muted); border-color: var(--border); }
-.btn-act.danger:hover { color: var(--rose); border-color: var(--rose); }
-
-.stat-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 20px;
-}
-.stat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 0;
-  padding: 12px 14px;
-  text-align: center;
-}
-.stat-val {
-  font-family: 'Arial Black', sans-serif;
-  font-size: 28px;
-  color: var(--denim);
-  display: block;
-  line-height: 1;
-}
-.stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 3px; }
-
-.results-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-.r-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 0;
-  overflow: hidden;
-}
-.r-card-head {
-  font-family: 'Arial Black', sans-serif;
-  font-weight: 900;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--navy);
-  background: var(--denim);
-  padding: 7px 14px;
-}
-.lb-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-.lb-row:last-child { border-bottom: none; }
-.lb-pos { font-family: 'Arial Black', sans-serif; font-size: 12px; width: 22px; text-align: center; flex-shrink: 0; }
-.lb-name { flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.lb-bar-wrap { width: 60px; flex-shrink: 0; background: rgba(255,255,255,0.06); height: 5px; }
-.lb-bar { height: 100%; transition: width 0.4s; }
-.lb-val { font-family: 'Arial Black', sans-serif; font-size: 14px; flex-shrink: 0; min-width: 28px; text-align: right; }
-
-.full-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 0;
-  overflow: hidden;
-  margin-bottom: 16px;
-}
-.comment-item {
-  padding: 10px 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  font-size: 12px;
-}
-.comment-item:last-child { border-bottom: none; }
-.comment-meta { color: var(--muted); font-size: 10px; margin-bottom: 3px; }
-.emails-wrap { padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 6px; }
-.email-chip {
-  background: rgba(158,199,213,0.1);
-  border: 1px solid var(--border);
-  border-radius: 0;
-  padding: 3px 10px;
-  font-size: 11px;
-  color: var(--denim);
-}
-
-.no-votes { text-align: center; color: var(--muted); padding: 60px 20px; font-size: 14px; }
-
-/* toast */
-.toast {
-  position: fixed; bottom: 20px; left: 50%;
-  transform: translateX(-50%) translateY(16px);
-  background: var(--green); color: var(--navy);
-  font-family: 'Arial Black', sans-serif; font-weight: 900;
-  font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase;
-  padding: 9px 20px; border-radius: 0;
-  opacity: 0; transition: all 0.22s; pointer-events: none; z-index: 9999;
-}
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast { position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(14px); background:var(--green); color:var(--navy); font-family:'Arial Black',sans-serif; font-size:12px; letter-spacing:0.05em; text-transform:uppercase; padding:8px 18px; opacity:0; transition:all 0.2s; pointer-events:none; z-index:9999; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
 
-<header class="site-header">
-  <h1>BTSSFF — People's Choice</h1>
-  <div class="header-pill">Ballot Entry</div>
-  <div class="header-count" id="headerCount">0 ballots</div>
-</header>
-
-<nav class="tabs">
-  <button class="tab-btn active" onclick="switchTab('entry',this)">Enter Ballots</button>
-  <button class="tab-btn" onclick="switchTab('results',this)">Results &amp; Export</button>
-</nav>
-
-<div class="app-body">
-
-<!-- ENTRY PANEL -->
-<div id="panel-entry" class="panel active">
-
-  <div class="films-col">
-    <div class="films-scroll" id="filmsScroll">
-      <div class="cat-header">Micro Shorts</div>
-      <div id="microGrid" style="display:contents"></div>
-      <div class="cat-header">Small Shorts</div>
-      <div id="smallGrid" style="display:contents"></div>
-    </div>
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">BTSSFF</div>
+    <div class="login-sub">People's Choice · Internal Tool</div>
+    <div class="login-label">Password</div>
+    <input class="login-input" type="password" id="loginPw" placeholder="Enter password…" />
+    <button class="login-btn" onclick="doLogin()">Enter</button>
+    <div class="login-err" id="loginErr"></div>
   </div>
+</div>
 
-  <div class="sidebar">
-    <div class="ballot-ticker sb-section">
-      <span class="ballot-num" id="ballotNum">0</span>
-      <div class="ballot-sub">ballots entered</div>
+<!-- SETUP -->
+<div id="setupScreen">
+  <div class="setup-box">
+    <div class="setup-title">Setup</div>
+    <div class="setup-sub">Configure backend sync and load films for this show. These settings persist across sessions.</div>
+
+    <div class="setup-section">
+      <div class="setup-label">Google Apps Script URL</div>
+      <input class="setup-input" type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/…/exec" />
+      <div class="setup-hint">Paste the Web App URL from your deployed Apps Script. See the <strong>SETUP INSTRUCTIONS</strong> file for how to create this. Once set, all ballots sync to your Google Sheet and load from any device.</div>
     </div>
 
-    <div class="sb-section">
-      <div class="sb-label">Current selections</div>
-      <div id="selSummary">
-        <div class="sel-empty">Tap 1 / 2 / 3 on any film</div>
+    <div class="setup-section">
+      <div class="setup-label">Upload Run of Show CSV</div>
+      <div class="csv-drop" id="csvDrop" onclick="document.getElementById('csvFileInput').click()">
+        <div class="csv-drop-label">Drop CSV here or <span>click to browse</span></div>
+      </div>
+      <input type="file" id="csvFileInput" accept=".csv" />
+      <div class="csv-preview" id="csvPreview"></div>
+
+      <div class="film-edit-area" id="microEditArea" style="display:none">
+        <div class="setup-label" style="margin-top:12px">Micro Shorts — one per line (Title, #ROS)</div>
+        <textarea class="film-list-editor" id="microEditor" rows="6"></textarea>
+      </div>
+      <div class="film-edit-area" id="smallEditArea" style="display:none">
+        <div class="setup-label" style="margin-top:10px">Small Shorts — one per line (Title, #ROS)</div>
+        <textarea class="film-list-editor" id="smallEditor" rows="12"></textarea>
       </div>
     </div>
 
-    <div class="sb-section">
-      <div class="sb-label">Name <span style="color:var(--border);text-transform:none;letter-spacing:0">(optional)</span></div>
-      <input class="sb-input" type="text" id="inputName" placeholder="Attendee name…" autocomplete="off" />
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="btn-setup-save" onclick="saveSetup()">Save &amp; Launch</button>
+      <button class="btn-setup-cancel" onclick="cancelSetup()">Cancel</button>
+      <span id="setupMsg" style="font-size:11px;color:var(--green)"></span>
     </div>
-    <div class="sb-section">
-      <div class="sb-label">Email <span style="color:var(--border);text-transform:none;letter-spacing:0">(optional)</span></div>
-      <input class="sb-input" type="email" id="inputEmail" placeholder="email@example.com" autocomplete="off" />
-    </div>
-    <div class="sb-section">
-      <div class="sb-label">Notes <span style="color:var(--border);text-transform:none;letter-spacing:0">(optional)</span></div>
-      <textarea class="sb-input" id="inputNotes" placeholder="Festival feedback…"></textarea>
-    </div>
-
-    <div class="sb-section">
-      <button class="btn-submit" onclick="submitBallot()">Submit Ballot →</button>
-    </div>
-    <div class="sb-section">
-      <button class="btn-clear" onclick="clearForm()">Clear form without submitting</button>
-    </div>
-  </div>
-
-</div>
-
-<!-- RESULTS PANEL -->
-<div id="panel-results" class="panel">
-  <div class="results-inner">
-    <div class="results-toolbar">
-      <button class="btn-act primary" onclick="renderResults()">Refresh</button>
-      <button class="btn-act export" onclick="exportCSV()">Export CSV</button>
-      <button class="btn-act danger" onclick="confirmClear()">Clear All Data</button>
-    </div>
-    <div id="resultsContent"><div class="no-votes">No ballots yet.</div></div>
   </div>
 </div>
 
-</div><!-- app-body -->
+<!-- APP -->
+<div id="app">
+  <header class="site-header">
+    <h1>BTSSFF — People's Choice</h1>
+    <div class="header-pill">Ballot Entry</div>
+    <div class="header-count" id="headerCount">0 ballots</div>
+    <button class="btn-header" onclick="openSetup()">⚙ Setup</button>
+    <button class="btn-header" onclick="doLogout()">Log out</button>
+  </header>
+  <nav class="tabs">
+    <button class="tab-btn active" onclick="switchTab('entry',this)">Enter Ballots</button>
+    <button class="tab-btn" onclick="switchTab('results',this)">Results &amp; Export</button>
+  </nav>
+  <div class="app-body">
+    <div id="panel-entry" class="panel active">
+      <div class="films-col">
+        <div class="films-scroll" id="filmsScroll">
+          <div class="cat-header">Micro Shorts — rank your top 3</div>
+          <div class="micro-grid" id="microGrid"></div>
+          <div class="cat-header">Small Shorts — rank your top 3</div>
+          <div class="small-grid" id="smallGrid"></div>
+        </div>
+      </div>
+      <div class="sidebar">
+        <div class="ballot-ticker">
+          <span class="bnum" id="ballotNum">0</span>
+          <div class="bsub">ballots entered</div>
+        </div>
+        <div class="sb">
+          <div class="sbl">Micro selections</div>
+          <div id="selMicro"><div class="sel-empty">Tap 1 / 2 / 3 on a micro film</div></div>
+        </div>
+        <div class="sb">
+          <div class="sbl">Small selections</div>
+          <div id="selSmall"><div class="sel-empty">Tap 1 / 2 / 3 on a small film</div></div>
+        </div>
+        <div class="sb">
+          <div class="sbl">Name <span style="font-size:9px;color:var(--border);text-transform:none;letter-spacing:0">(optional)</span></div>
+          <input class="sb-input" type="text" id="inputName" placeholder="Attendee name…" autocomplete="off" />
+        </div>
+        <div class="sb">
+          <div class="sbl">Email <span style="font-size:9px;color:var(--border);text-transform:none;letter-spacing:0">(optional)</span></div>
+          <input class="sb-input" type="email" id="inputEmail" placeholder="email@example.com" autocomplete="off" />
+        </div>
+        <div class="sb">
+          <div class="sbl">Notes <span style="font-size:9px;color:var(--border);text-transform:none;letter-spacing:0">(optional)</span></div>
+          <textarea class="sb-input" id="inputNotes" placeholder="Festival feedback…"></textarea>
+        </div>
+        <div class="sb">
+          <button class="btn-submit" id="submitBtn" onclick="submitBallot()">Submit Ballot →</button>
+        </div>
+        <div class="sb">
+          <button class="btn-clear" onclick="clearForm()">Clear without submitting</button>
+        </div>
+        <div class="sync-status" id="syncStatus"></div>
+      </div>
+    </div>
+
+    <div id="panel-results" class="panel">
+      <div class="results-inner">
+        <div class="results-toolbar">
+          <button class="btn-act primary" onclick="loadBallotsFromSheet().then(renderResults)">Refresh from Sheet</button>
+          <button class="btn-act export" onclick="exportCSV()">Export CSV</button>
+          <button class="btn-act danger" onclick="confirmClear()">Clear All Local</button>
+        </div>
+        <div id="resultsContent"><div class="no-votes">No ballots yet.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const MICRO = [
-  {t:'The Musical Industrial Complex', p:2},
-  {t:'A Cannon Full of Clowns', p:7},
-  {t:'The Taking Tree', p:11},
-  {t:'Chopsticks', p:13},
-  {t:'OSSOBUCO', p:20},
-  {t:'Anxiety', p:23},
-  {t:'Now Boarding RF 1668', p:24},
-  {t:'Taco Tragedy', p:26},
-  {t:'Where Tuna Comes From', p:28},
-  {t:'Swim', p:30},
-];
-const SMALL = [
-  {t:'DUCKS', p:1},
-  {t:"GODZILLA'S DAY OFF!", p:3},
-  {t:'One More Spin', p:4},
-  {t:'Gramps', p:5},
-  {t:'On The Clock With Devilish Intentions', p:6},
-  {t:'The Knot Job', p:8},
-  {t:'Lost Track', p:9},
-  {t:"Lola's Got the Blues", p:10},
-  {t:'Security', p:12},
-  {t:'My Name is Eduard Brenton', p:14},
-  {t:"The Fangs I'm After", p:15},
-  {t:'Good Choice, Joseph.', p:16},
-  {t:'Just One Peek', p:17},
-  {t:'To Have and To Hold', p:18},
-  {t:'Are You Still Watching?', p:19},
-  {t:'All Change', p:21},
-  {t:'Breakup Bob', p:22},
-  {t:'Come Home', p:25},
-  {t:'Cracks On The Road', p:27},
-  {t:"L'Étreinte (The Embrace)", p:29},
-  {t:'Not a Hero by Accident', p:31},
-  {t:'Soccer Mommies', p:32},
-  {t:'Choice', p:33},
-];
-const PTS = {1:3, 2:2, 3:1};
-const COLORS = {1:'var(--gold)', 2:'var(--silver)', 3:'var(--bronze)'};
+// ── CONFIG ──────────────────────────────────────────────────
+const PASSWORD = 'btssff2026';   // ← change this anytime
 
-let ballots = [];
-let sel = {1:null, 2:null, 3:null};
+const PTS = {1:3,2:2,3:1};
+const RC  = {1:'var(--gold)',2:'var(--silver)',3:'var(--bronze)'};
 
-function load() {
-  try { ballots = JSON.parse(localStorage.getItem('btssff_pc') || '[]'); } catch(e){ ballots=[]; }
+// ── STATE ───────────────────────────────────────────────────
+let ballots  = [];
+let microFilms = [];
+let smallFilms = [];
+let selMicro = {1:null,2:null,3:null};
+let selSmall = {1:null,2:null,3:null};
+let scriptUrl = '';
+
+// ── PERSIST ─────────────────────────────────────────────────
+function ls(k,v){ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }
+
+function loadLocal(){
+  try{ ballots = JSON.parse(ls('btssff_ballots')||'[]'); }catch(e){ ballots=[]; }
+  try{ microFilms = JSON.parse(ls('btssff_micro')||'[]'); }catch(e){ microFilms=[]; }
+  try{ smallFilms = JSON.parse(ls('btssff_small')||'[]'); }catch(e){ smallFilms=[]; }
+  scriptUrl = ls('btssff_script')||'';
 }
-function save() { localStorage.setItem('btssff_pc', JSON.stringify(ballots)); }
-load();
+function saveLocal(){ ls('btssff_ballots', JSON.stringify(ballots)); }
+function saveFilms(){ ls('btssff_micro', JSON.stringify(microFilms)); ls('btssff_small', JSON.stringify(smallFilms)); }
 
-function switchTab(tab, btn) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('panel-'+tab).classList.add('active');
-  btn.classList.add('active');
-  if (tab === 'results') renderResults();
+loadLocal();
+
+// ── LOGIN ────────────────────────────────────────────────────
+function doLogin(){
+  const pw = document.getElementById('loginPw').value;
+  if(pw === PASSWORD){
+    ls('btssff_auth','1');
+    document.getElementById('loginScreen').style.display='none';
+    bootApp();
+  } else {
+    document.getElementById('loginErr').textContent = 'Incorrect password.';
+    document.getElementById('loginPw').value='';
+  }
+}
+document.getElementById('loginPw').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+
+function doLogout(){
+  ls('btssff_auth','');
+  location.reload();
 }
 
-function getFilmPts(title) {
-  let pts = 0;
-  ballots.forEach(b => b.votes.forEach(v => { if(v.t===title) pts += v.pts; }));
+function checkAuth(){
+  if(ls('btssff_auth')==='1'){
+    document.getElementById('loginScreen').style.display='none';
+    bootApp();
+  }
+}
+
+// ── BOOT ─────────────────────────────────────────────────────
+async function bootApp(){
+  document.getElementById('app').style.display='flex';
+  if(scriptUrl) await loadBallotsFromSheet();
+  renderFilms();
+  renderSels();
+  updateCount();
+  setupKeyNav();
+  if(!scriptUrl || (!microFilms.length && !smallFilms.length)) openSetup();
+}
+
+// ── SETUP ────────────────────────────────────────────────────
+function openSetup(){
+  document.getElementById('scriptUrl').value = scriptUrl;
+  if(microFilms.length) document.getElementById('microEditor').value = microFilms.map(f=>f.t+','+f.p).join('\n');
+  if(smallFilms.length) document.getElementById('smallEditor').value = smallFilms.map(f=>f.t+','+f.p).join('\n');
+  if(microFilms.length||smallFilms.length){
+    document.getElementById('microEditArea').style.display='block';
+    document.getElementById('smallEditArea').style.display='block';
+  }
+  document.getElementById('setupScreen').style.display='flex';
+}
+function cancelSetup(){
+  if(microFilms.length || smallFilms.length) document.getElementById('setupScreen').style.display='none';
+}
+function saveSetup(){
+  scriptUrl = document.getElementById('scriptUrl').value.trim();
+  ls('btssff_script', scriptUrl);
+
+  // parse editors
+  const parseLines = (txt) => txt.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{
+    const parts = l.split(',');
+    const p = parseInt(parts[parts.length-1]);
+    const t = isNaN(p) ? l : parts.slice(0,-1).join(',').trim();
+    return {t, p: isNaN(p)?0:p};
+  });
+
+  const me = document.getElementById('microEditor').value;
+  const se = document.getElementById('smallEditor').value;
+  if(me.trim()) microFilms = parseLines(me);
+  if(se.trim()) smallFilms = parseLines(se);
+  saveFilms();
+  document.getElementById('setupMsg').textContent = 'Saved!';
+  setTimeout(()=>{ document.getElementById('setupScreen').style.display='none'; renderFilms(); renderSels(); },800);
+}
+
+// ── CSV PARSING ───────────────────────────────────────────────
+const csvDrop = document.getElementById('csvDrop');
+csvDrop.addEventListener('dragover', e=>{ e.preventDefault(); csvDrop.classList.add('drag'); });
+csvDrop.addEventListener('dragleave', ()=>csvDrop.classList.remove('drag'));
+csvDrop.addEventListener('drop', e=>{ e.preventDefault(); csvDrop.classList.remove('drag'); handleCSV(e.dataTransfer.files[0]); });
+document.getElementById('csvFileInput').addEventListener('change', e=>{ if(e.target.files[0]) handleCSV(e.target.files[0]); });
+
+function handleCSV(file){
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result;
+    const { micros, smalls } = parseCSV(text);
+    document.getElementById('csvPreview').textContent = `Found ${micros.length} micro + ${smalls.length} small films with ROS numbers.`;
+    document.getElementById('microEditor').value = micros.map(f=>f.t+','+f.p).join('\n');
+    document.getElementById('smallEditor').value = smalls.map(f=>f.t+','+f.p).join('\n');
+    document.getElementById('microEditArea').style.display='block';
+    document.getElementById('smallEditArea').style.display='block';
+  };
+  reader.readAsText(file);
+}
+
+function parseCSV(text){
+  const lines = text.split('\n');
+  if(!lines.length) return {micros:[],smalls:[]};
+  // find headers
+  const headers = parseCSVLine(lines[0]);
+  const titleIdx = headers.findIndex(h=>/project.?title/i.test(h));
+  const catIdx   = headers.findIndex(h=>/submission.?categor/i.test(h));
+  const rosIdx   = headers.findIndex(h=>/^ros$/i.test(h.trim()));
+
+  const micros=[], smalls=[];
+  for(let i=1;i<lines.length;i++){
+    const cols = parseCSVLine(lines[i]);
+    const ros  = cols[rosIdx]?.trim();
+    if(!ros || !/^\d+$/.test(ros)) continue;
+    const title = cols[titleIdx]?.trim();
+    const cat   = cols[catIdx]?.trim()||'';
+    if(!title) continue;
+    const film  = {t:title, p:parseInt(ros)};
+    if(/micro/i.test(cat)) micros.push(film);
+    else if(/small/i.test(cat)) smalls.push(film);
+    // unknown cat: skip (or could push to smalls as fallback)
+  }
+  micros.sort((a,b)=>a.p-b.p);
+  smalls.sort((a,b)=>a.p-b.p);
+  return {micros, smalls};
+}
+
+function parseCSVLine(line){
+  const cols=[];let cur='',inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){ if(inQ && line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ; }
+    else if(c===','&&!inQ){ cols.push(cur);cur=''; }
+    else cur+=c;
+  }
+  cols.push(cur);
+  return cols;
+}
+
+// ── GOOGLE SHEETS SYNC ────────────────────────────────────────
+async function syncBallot(ballot){
+  if(!scriptUrl) return;
+  setSyncStatus('Syncing…','');
+  try{
+    await fetch(scriptUrl,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'addBallot', ballot})
+    });
+    setSyncStatus('Synced ✓','ok');
+  }catch(e){
+    setSyncStatus('Sync failed — saved locally','err');
+  }
+}
+
+async function loadBallotsFromSheet(){
+  if(!scriptUrl) return;
+  setSyncStatus('Loading…','');
+  try{
+    const r = await fetch(scriptUrl+'?action=getBallots');
+    const data = await r.json();
+    if(data.ballots && Array.isArray(data.ballots)){
+      ballots = data.ballots;
+      saveLocal();
+      updateCount();
+      setSyncStatus('Loaded from Sheet ✓','ok');
+    }
+  }catch(e){
+    setSyncStatus('Could not reach Sheet — using local data','err');
+  }
+}
+
+function setSyncStatus(msg,cls){
+  const el=document.getElementById('syncStatus');
+  el.textContent=msg; el.className='sync-status '+(cls||'');
+  if(cls==='ok') setTimeout(()=>{if(el.textContent===msg) el.textContent='';},3000);
+}
+
+// ── FILM RENDERING ────────────────────────────────────────────
+function getFilmPts(title){
+  let pts=0;
+  ballots.forEach(b=>b.votes.forEach(v=>{ if(v.t===title) pts+=v.pts; }));
   return pts;
 }
 
-function buildCard(film) {
-  const rankNow = Object.keys(sel).find(r => sel[r] === film.t) || null;
-  const pts = getFilmPts(film.t);
+function buildCard(film, cat){
+  const rankObj = cat==='micro' ? selMicro : selSmall;
+  const rNow = Object.keys(rankObj).find(r=>rankObj[r]===film.t)||null;
+  const pts  = getFilmPts(film.t);
 
   const card = document.createElement('div');
-  card.className = 'film-card' + (rankNow ? ' r'+rankNow : '');
-  card.dataset.title = film.t;
+  card.className='film-card'+(rNow?' r'+rNow:'');
 
-  const titleRow = document.createElement('div');
-  titleRow.className = 'film-title-row';
-  titleRow.innerHTML = `<span class="film-title">${film.t}</span><span class="film-prog-num">#${film.p}</span><span class="film-score-badge${pts>0?' visible':''}">${pts>0?pts:''}</span>`;
+  const tr=document.createElement('div'); tr.className='film-title-row';
+  tr.innerHTML=`<span class="film-title">${film.t}</span><span class="film-prog-num">#${film.p}</span><span class="film-score-badge${pts>0?' on':''}">${pts>0?pts:''}</span>`;
 
-  const rankRow = document.createElement('div');
-  rankRow.className = 'rank-row';
-  [1,2,3].forEach(r => {
-    const btn = document.createElement('button');
-    btn.className = 'rank-btn' + (rankNow==r ? ' active-'+r : '');
-    btn.innerHTML = `${r}<span class="pts-label">${PTS[r]}pts</span>`;
-    btn.title = `Mark as #${r} (${PTS[r]} pts)`;
-    btn.onclick = () => toggleRank(film.t, r);
-    rankRow.appendChild(btn);
+  const rr=document.createElement('div'); rr.className='rank-row';
+  [1,2,3].forEach(r=>{
+    const b=document.createElement('button');
+    b.className='rank-btn'+(rNow==r?' a'+r:'');
+    b.innerHTML=`${r}<span class="pl">${PTS[r]}pts</span>`;
+    b.onclick=()=>toggleRank(film.t,r,cat);
+    rr.appendChild(b);
   });
-
-  card.appendChild(titleRow);
-  card.appendChild(rankRow);
+  card.appendChild(tr); card.appendChild(rr);
   return card;
 }
 
-function renderFilms() {
-  const mg = document.getElementById('microGrid');
-  const sg = document.getElementById('smallGrid');
-  mg.innerHTML = '';
-  sg.innerHTML = '';
-  MICRO.forEach(f => mg.appendChild(buildCard(f)));
-  SMALL.forEach(f => sg.appendChild(buildCard(f)));
+function renderFilms(){
+  const mg=document.getElementById('microGrid');
+  const sg=document.getElementById('smallGrid');
+  mg.innerHTML=''; sg.innerHTML='';
+  microFilms.forEach(f=>mg.appendChild(buildCard(f,'micro')));
+  smallFilms.forEach(f=>sg.appendChild(buildCard(f,'small')));
 }
 
-function toggleRank(title, rank) {
-  if (sel[rank] === title) {
-    sel[rank] = null;
-  } else {
-    // remove film from any other rank
-    Object.keys(sel).forEach(r => { if(sel[r]===title) sel[r]=null; });
-    sel[rank] = title;
+// ── SELECTION ────────────────────────────────────────────────
+function toggleRank(title, rank, cat){
+  const obj = cat==='micro' ? selMicro : selSmall;
+  if(obj[rank]===title){ obj[rank]=null; }
+  else{
+    Object.keys(obj).forEach(r=>{ if(obj[r]===title) obj[r]=null; });
+    obj[rank]=title;
   }
   renderFilms();
-  renderSel();
+  renderSels();
 }
 
-function renderSel() {
-  const el = document.getElementById('selSummary');
-  const hasAny = Object.values(sel).some(v=>v!==null);
-  if (!hasAny) { el.innerHTML = '<div class="sel-empty">Tap 1 / 2 / 3 on any film</div>'; return; }
-  el.innerHTML = '';
-  [1,2,3].forEach(r => {
-    const row = document.createElement('div');
-    row.className = 'sel-row';
-    const rankEl = document.createElement('span');
-    rankEl.className = 'sel-rank';
-    rankEl.style.color = COLORS[r];
-    rankEl.textContent = '#'+r;
-    const name = document.createElement('span');
-    name.className = 'sel-name';
-    name.textContent = sel[r] || '—';
-    name.style.color = sel[r] ? 'var(--offwhite)' : 'var(--muted)';
-    const pts = document.createElement('span');
-    pts.className = 'sel-pts';
-    pts.textContent = sel[r] ? PTS[r]+'pts' : '';
-    const x = document.createElement('button');
-    x.className = 'sel-x';
-    x.textContent = '×';
-    x.style.visibility = sel[r] ? 'visible' : 'hidden';
-    x.onclick = () => { sel[r]=null; renderFilms(); renderSel(); };
-    row.append(rankEl, name, pts, x);
-    el.appendChild(row);
+function renderSels(){
+  renderSelBlock('selMicro', selMicro, 'micro');
+  renderSelBlock('selSmall', selSmall, 'small');
+}
+
+function renderSelBlock(elId, obj, cat){
+  const el=document.getElementById(elId);
+  const has=Object.values(obj).some(v=>v!==null);
+  if(!has){ el.innerHTML=`<div class="sel-empty">Tap 1/2/3 on a ${cat} film</div>`; return; }
+  el.innerHTML='';
+  [1,2,3].forEach(r=>{
+    const row=document.createElement('div'); row.className='sel-row';
+    const rankEl=document.createElement('span'); rankEl.className='sel-rank'; rankEl.style.color=RC[r]; rankEl.textContent='#'+r;
+    const nm=document.createElement('span'); nm.className='sel-name'; nm.textContent=obj[r]||'—'; nm.style.color=obj[r]?'var(--offwhite)':'var(--muted)';
+    const pts=document.createElement('span'); pts.className='sel-pts'; pts.textContent=obj[r]?PTS[r]+'pts':'';
+    const x=document.createElement('button'); x.className='sel-x'; x.textContent='×'; x.style.visibility=obj[r]?'visible':'hidden';
+    x.onclick=()=>{ obj[r]=null; renderFilms(); renderSels(); };
+    row.append(rankEl,nm,pts,x); el.appendChild(row);
   });
 }
 
-function submitBallot() {
-  const votes = [];
-  [1,2,3].forEach(r => { if(sel[r]) votes.push({t:sel[r], rank:parseInt(r), pts:PTS[r]}); });
-  ballots.push({
-    id: Date.now(),
-    ts: new Date().toISOString(),
+// ── SUBMIT ───────────────────────────────────────────────────
+async function submitBallot(){
+  const mv=Object.values(selMicro).filter(Boolean);
+  const sv=Object.values(selSmall).filter(Boolean);
+  if(mv.length<3 && sv.length<3){
+    alert('Please rank at least 3 micro shorts AND 3 small shorts before submitting.');
+    return;
+  }
+  if(mv.length<3){
+    alert('Please rank 3 micro shorts (you have '+mv.length+').');
+    return;
+  }
+  if(sv.length<3){
+    alert('Please rank 3 small shorts (you have '+sv.length+').');
+    return;
+  }
+
+  const votes=[];
+  [1,2,3].forEach(r=>{
+    if(selMicro[r]) votes.push({t:selMicro[r],rank:parseInt(r),pts:PTS[r],cat:'micro'});
+    if(selSmall[r]) votes.push({t:selSmall[r],rank:parseInt(r),pts:PTS[r],cat:'small'});
+  });
+
+  const ballot={
+    id:Date.now(), ts:new Date().toISOString(),
     votes,
-    name: document.getElementById('inputName').value.trim(),
-    email: document.getElementById('inputEmail').value.trim(),
-    notes: document.getElementById('inputNotes').value.trim(),
-  });
-  save();
+    name:document.getElementById('inputName').value.trim(),
+    email:document.getElementById('inputEmail').value.trim(),
+    notes:document.getElementById('inputNotes').value.trim(),
+  };
+
+  ballots.push(ballot);
+  saveLocal();
+  await syncBallot(ballot);
   clearForm();
   renderFilms();
   updateCount();
   showToast('Ballot #'+ballots.length+' saved!');
 }
 
-function clearForm() {
-  sel = {1:null,2:null,3:null};
+function clearForm(){
+  selMicro={1:null,2:null,3:null};
+  selSmall={1:null,2:null,3:null};
   document.getElementById('inputName').value='';
   document.getElementById('inputEmail').value='';
   document.getElementById('inputNotes').value='';
-  renderFilms();
-  renderSel();
-  document.getElementById('filmsScroll').scrollTop = 0;
+  renderFilms(); renderSels();
+  document.getElementById('filmsScroll').scrollTop=0;
   document.getElementById('inputName').focus();
 }
 
-function updateCount() {
-  const n = ballots.length;
-  document.getElementById('ballotNum').textContent = n;
-  document.getElementById('headerCount').textContent = n+(n===1?' ballot':' ballots');
+function updateCount(){
+  const n=ballots.length;
+  document.getElementById('ballotNum').textContent=n;
+  document.getElementById('headerCount').textContent=n+(n===1?' ballot':' ballots');
 }
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2000);
+// ── KEYBOARD NAV ─────────────────────────────────────────────
+function setupKeyNav(){
+  const name=document.getElementById('inputName');
+  const email=document.getElementById('inputEmail');
+  const notes=document.getElementById('inputNotes');
+  name.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();email.focus();} });
+  email.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();notes.focus();} });
+  notes.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submitBallot();} });
 }
 
-function confirmClear() {
-  if (confirm('Delete ALL '+ballots.length+' ballots? This cannot be undone.')) {
-    ballots=[]; save(); renderResults(); renderFilms(); updateCount();
-  }
+// ── RESULTS ──────────────────────────────────────────────────
+function switchTab(tab,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+  btn.classList.add('active');
+  if(tab==='results') renderResults();
 }
 
-function renderResults() {
-  const el = document.getElementById('resultsContent');
-  if (!ballots.length) { el.innerHTML='<div class="no-votes">No ballots yet.</div>'; return; }
+function renderResults(){
+  const el=document.getElementById('resultsContent');
+  if(!ballots.length){el.innerHTML='<div class="no-votes">No ballots yet.</div>';return;}
 
-  const all = [...MICRO,...SMALL];
-  const sc = {};
-  all.forEach(f => sc[f.t]={pts:0,first:0,second:0,third:0});
-  ballots.forEach(b => b.votes.forEach(v => {
-    if (!sc[v.t]) sc[v.t]={pts:0,first:0,second:0,third:0};
-    sc[v.t].pts += v.pts;
+  const all=[...microFilms,...smallFilms];
+  const sc={};
+  all.forEach(f=>sc[f.t]={pts:0,first:0,second:0,third:0});
+  ballots.forEach(b=>b.votes.forEach(v=>{
+    if(!sc[v.t]) sc[v.t]={pts:0,first:0,second:0,third:0};
+    sc[v.t].pts+=v.pts;
     if(v.rank===1) sc[v.t].first++;
     if(v.rank===2) sc[v.t].second++;
     if(v.rank===3) sc[v.t].third++;
   }));
 
-  const byPts   = Object.entries(sc).filter(([,s])=>s.pts>0).sort((a,b)=>b[1].pts-a[1].pts);
-  const byFirst = Object.entries(sc).filter(([,s])=>s.first>0).sort((a,b)=>b[1].first-a[1].first);
-  const maxPts  = byPts[0]?.[1].pts||1;
-  const maxFst  = byFirst[0]?.[1].first||1;
+  const byPts  =Object.entries(sc).filter(([,s])=>s.pts>0).sort((a,b)=>b[1].pts-a[1].pts);
+  const byFirst=Object.entries(sc).filter(([,s])=>s.first>0).sort((a,b)=>b[1].first-a[1].first);
+  const maxP=byPts[0]?.[1].pts||1, maxF=byFirst[0]?.[1].first||1;
+  const rc=i=>i===0?'var(--gold)':i===1?'var(--silver)':i===2?'var(--bronze)':'var(--muted)';
+  const bc=i=>i===0?'var(--gold)':i===1?'var(--silver)':i===2?'var(--bronze)':'var(--slate)';
 
-  const emails = ballots.filter(b=>b.email);
-  const comments = ballots.filter(b=>b.notes);
-  const totalVotes = ballots.reduce((s,b)=>s+b.votes.length,0);
+  const emails=ballots.filter(b=>b.email);
+  const comments=ballots.filter(b=>b.notes);
 
-  const rankColor = i => i===0?'var(--gold)':i===1?'var(--silver)':i===2?'var(--bronze)':'var(--muted)';
-  const barColor  = i => i===0?'var(--gold)':i===1?'var(--silver)':i===2?'var(--bronze)':'var(--slate)';
-
-  let html = `
+  let html=`
   <div class="stat-row">
     <div class="stat-card"><span class="stat-val">${ballots.length}</span><div class="stat-lbl">Ballots</div></div>
-    <div class="stat-card"><span class="stat-val">${totalVotes}</span><div class="stat-lbl">Votes cast</div></div>
+    <div class="stat-card"><span class="stat-val">${ballots.reduce((s,b)=>s+b.votes.length,0)}</span><div class="stat-lbl">Votes cast</div></div>
     <div class="stat-card"><span class="stat-val">${emails.length}</span><div class="stat-lbl">Emails</div></div>
     <div class="stat-card"><span class="stat-val">${comments.length}</span><div class="stat-lbl">Comments</div></div>
   </div>
-
   <div class="results-grid">
     <div class="r-card">
       <div class="r-card-head">Most total points · 1st=3 · 2nd=2 · 3rd=1</div>
-      ${byPts.slice(0,15).map(([t,s],i)=>`
-      <div class="lb-row">
-        <span class="lb-pos" style="color:${rankColor(i)}">${i+1}</span>
-        <span class="lb-name">${t}</span>
-        <div class="lb-bar-wrap"><div class="lb-bar" style="width:${Math.round(s.pts/maxPts*100)}%;background:${barColor(i)}"></div></div>
-        <span class="lb-val" style="color:${rankColor(i)}">${s.pts}</span>
-      </div>`).join('')}
+      ${byPts.slice(0,15).map(([t,s],i)=>`<div class="lb-row"><span class="lb-pos" style="color:${rc(i)}">${i+1}</span><span class="lb-name">${t}</span><div class="lb-bar-wrap"><div class="lb-bar" style="width:${Math.round(s.pts/maxP*100)}%;background:${bc(i)}"></div></div><span class="lb-val" style="color:${rc(i)}">${s.pts}</span></div>`).join('')}
     </div>
     <div class="r-card">
       <div class="r-card-head">Most #1 votes</div>
-      ${byFirst.slice(0,15).map(([t,s],i)=>`
-      <div class="lb-row">
-        <span class="lb-pos" style="color:${rankColor(i)}">${i+1}</span>
-        <span class="lb-name">${t}</span>
-        <div class="lb-bar-wrap"><div class="lb-bar" style="width:${Math.round(s.first/maxFst*100)}%;background:${barColor(i)}"></div></div>
-        <span class="lb-val" style="color:${rankColor(i)}">${s.first}</span>
-      </div>`).join('')}
+      ${byFirst.slice(0,15).map(([t,s],i)=>`<div class="lb-row"><span class="lb-pos" style="color:${rc(i)}">${i+1}</span><span class="lb-name">${t}</span><div class="lb-bar-wrap"><div class="lb-bar" style="width:${Math.round(s.first/maxF*100)}%;background:${bc(i)}"></div></div><span class="lb-val" style="color:${rc(i)}">${s.first}</span></div>`).join('')}
     </div>
   </div>`;
 
-  if (comments.length) {
-    html += `<div class="full-card">
-      <div class="r-card-head">Comments · ${comments.length} total</div>
-      ${comments.map(b=>`<div class="comment-item">
-        <div class="comment-meta">${b.name||'Anonymous'}${b.email?' · '+b.email:''} · ${new Date(b.ts).toLocaleDateString()}</div>
-        <div>${b.notes}</div>
-      </div>`).join('')}
-    </div>`;
-  }
+  if(comments.length) html+=`<div class="full-card"><div class="r-card-head">Comments · ${comments.length}</div>${comments.map(b=>`<div class="comment-item"><div class="comment-meta">${b.name||'Anonymous'}${b.email?' · '+b.email:''} · ${new Date(b.ts).toLocaleDateString()}</div><div>${b.notes}</div></div>`).join('')}</div>`;
+  if(emails.length) html+=`<div class="full-card"><div class="r-card-head">Emails collected · ${emails.length}</div><div class="emails-wrap">${emails.map(b=>`<div class="email-chip">${b.email}</div>`).join('')}</div></div>`;
 
-  if (emails.length) {
-    html += `<div class="full-card">
-      <div class="r-card-head">Emails collected · ${emails.length} total</div>
-      <div class="emails-wrap">${emails.map(b=>`<div class="email-chip">${b.email}</div>`).join('')}</div>
-    </div>`;
-  }
-
-  el.innerHTML = html;
+  el.innerHTML=html;
 }
 
-function exportCSV() {
-  const rows = [['Ballot #','Timestamp','Name','Email','1st Place','2nd Place','3rd Place','Notes']];
+function exportCSV(){
+  const rows=[['Ballot #','Timestamp','Name','Email','Micro 1st','Micro 2nd','Micro 3rd','Small 1st','Small 2nd','Small 3rd','Notes']];
   ballots.forEach((b,i)=>{
-    const v={};
-    b.votes.forEach(vt=>v[vt.rank]=vt.t);
-    rows.push([i+1, b.ts, b.name||'', b.email||'', v[1]||'', v[2]||'', v[3]||'', b.notes||'']);
+    const m={},s={};
+    b.votes.forEach(v=>{ if(v.cat==='micro') m[v.rank]=v.t; else s[v.rank]=v.t; });
+    rows.push([i+1,b.ts,b.name||'',b.email||'',m[1]||'',m[2]||'',m[3]||'',s[1]||'',s[2]||'',s[3]||'',b.notes||'']);
   });
-  const csv = rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download = 'btssff-peoples-choice-'+new Date().toISOString().slice(0,10)+'.csv';
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='btssff-peoples-choice-'+new Date().toISOString().slice(0,10)+'.csv';
   a.click();
   showToast('CSV exported!');
 }
 
-// Init
-renderFilms();
-renderSel();
-updateCount();
+function confirmClear(){
+  if(confirm('Clear all LOCAL ballot data? (Sheet data is unaffected.)')) {
+    ballots=[]; saveLocal(); renderResults(); renderFilms(); updateCount();
+  }
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ── START ────────────────────────────────────────────────────
+checkAuth();
 </script>
 </body>
 </html>
