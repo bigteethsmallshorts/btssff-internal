@@ -450,6 +450,10 @@
     <button class="filter-btn"        data-scored="no"  onclick="setScoredFilter('no',this)">Not yet</button>
     <button class="filter-btn"        data-scored="yes" onclick="setScoredFilter('yes',this)">Done</button>
   </div>
+  <div class="filter-group">
+    <input type="text" id="searchBox" placeholder="Search title, filmmaker, or location…" oninput="onSearchInput(this.value)"
+      style="font-family:var(--font-body);font-size:0.85rem;padding:7px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);min-width:240px;outline:none;color:var(--navy)">
+  </div>
   <div class="controls-right">
     <div class="progress-wrap" id="progressText"></div>
     <button class="btn btn-ghost" onclick="loadData()" style="font-size:0.5rem;padding:5px 10px">↻ Refresh</button>
@@ -493,6 +497,7 @@ let notes       = {};
 let judgeName   = "";
 let filterCat   = "all";
 let filterScore = "all";
+let searchQuery = "";
 
 const CATS = [
   { key: "production",    label: "Production quality" },
@@ -711,11 +716,19 @@ function setScoredFilter(val,btn) {
   document.querySelectorAll("[data-scored]").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active"); render();
 }
+function onSearchInput(val) {
+  searchQuery = val.trim().toLowerCase();
+  render();
+}
 function filteredFilms() {
   return allFilms.filter(f=>{
     if (filterCat!=="all"&&f.size!==filterCat) return false;
     if (filterScore==="yes"&&!isFullyScored(f.id)) return false;
     if (filterScore==="no"&&isFullyScored(f.id))   return false;
+    if (searchQuery) {
+      const haystack = `${f.title||""} ${f.director||""} ${f.location||""}`.toLowerCase();
+      if (!haystack.includes(searchQuery)) return false;
+    }
     return true;
   });
 }
