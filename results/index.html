@@ -467,8 +467,9 @@ const SHEET_ID        = "1i-iCDCzVr_BuxHTu3pMVCvjEfpSLew7-Z3LkErpT-Uc";
 const SCORES_SHEET_ID = "1TYGNvemzVl05R4wSxxiMZVcUx77UpG--gOJotq-cvIA";
 const TEAM_PASSWORD   = "team2026";
 
-// Overrides form — field corrections
+// Overrides form — field corrections + decisions
 const OVERRIDES_FORM_ID = "1FAIpQLSfIkl-HrVDXkBUS2abWZ5bSesxUHWdwX57vXxPbqVotHBZFTw";
+const OVERRIDES_SHEET_ID = "1h7cZNUpY-BBUO1hBhWPI05bmUuzUa2gFOwSrMXXrwY0";
 const OVERRIDES_FIELDS  = {
   filmId:      "entry.980348820",
   field:       "entry.1526638552",
@@ -492,9 +493,10 @@ document.getElementById("gateInput").addEventListener("keydown",e=>{if(e.key==="
 async function loadAll(){
   document.getElementById("syncStatus").textContent="Loading…";
   try{
+    loadDecisions(); // local fallback first
     [allFilms, judgeScores]=await Promise.all([fetchFilms(),fetchScores(),fetchOverrides().then(o=>{overrides=o;})]);
-    applyOverrides();
-    loadDecisions();
+    applyOverrides(); // sheet decisions/overrides take precedence
+    try{ localStorage.setItem("btssff-decisions", JSON.stringify(decisions)); }catch{}
     render();
     updateTally();
     updateCoverage();
@@ -567,17 +569,38 @@ async function fetchScores(){
 
 async function fetchOverrides(){
   try{
-    // Overrides sheet is linked to the Overrides form responses
-    // We store overrides in localStorage until the sheet is linked
-    const stored = JSON.parse(localStorage.getItem("btssff-overrides")||"{}");
-    return stored;
-  }catch{return{};}
+    const url = `https://docs.google.com/spreadsheets/d/${OVERRIDES_SHEET_ID}/gviz/tq?tqx=out:csv`;
+    const res = await fetch(url);
+    if(!res.ok) return JSON.parse(localStorage.getItem("btssff-overrides")||"{}");
+    const rows = parseCSV(await res.text());
+    if(rows.length<2) return {};
+    // Columns: A=Timestamp, B=filmId, C=field, D=newValue, E=correctedBy, F=note
+    const result = {};
+    rows.slice(1).forEach(row=>{
+      const filmId = (row[1]||"").trim();
+      const field  = (row[2]||"").trim();
+      const newValue = (row[3]||"").trim();
+      const correctedBy = (row[4]||"").trim();
+      const note = (row[5]||"").trim();
+      if(!filmId || !field) return;
+      const key = `${filmId}__${field}`;
+      // Rows are chronological — last one wins
+      result[key] = { newValue, note, by: correctedBy||"Team" };
+    });
+    return result;
+  }catch{
+    try{ return JSON.parse(localStorage.getItem("btssff-overrides")||"{}"); }catch{ return {}; }
+  }
 }
 
 function applyOverrides(){
   // Apply stored overrides to allFilms array
   Object.entries(overrides).forEach(([key, override]) => {
     const [filmId, field] = key.split("__");
+    if (field === "Decision") {
+      decisions[filmId] = override.newValue;
+      return;
+    }
     const film = allFilms.find(f=>f.id===filmId);
     if(!film) return;
     film[field] = override.newValue;
@@ -637,6 +660,9 @@ function loadDecisions(){try{decisions=JSON.parse(localStorage.getItem("btssff-d
 function saveDecision(filmId,dec){
   decisions[filmId]=dec;
   try{localStorage.setItem("btssff-decisions",JSON.stringify(decisions));}catch{}
+  // Sync to shared sheet so other team members see it
+  overrides[`${filmId}__Decision`] = { newValue: dec, note: "", by: "Team" };
+  submitOverrideToForm(filmId, "Decision", dec, "");
   renderRow(filmId);
   if(selectedId===filmId){renderPanel(filmId);}
   updateCount();
