@@ -6,7 +6,7 @@
 <title>Results · BTSSFF</title>
 <link rel="stylesheet" href="../assets/css/btssff.css">
 <style>
-  body { display: flex; flex-direction: column; min-height: 100vh; background: var(--offwhite); }
+  body { display: flex; flex-direction: column; min-height: 100vh; height: 100vh; background: var(--offwhite); overflow: hidden; }
 
   .page-header {
     background: var(--navy); padding: 1rem 2rem; border-bottom: 3px solid var(--denim);
@@ -127,7 +127,7 @@
     text-transform: uppercase; color: var(--slate); min-width: 52px;
   }
 
-  .main-layout { display: flex; flex: 1; overflow: hidden; }
+  .main-layout { display: flex; flex: 1; overflow: hidden; min-height: 0; }
 
   .film-table-wrap { flex: 1; overflow-y: auto; min-width: 0; transition: flex 0.25s ease; }
   .film-table-wrap.panel-open { flex: 0 0 55%; }
@@ -182,14 +182,15 @@
   .sp-rejected  { background:#fde8ec; color:#8b1a2e; }
   .sp-undecided { background:var(--border); color:var(--slate); }
 
-  /* ── Detail panel — FIX #1: no fixed height, no overflow hidden, panel scrolls naturally ── */
+  /* ── Detail panel — full height, internal scroll ── */
   .detail-panel {
     width: 0; overflow: hidden; background: white; border-left: 1px solid var(--border);
     transition: width 0.25s ease; display: flex; flex-direction: column;
-    position: sticky; top: 0; align-self: flex-start;
-    max-height: calc(100vh - 145px); overflow-y: auto;
+    overflow-y: auto;
+    /* Stretch to full height of the main-layout flex row */
+    align-self: stretch;
   }
-  .detail-panel.open { width: 45%; min-width: 380px; }
+  .detail-panel.open { width: 45%; min-width: 380px; overflow: auto; }
 
   .panel-header {
     background: var(--navy); padding: 1rem 1.25rem;
