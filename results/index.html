@@ -513,6 +513,8 @@ const OVERRIDES_FIELDS  = {
 
 let allFilms=[], judgeScores={}, decisions={}, overrides={}, selectedId=null, searchQuery='';
 let filterCat="all", filterSt="all", sortBy="avg", sortDir="desc";
+let includeMaybe = false;
+let genreTallyMode = null;
 
 // FIX #4: Judge filter state — Set of judge names to INCLUDE. null = all.
 let activeJudges = null; // null means "all judges"
@@ -1156,7 +1158,6 @@ function exportToRunOfShow(){
 }
 
 // ─── TALLY BAR ───────────────────────────────────────────────────────────────
-let includeMaybe = false;
 
 function toggleMaybe() {
   includeMaybe = !includeMaybe;
@@ -1239,7 +1240,6 @@ function updateCoverage() {
 }
 
 // ─── GENRE TALLY — FIX #3 ────────────────────────────────────────────────────
-let genreTallyMode = null; // null = off, 'selected' = selected only, 'both' = selected+maybe
 
 function toggleGenreTally(mode){
   const el = document.getElementById("genreTallyInline");
