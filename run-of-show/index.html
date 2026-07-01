@@ -78,6 +78,7 @@
   .pool-filter-btn.micro.active { background: var(--denim); color: var(--navy); border-color: var(--denim); }
   .pool-filter-btn.small.active { background: var(--slate); color: white; }
   .pool-filter-btn.maybe.active { background: #b8860b; color: white; border-color: #b8860b; }
+  .pool-filter-btn.fselected.active { background: #2a7a4b; color: white; border-color: #2a7a4b; }
 
   .pool-list {
     flex: 1;
@@ -335,11 +336,19 @@
       <h2>Unplaced Films</h2>
       <div class="pool-stats" id="poolStats">Loading…</div>
     </div>
-    <div class="pool-filters">
-      <button class="pool-filter-btn active" data-pf="all"   onclick="setPoolFilter('all',this)">All</button>
-      <button class="pool-filter-btn micro"  data-pf="Micro" onclick="setPoolFilter('Micro',this)">Micro</button>
-      <button class="pool-filter-btn small"  data-pf="Small" onclick="setPoolFilter('Small',this)">Small</button>
-      <button class="pool-filter-btn maybe"  data-pf="maybe" onclick="setPoolFilter('maybe',this)">Maybe</button>
+    <div class="pool-filters" style="flex-direction:column;gap:6px">
+      <div style="display:flex;gap:4px;align-items:center">
+        <span style="font-family:var(--font-display);font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);min-width:38px">Status</span>
+        <button class="pool-filter-btn active" data-pf-status="all"      onclick="setStatusFilter('all',this)">All</button>
+        <button class="pool-filter-btn fselected" data-pf-status="selected" onclick="setStatusFilter('selected',this)">✓ Selected</button>
+        <button class="pool-filter-btn maybe"  data-pf-status="maybe"    onclick="setStatusFilter('maybe',this)">? Maybe</button>
+      </div>
+      <div style="display:flex;gap:4px;align-items:center">
+        <span style="font-family:var(--font-display);font-size:0.48rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);min-width:38px">Size</span>
+        <button class="pool-filter-btn active" data-pf-size="all"   onclick="setSizeFilter('all',this)">All</button>
+        <button class="pool-filter-btn micro"  data-pf-size="Micro" onclick="setSizeFilter('Micro',this)">Micro</button>
+        <button class="pool-filter-btn small"  data-pf-size="Small" onclick="setSizeFilter('Small',this)">Small</button>
+      </div>
     </div>
     <div class="pool-list" id="poolList"
          ondragover="onDragOver(event,'pool')"
@@ -438,7 +447,8 @@ let pool = [];
 let act1 = [];
 let act2 = [];
 
-let poolFilter  = "all";
+let poolFilterStatus = "all";
+let poolFilterSize   = "all";
 let dragFilmId  = null;
 let dragSource  = null;
 
@@ -679,9 +689,16 @@ function renderAll() {
   updateTotals();
 }
 
-function setPoolFilter(val, btn) {
-  poolFilter = val;
-  document.querySelectorAll("[data-pf]").forEach(b => b.classList.remove("active"));
+function setStatusFilter(val, btn) {
+  poolFilterStatus = val;
+  document.querySelectorAll("[data-pf-status]").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderPool();
+}
+
+function setSizeFilter(val, btn) {
+  poolFilterSize = val;
+  document.querySelectorAll("[data-pf-size]").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
   renderPool();
 }
@@ -689,9 +706,13 @@ function setPoolFilter(val, btn) {
 function renderPool() {
   const filtered = pool.filter(id => {
     const f = getFilm(id); if (!f) return false;
-    if (poolFilter === "all") return true;
-    if (poolFilter === "maybe") return (decisions[id] || "undecided") === "maybe";
-    return f.size === poolFilter;
+    const dec = decisions[id] || "undecided";
+    // Status filter
+    if (poolFilterStatus === "selected" && dec !== "selected") return false;
+    if (poolFilterStatus === "maybe"    && dec !== "maybe")    return false;
+    // Size filter
+    if (poolFilterSize !== "all" && f.size !== poolFilterSize) return false;
+    return true;
   });
   const stats = getStats(pool);
   document.getElementById("poolStats").textContent =
