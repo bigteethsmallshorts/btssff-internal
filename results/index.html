@@ -391,7 +391,7 @@
         oninput="filterSearch(this.value)">
       <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--denim);font-size:0.7rem">⌕</span>
     </div>
-    <button class="btn btn-ghost" onclick="loadAll()" style="font-size:0.5rem">↻ Refresh</button>
+    <button class="btn btn-ghost" onclick="silentRefresh()" style="font-size:0.5rem">↻ Refresh</button>
     <button class="btn btn-denim" onclick="exportToRunOfShow()">Export to Run of Show →</button>
   </div>
 </header>
@@ -518,12 +518,60 @@ let filterCat="all", filterSt="all", sortBy="avg", sortDir="desc";
 let activeJudges = null; // null means "all judges"
 
 // Gate
+// Gate — persist auth so page refresh doesn't require re-login
 function checkGate() {
   const pass=document.getElementById("gateInput").value.trim().toLowerCase();
-  if(pass===TEAM_PASSWORD){document.getElementById("gate").style.display="none";loadAll();}
-  else{document.getElementById("gateError").textContent="Incorrect code — try again.";document.getElementById("gateInput").value="";}
+  if(pass===TEAM_PASSWORD){
+    sessionStorage.setItem("btssff-auth","1");
+    document.getElementById("gate").style.display="none";
+    loadAll();
+    startAutoRefresh();
+  } else {
+    document.getElementById("gateError").textContent="Incorrect code — try again.";
+    document.getElementById("gateInput").value="";
+  }
 }
 document.getElementById("gateInput").addEventListener("keydown",e=>{if(e.key==="Enter")checkGate();});
+
+// Auto-skip gate if already authenticated this session
+if(sessionStorage.getItem("btssff-auth")==="1"){
+  document.getElementById("gate").style.display="none";
+  loadAll();
+  startAutoRefresh();
+}
+
+// Auto-refresh every 60 seconds to pick up partner changes
+let autoRefreshTimer = null;
+function startAutoRefresh(){
+  if(autoRefreshTimer) clearInterval(autoRefreshTimer);
+  autoRefreshTimer = setInterval(silentRefresh, 60000);
+}
+
+async function silentRefresh(){
+  document.getElementById("syncStatus").textContent="Syncing…";
+  try {
+    const [newScores] = await Promise.all([
+      fetchScores(),
+      fetchOverrides().then(o=>{
+        Object.entries(o).forEach(([key, override])=>{ overrides[key] = override; });
+        applyOverrides();
+      })
+    ]);
+    judgeScores = newScores;
+    try{ localStorage.setItem("btssff-decisions", JSON.stringify(decisions)); }catch{}
+    buildJudgeFilterBar();
+    render();
+    updateTally();
+    updateCoverage();
+    if(selectedId) renderPanel(selectedId);
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+    document.getElementById("syncStatus").textContent=`${allFilms.length} films · synced ${timeStr}`;
+    flashToast("↻ Synced latest changes");
+  } catch(err){
+    document.getElementById("syncStatus").textContent="Sync error: "+err.message;
+  }
+}
 
 // Load
 async function loadAll(){
@@ -533,12 +581,14 @@ async function loadAll(){
     [allFilms, judgeScores]=await Promise.all([fetchFilms(),fetchScores(),fetchOverrides().then(o=>{overrides=o;})]);
     applyOverrides();
     try{ localStorage.setItem("btssff-decisions", JSON.stringify(decisions)); }catch{}
-    activeJudges = null; // reset judge filter on reload
+    activeJudges = null;
     buildJudgeFilterBar();
     render();
     updateTally();
     updateCoverage();
-    document.getElementById("syncStatus").textContent=`${allFilms.length} films · scores loaded`;
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+    document.getElementById("syncStatus").textContent=`${allFilms.length} films · loaded ${timeStr}`;
   }catch(err){document.getElementById("syncStatus").textContent="Error: "+err.message;}
 }
 
