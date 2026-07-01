@@ -453,6 +453,13 @@ let dragFilmId  = null;
 let dragSource  = null;
 
 // ─── GATE + AUTH ─────────────────────────────────────────────────────────────
+// ─── AUTO REFRESH ────────────────────────────────────────────────────────────
+let autoRefreshTimer = null;
+function startAutoRefresh() {
+  if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+  autoRefreshTimer = setInterval(silentRefresh, 60000);
+}
+
 function checkGate() {
   const pass = document.getElementById("gateInput").value.trim().toLowerCase();
   if (pass === TEAM_PASSWORD) {
@@ -472,13 +479,6 @@ if (sessionStorage.getItem("btssff-auth") === "1") {
   document.getElementById("gate").style.display = "none";
   init();
   startAutoRefresh();
-}
-
-// ─── AUTO REFRESH ────────────────────────────────────────────────────────────
-let autoRefreshTimer = null;
-function startAutoRefresh() {
-  if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-  autoRefreshTimer = setInterval(silentRefresh, 60000);
 }
 
 async function silentRefresh() {
@@ -610,7 +610,7 @@ async function fetchFilms() {
       thumb: extractVimeoThumb(vimeoLink),
       email: g(row, "Email"),
     };
-  }).filter(f => f.title && f.title !== "Untitled");
+  }).filter(f => f.title && f.title.trim() !== "" && f.title !== "Untitled");
 }
 
 async function fetchScores() {
@@ -667,10 +667,21 @@ function applyOverridesToFilms() {
     if (field === "Decision") return; // handled separately
     const film = allFilms.find(f => f.id === filmId);
     if (!film) return;
-    film[field] = override.newValue;
-    if (field === "category") {
-      film.size  = /micro/i.test(override.newValue) ? "Micro" : "Small";
-      film.genre = override.newValue.replace(/^(micro|small)\s+short\s*/i, "").trim();
+    // Map override field names to film properties
+    if (field === "category" || field === "catRaw") {
+      film.catRaw = override.newValue;
+      film.size   = /micro/i.test(override.newValue) ? "Micro" : "Small";
+      film.genre  = override.newValue.replace(/^(micro|small)\s+short\s*/i, "").trim();
+    } else if (field === "dispMin") {
+      film.dispMin = override.newValue;
+    } else if (field === "director") {
+      film.director = override.newValue;
+    } else if (field === "location") {
+      film.location = override.newValue;
+    } else if (field === "title") {
+      film.title = override.newValue;
+    } else {
+      film[field] = override.newValue;
     }
   });
 }
@@ -715,8 +726,12 @@ function renderPool() {
     return true;
   });
   const stats = getStats(pool);
-  document.getElementById("poolStats").textContent =
-    `${pool.length} films · ${stats.micro} micro · ${stats.small} small · ${fmtSecs(stats.secs)}`;
+  const filteredStats = getStats(filtered);
+  const isFiltered = poolFilterStatus !== "all" || poolFilterSize !== "all";
+  const countLine = isFiltered
+    ? `${filtered.length} shown (${filteredStats.micro} micro · ${filteredStats.small} small · ${fmtSecs(filteredStats.secs)}) · ${pool.length} total`
+    : `${pool.length} films · ${stats.micro} micro · ${stats.small} small · ${fmtSecs(stats.secs)}`;
+  document.getElementById("poolStats").textContent = countLine;
   const container = document.getElementById("poolList");
   if (!filtered.length) {
     container.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--slate);font-family:var(--font-display);font-size:1.01rem;letter-spacing:0.1em;text-transform:uppercase">No films here</div>`;
