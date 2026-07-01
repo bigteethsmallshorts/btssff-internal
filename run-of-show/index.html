@@ -186,7 +186,7 @@
     gap: 0.5rem;
   }
 
-  /* ── Film cards (shared pool + program) ── */
+  /* ── Film cards ── */
   .film-card-ros {
     background: white;
     border: 1px solid var(--border);
@@ -205,155 +205,67 @@
   .film-card-ros.dragging { opacity: 0.5; transform: scale(0.98); cursor: grabbing; }
   .film-card-ros.drag-over-top    { border-top: 3px solid var(--denim); }
   .film-card-ros.drag-over-bottom { border-bottom: 3px solid var(--denim); }
-
-  /* Micro = light rose bg + rose left strip. Small = light slate bg + slate left strip */
   .film-card-ros.micro { border-left: 4px solid var(--rose); background: rgba(201,84,106,0.09); }
   .film-card-ros.small { border-left: 4px solid var(--slate); background: rgba(84,110,133,0.09); }
   .film-card-ros.maybe-film.micro { border-left: 4px solid var(--rose); background: rgba(201,84,106,0.09); }
   .film-card-ros.maybe-film.small { border-left: 4px solid var(--slate); background: rgba(84,110,133,0.09); }
 
   .card-thumb {
-    width: 64px;
-    height: 44px;
-    border-radius: 3px;
-    object-fit: cover;
-    flex-shrink: 0;
-    background: var(--border);
+    width: 64px; height: 44px; border-radius: 3px; object-fit: cover;
+    flex-shrink: 0; background: var(--border);
   }
   .card-thumb-placeholder {
-    width: 64px;
-    height: 44px;
-    border-radius: 3px;
-    background: var(--navy);
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-display);
-    font-size: 0.98rem;
-    color: var(--denim);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    width: 64px; height: 44px; border-radius: 3px; background: var(--navy);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-size: 0.98rem; color: var(--denim);
+    letter-spacing: 0.06em; text-transform: uppercase;
   }
-
   .card-info { flex: 1; min-width: 0; }
   .card-title-ros {
-    font-family: var(--font-title);
-    font-size: 1.4rem;
-    font-weight: 500;
-    color: var(--navy);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.3;
+    font-family: var(--font-title); font-size: 1.4rem; font-weight: 500;
+    color: var(--navy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3;
   }
   .card-meta-ros {
-    font-family: var(--font-body);
-    font-size: 0.8rem;
-    color: var(--slate);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-family: var(--font-body); font-size: 0.8rem; color: var(--slate);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-
-  .card-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
-    flex-shrink: 0;
-  }
-  .card-runtime {
-    font-family: var(--font-display);
-    font-size: 1.04rem;
-    font-weight: 700;
-    color: var(--navy);
-  }
-  .size-badge {
-    font-family: var(--font-display);
-    font-size: 0.98rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 2px 5px;
-    border-radius: 2px;
-    font-weight: 700;
-  }
+  .card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+  .card-runtime { font-family: var(--font-display); font-size: 1.04rem; font-weight: 700; color: var(--navy); }
+  .size-badge { font-family: var(--font-display); font-size: 0.98rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 5px; border-radius: 2px; font-weight: 700; }
   .size-micro { background: rgba(201,84,106,0.12); color: var(--rose); }
   .size-small { background: rgba(84,110,133,0.12); color: var(--slate); }
-  .size-maybe-tag { color: rgba(1,22,50,0.3); font-family: var(--font-body); font-size: 0.7rem; font-style: italic; font-weight: 400; letter-spacing: 0; text-transform: none; }
-
-  .slot-number {
-    font-family: var(--font-display);
-    font-size: 0.94rem;
-    color: var(--slate);
-    min-width: 18px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-
+  .slot-number { font-family: var(--font-display); font-size: 0.94rem; color: var(--slate); min-width: 18px; text-align: right; flex-shrink: 0; }
   .card-remove-btn {
-    position: absolute;
-    right: 4px;
-    top: 4px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--border-mid);
-    font-size: 0.91rem;
-    line-height: 1;
-    padding: 1px 3px;
-    border-radius: 2px;
-    display: none;
+    position: absolute; right: 4px; top: 4px; background: none; border: none;
+    cursor: pointer; color: var(--border-mid); font-size: 0.91rem; line-height: 1;
+    padding: 1px 3px; border-radius: 2px; display: none;
   }
   .film-card-ros:hover .card-remove-btn { display: block; }
   .card-remove-btn:hover { color: var(--rose); background: rgba(201,84,106,0.1); }
 
   /* ── Totals bar ── */
   .totals-bar {
-    background: var(--navy);
-    padding: 0.6rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    flex-shrink: 0;
+    background: var(--navy); padding: 0.6rem 1.5rem;
+    display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; flex-shrink: 0;
   }
-  .total-stat {
-    font-family: var(--font-display);
-    font-size: 0.98rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--denim);
-    white-space: nowrap;
-  }
+  .total-stat { font-family: var(--font-display); font-size: 0.98rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--denim); white-space: nowrap; }
   .total-stat strong { color: white; font-size: 0.91rem; }
   .total-stat.runtime strong { color: var(--rose); }
 
-  /* ── Film detail panel (slide in) ── */
-  .detail-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(1,22,50,0.5);
-    z-index: 100;
-    display: none;
-    align-items: flex-start;
-    justify-content: flex-end;
+  /* ── Sync status ── */
+  .sync-bar {
+    background: var(--navy); color: var(--denim); font-family: var(--font-body); font-size: 0.7rem;
+    padding: 3px 1.5rem; display: flex; align-items: center; gap: 1rem;
   }
+  .status-dot { width:6px;height:6px;border-radius:50%;background:#3dffc0;display:inline-block;margin-right:4px; }
+
+  /* ── Film detail drawer ── */
+  .detail-overlay { position: fixed; inset: 0; background: rgba(1,22,50,0.5); z-index: 100; display: none; align-items: flex-start; justify-content: flex-end; }
   .detail-overlay.open { display: flex; }
-  .detail-drawer {
-    width: 400px;
-    height: 100vh;
-    background: white;
-    overflow-y: auto;
-    box-shadow: -4px 0 20px rgba(1,22,50,0.2);
-  }
+  .detail-drawer { width: 400px; height: 100vh; background: white; overflow-y: auto; box-shadow: -4px 0 20px rgba(1,22,50,0.2); }
 
   /* ── Gate ── */
-  .gate-overlay {
-    position: fixed; inset: 0; background: var(--navy);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 1.25rem; z-index: 9999;
-  }
+  .gate-overlay { position: fixed; inset: 0; background: var(--navy); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.25rem; z-index: 9999; }
   .gate-form { display:flex;flex-direction:column;gap:0.65rem;width:100%;max-width:280px; }
   .gate-field-label { font-family:var(--font-display);font-size:1.04rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--denim);margin-bottom:3px;display:block; }
   .gate-input { background:rgba(255,255,255,0.08);border:1px solid rgba(158,199,213,0.4);color:white;font-family:var(--font-body);font-size:1rem;padding:10px 14px;border-radius:var(--radius);width:100%;outline:none; }
@@ -363,15 +275,6 @@
 
   .save-toast { position:fixed;bottom:1.5rem;right:1.5rem;background:var(--navy);color:#3dffc0;font-family:var(--font-display);font-size:0.98rem;letter-spacing:0.1em;text-transform:uppercase;padding:10px 16px;border-radius:var(--radius);border:1px solid #3dffc0;opacity:0;transform:translateY(8px);transition:all 0.2s;z-index:300;pointer-events:none; }
   .save-toast.show { opacity:1;transform:translateY(0); }
-
-  /* Drag ghost */
-  .drag-ghost {
-    position: fixed;
-    pointer-events: none;
-    z-index: 1000;
-    opacity: 0.85;
-    transform: rotate(2deg);
-  }
 </style>
 </head>
 <body>
@@ -409,12 +312,19 @@
     <div style="width:2px;height:40px;background:var(--rose);flex-shrink:0"></div>
   </div>
   <div class="header-actions" style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
-    <button class="btn btn-ghost" onclick="saveToStorage()" style="font-size:0.65rem;padding:7px 12px;border-color:rgba(158,199,213,0.4);color:var(--denim)">💾 Save</button>
+    <button class="btn btn-ghost" onclick="silentRefresh()" style="font-size:0.65rem;padding:7px 12px;border-color:rgba(158,199,213,0.4);color:var(--denim)">↻ Refresh</button>
+    <button class="btn btn-ghost" onclick="saveToStorage()" style="font-size:0.65rem;padding:7px 12px;border-color:rgba(158,199,213,0.4);color:var(--denim)">💾 Save Order</button>
     <button class="btn btn-ghost" onclick="exportRunSheet()" style="font-size:0.65rem;padding:7px 12px;border-color:rgba(158,199,213,0.4);color:var(--denim)">Export Run Sheet</button>
     <button class="btn btn-ghost" onclick="exportWixCSV()" style="font-size:0.65rem;padding:7px 12px;border-color:rgba(158,199,213,0.4);color:var(--denim)">Export Wix CSV</button>
     <button class="btn btn-denim" onclick="exportUpdatedSheet()" style="font-size:0.65rem;padding:7px 14px">Export Updated Sheet →</button>
   </div>
 </header>
+
+<!-- Sync status bar -->
+<div class="sync-bar">
+  <span><span class="status-dot"></span> Connected to Google Sheets</span>
+  <span id="syncStatus">Loading…</span>
+</div>
 
 <!-- Main builder -->
 <div class="builder-layout">
@@ -426,10 +336,10 @@
       <div class="pool-stats" id="poolStats">Loading…</div>
     </div>
     <div class="pool-filters">
-      <button class="pool-filter-btn active" data-pf="all"      onclick="setPoolFilter('all',this)">All</button>
-      <button class="pool-filter-btn micro"  data-pf="Micro"    onclick="setPoolFilter('Micro',this)">Micro</button>
-      <button class="pool-filter-btn small"  data-pf="Small"    onclick="setPoolFilter('Small',this)">Small</button>
-      <button class="pool-filter-btn maybe"  data-pf="maybe"    onclick="setPoolFilter('maybe',this)">Maybe</button>
+      <button class="pool-filter-btn active" data-pf="all"   onclick="setPoolFilter('all',this)">All</button>
+      <button class="pool-filter-btn micro"  data-pf="Micro" onclick="setPoolFilter('Micro',this)">Micro</button>
+      <button class="pool-filter-btn small"  data-pf="Small" onclick="setPoolFilter('Small',this)">Small</button>
+      <button class="pool-filter-btn maybe"  data-pf="maybe" onclick="setPoolFilter('maybe',this)">Maybe</button>
     </div>
     <div class="pool-list" id="poolList"
          ondragover="onDragOver(event,'pool')"
@@ -453,7 +363,7 @@
         <div style="width:160px;height:10px;background:rgba(255,255,255,0.15);border-radius:5px;overflow:hidden">
           <div id="totalBar" style="height:100%;border-radius:5px;background:var(--denim);transition:width 0.3s,background 0.3s;width:0%"></div>
         </div>
-        <span id="totalProgressLabel" style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--denim);white-space:nowrap">0:00 / ~100:00</span>
+        <span id="totalProgressLabel" style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--denim);white-space:nowrap">0:00 / ~110:00</span>
       </div>
     </div>
 
@@ -468,10 +378,6 @@
             <span class="act-stat">Micro: <strong id="act1-micro">0</strong></span>
             <span class="act-stat">Small: <strong id="act1-small">0</strong></span>
             <span class="act-stat act-runtime">Runtime: <strong id="act1-runtime">0:00</strong></span>
-            <div class="act-progress-wrap">
-              <div class="act-progress-bar"><div class="act-progress-fill" id="act1-bar" style="width:0%"></div></div>
-              <span class="act-progress-label under" id="act1-progress-label">0:00 of 50:00</span>
-            </div>
           </div>
         </div>
         <div class="act-dropzone empty" id="act1"
@@ -494,10 +400,6 @@
             <span class="act-stat">Micro: <strong id="act2-micro">0</strong></span>
             <span class="act-stat">Small: <strong id="act2-small">0</strong></span>
             <span class="act-stat act-runtime">Runtime: <strong id="act2-runtime">0:00</strong></span>
-            <div class="act-progress-wrap">
-              <div class="act-progress-bar"><div class="act-progress-fill" id="act2-bar" style="width:0%"></div></div>
-              <span class="act-progress-label under" id="act2-progress-label">0:00 of 50:00</span>
-            </div>
           </div>
         </div>
         <div class="act-dropzone empty" id="act2"
@@ -521,31 +423,33 @@
 
 <script>
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
-const SHEET_ID        = "1i-iCDCzVr_BuxHTu3pMVCvjEfpSLew7-Z3LkErpT-Uc";
-const SCORES_SHEET_ID = "1TYGNvemzVl05R4wSxxiMZVcUx77UpG--gOJotq-cvIA";
-const TEAM_PASSWORD   = "team2026";
+const SHEET_ID         = "1i-iCDCzVr_BuxHTu3pMVCvjEfpSLew7-Z3LkErpT-Uc";
+const SCORES_SHEET_ID  = "1TYGNvemzVl05R4wSxxiMZVcUx77UpG--gOJotq-cvIA";
+const OVERRIDES_SHEET_ID = "1h7cZNUpY-BBUO1hBhWPI05bmUuzUa2gFOwSrMXXrwY0";
+const TEAM_PASSWORD    = "team2026";
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
-let allFilms   = [];   // all films from sheet
-let decisions  = {};   // from results page localStorage
-let overrides  = {};   // from results page localStorage
+let allFilms    = [];
+let decisions   = {};
+let overrides   = {};
 let judgeScores = {};
 
-// Program state
-let pool = [];         // unplaced film IDs
-let act1 = [];         // film IDs in order
-let act2 = [];         // film IDs in order
+let pool = [];
+let act1 = [];
+let act2 = [];
 
-let poolFilter = "all";
-let dragFilmId = null;
-let dragSource = null; // 'pool'|'act1'|'act2'
+let poolFilter  = "all";
+let dragFilmId  = null;
+let dragSource  = null;
 
-// ─── GATE ────────────────────────────────────────────────────────────────────
+// ─── GATE + AUTH ─────────────────────────────────────────────────────────────
 function checkGate() {
   const pass = document.getElementById("gateInput").value.trim().toLowerCase();
   if (pass === TEAM_PASSWORD) {
+    sessionStorage.setItem("btssff-auth", "1");
     document.getElementById("gate").style.display = "none";
     init();
+    startAutoRefresh();
   } else {
     document.getElementById("gateError").textContent = "Incorrect code — try again.";
     document.getElementById("gateInput").value = "";
@@ -553,43 +457,110 @@ function checkGate() {
 }
 document.getElementById("gateInput").addEventListener("keydown", e => { if (e.key === "Enter") checkGate(); });
 
-// ─── INIT ────────────────────────────────────────────────────────────────────
-async function init() {
-  // Load decisions and overrides from results page localStorage
-  try { decisions = JSON.parse(localStorage.getItem("btssff-decisions")||"{}"); } catch {}
-  try { overrides = JSON.parse(localStorage.getItem("btssff-overrides")||"{}"); } catch {}
+// Skip gate if already authenticated this session
+if (sessionStorage.getItem("btssff-auth") === "1") {
+  document.getElementById("gate").style.display = "none";
+  init();
+  startAutoRefresh();
+}
 
-  // Load saved ROS state
-  const saved = loadROSState();
+// ─── AUTO REFRESH ────────────────────────────────────────────────────────────
+let autoRefreshTimer = null;
+function startAutoRefresh() {
+  if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+  autoRefreshTimer = setInterval(silentRefresh, 60000);
+}
 
-  // Fetch films
-  allFilms = await fetchFilms();
-  applyOverrides();
-
-  if (saved) {
-    pool = saved.pool || [];
-    act1 = saved.act1 || [];
-    act2 = saved.act2 || [];
-    if (saved.act1Title) document.getElementById("act1-title").value = saved.act1Title;
-    if (saved.act2Title) document.getElementById("act2-title").value = saved.act2Title;
-    // Add any new selected/maybe films not yet in any list
+async function silentRefresh() {
+  document.getElementById("syncStatus").textContent = "Syncing…";
+  try {
+    const [newScores, newOverrides] = await Promise.all([fetchScores(), fetchOverrides()]);
+    judgeScores = newScores;
+    overrides   = newOverrides;
+    decisions   = extractDecisions(overrides);
+    // Add any newly selected/maybe films not yet in pool/acts
     const inProgram = new Set([...pool, ...act1, ...act2]);
     allFilms.forEach(f => {
-      const dec = decisions[f.id]||"undecided";
-      if ((dec==="selected"||dec==="maybe") && !inProgram.has(f.id)) pool.push(f.id);
+      const dec = decisions[f.id] || "undecided";
+      if ((dec === "selected" || dec === "maybe") && !inProgram.has(f.id)) pool.push(f.id);
     });
-  } else {
-    // First load — put all selected+maybe into pool
-    allFilms.forEach(f => {
-      const dec = decisions[f.id]||"undecided";
-      if (dec==="selected"||dec==="maybe") pool.push(f.id);
+    // Remove films from acts/pool if they've been un-selected
+    [pool, act1, act2].forEach(list => {
+      for (let i = list.length - 1; i >= 0; i--) {
+        const dec = decisions[list[i]] || "undecided";
+        if (dec !== "selected" && dec !== "maybe") list.splice(i, 1);
+      }
     });
+    renderAll();
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
+    document.getElementById("syncStatus").textContent = `${allFilms.length} films · synced ${timeStr}`;
+    flashToast("↻ Synced latest changes");
+  } catch(err) {
+    document.getElementById("syncStatus").textContent = "Sync error: " + err.message;
   }
+}
 
-  // Fetch scores for detail panel
-  judgeScores = await fetchScores();
+// ─── INIT ────────────────────────────────────────────────────────────────────
+async function init() {
+  document.getElementById("syncStatus").textContent = "Loading…";
+  try {
+    // Fetch everything from sheets — no localStorage for decisions
+    const [films, scores, ovr] = await Promise.all([fetchFilms(), fetchScores(), fetchOverrides()]);
+    allFilms    = films;
+    judgeScores = scores;
+    overrides   = ovr;
+    decisions   = extractDecisions(overrides);
 
-  renderAll();
+    applyOverridesToFilms();
+
+    // Load saved ROS ordering from localStorage (just the order, not the decisions)
+    const saved = loadROSState();
+    if (saved) {
+      // Restore saved order but re-validate against current decisions
+      const validIds = new Set(allFilms.filter(f => {
+        const dec = decisions[f.id] || "undecided";
+        return dec === "selected" || dec === "maybe";
+      }).map(f => f.id));
+
+      act1 = (saved.act1 || []).filter(id => validIds.has(id));
+      act2 = (saved.act2 || []).filter(id => validIds.has(id));
+      pool = (saved.pool || []).filter(id => validIds.has(id));
+
+      if (saved.act1Title) document.getElementById("act1-title").value = saved.act1Title;
+      if (saved.act2Title) document.getElementById("act2-title").value = saved.act2Title;
+
+      // Add any new selected/maybe films not yet placed
+      const inProgram = new Set([...pool, ...act1, ...act2]);
+      allFilms.forEach(f => {
+        const dec = decisions[f.id] || "undecided";
+        if ((dec === "selected" || dec === "maybe") && !inProgram.has(f.id)) pool.push(f.id);
+      });
+    } else {
+      // First load — put all selected+maybe into pool
+      allFilms.forEach(f => {
+        const dec = decisions[f.id] || "undecided";
+        if (dec === "selected" || dec === "maybe") pool.push(f.id);
+      });
+    }
+
+    renderAll();
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
+    document.getElementById("syncStatus").textContent = `${allFilms.length} films · loaded ${timeStr}`;
+  } catch(err) {
+    document.getElementById("syncStatus").textContent = "Error: " + err.message;
+  }
+}
+
+// Extract decisions map {filmId -> decision} from overrides sheet data
+function extractDecisions(ovr) {
+  const dec = {};
+  Object.entries(ovr).forEach(([key, override]) => {
+    const parts = key.split("__");
+    if (parts[1] === "Decision") dec[parts[0]] = override.newValue;
+  });
+  return dec;
 }
 
 // ─── FETCH ───────────────────────────────────────────────────────────────────
@@ -598,16 +569,16 @@ async function fetchFilms() {
   if (!res.ok) return [];
   const rows = parseCSV(await res.text());
   if (rows.length < 2) return [];
-  const h = rows[0].map(x=>x.trim());
-  const g = (row,col) => (row[h.indexOf(col.trim())]||"").trim();
-  return rows.slice(1).map((row,idx) => {
-    const catRaw = g(row,"Submission Categories");
+  const h = rows[0].map(x => x.trim());
+  const g = (row, col) => (row[h.indexOf(col.trim())] || "").trim();
+  return rows.slice(1).map((row, idx) => {
+    const catRaw = g(row, "Submission Categories");
     const size   = /micro/i.test(catRaw) ? "Micro" : "Small";
-    const genre  = catRaw.replace(/^(micro|small)\s+short\s*/i,"").trim();
-    const dur    = g(row,"Duration").split(":").map(Number);
-    const secs   = dur.length===3 ? dur[0]*3600+dur[1]*60+dur[2] : 0;
-    const dispMin = dur.length===3 ? (dur[0]>0?`${dur[0]}:`:"") + `${dur[1]}:${String(dur[2]).padStart(2,"0")}` : g(row,"Duration");
-    const dir    = g(row,"Please list all person(s) that should get a director's credit on our programming and promotional listings, should your film be selected. ") || `${g(row,"First Name")} ${g(row,"Last Name")}`.trim();
+    const genre  = catRaw.replace(/^(micro|small)\s+short\s*/i, "").trim();
+    const dur    = g(row, "Duration").split(":").map(Number);
+    const secs   = dur.length === 3 ? dur[0]*3600 + dur[1]*60 + dur[2] : 0;
+    const dispMin = dur.length === 3 ? (dur[0]>0 ? `${dur[0]}:` : "") + `${dur[1]}:${String(dur[2]).padStart(2,"0")}` : g(row, "Duration");
+    const dir    = g(row, "Please list all person(s) that should get a director's credit on our programming and promotional listings, should your film be selected. ") || `${g(row,"First Name")} ${g(row,"Last Name")}`.trim();
     const city=g(row,"City"), state=g(row,"State"), country=g(row,"Country"), coo=g(row,"Country of Origin");
     const isUS = country==="United States"||country==="US"||country==="USA";
     let loc = "Location not listed";
@@ -617,19 +588,17 @@ async function fetchFilms() {
     else if (isUS&&!city) loc="United States";
     else if (country) loc=country;
     else if (coo) loc=coo;
-    const vimeoLink = g(row,"Submission Link");
-    const thumb = extractVimeoThumb(vimeoLink);
+    const vimeoLink = g(row, "Submission Link");
     return {
-      id: g(row,"Tracking Number")||`f${idx}`,
-      title: g(row,"Project Title")||"Untitled",
+      id: g(row, "Tracking Number") || `f${idx}`,
+      title: g(row, "Project Title") || "Untitled",
       director: dir, location: loc, size, genre, secs, dispMin, catRaw,
-      logLine: g(row,'Please include a one sentence "log line" of your film that will be included in the program if your film is selected.')||g(row,"Synopsis"),
-      statement: g(row,"Submitter Statement")||g(row,"Please share any information about yourself and/or your film that you'd like the programming team to know."),
-      vimeoLink, password: g(row,"Submission Password"),
-      instagram: g(row,"List any instagram handles you'd like credited (tagged) if your film is chosen as an official selection. (Note: saying \"No\" will not exclude you from selection)"),
-      thumb,
-      email: g(row,"Email"),
-      submissionDate: g(row,"Submission Date"),
+      logLine: g(row, 'Please include a one sentence "log line" of your film that will be included in the program if your film is selected.') || g(row, "Synopsis"),
+      statement: g(row, "Submitter Statement") || g(row, "Please share any information about yourself and/or your film that you'd like the programming team to know."),
+      vimeoLink, password: g(row, "Submission Password"),
+      instagram: g(row, "List any instagram handles you'd like credited (tagged) if your film is chosen as an official selection. (Note: saying \"No\" will not exclude you from selection)"),
+      thumb: extractVimeoThumb(vimeoLink),
+      email: g(row, "Email"),
     };
   }).filter(f => f.title && f.title !== "Untitled");
 }
@@ -640,16 +609,16 @@ async function fetchScores() {
     if (!res.ok) return {};
     const rows = parseCSV(await res.text());
     if (rows.length < 2) return {};
-    const h = rows[0].map(x=>x.trim());
-    const g = (row,col) => (row[h.indexOf(col.trim())]||"").trim();
+    const h = rows[0].map(x => x.trim());
+    const g = (row, col) => (row[h.indexOf(col.trim())] || "").trim();
     const latest = {};
     rows.slice(1).forEach(row => {
       const judge=g(row,"Judge Name"), filmId=g(row,"Film ID");
       if (!judge||!filmId) return;
       latest[`${judge.toLowerCase()}__${filmId}`] = {
         judge, filmId,
-        production: parseFloat(g(row,"Production Quality"))||null,
-        entertainment: parseFloat(g(row,"Entertainment Value"))||null,
+        production: parseFloat(g(row,"Production Quality")) || null,
+        entertainment: parseFloat(g(row,"Entertainment Value")) || null,
         notes: g(row,"Notes"),
       };
     });
@@ -662,26 +631,44 @@ async function fetchScores() {
   } catch { return {}; }
 }
 
-function applyOverrides() {
+async function fetchOverrides() {
+  try {
+    const res = await fetch(`https://docs.google.com/spreadsheets/d/${OVERRIDES_SHEET_ID}/gviz/tq?tqx=out:csv`);
+    if (!res.ok) return {};
+    const rows = parseCSV(await res.text());
+    if (rows.length < 2) return {};
+    const result = {};
+    rows.slice(1).forEach(row => {
+      const filmId   = (row[1] || "").trim();
+      const field    = (row[2] || "").trim();
+      const newValue = (row[3] || "").trim();
+      const by       = (row[4] || "").trim();
+      const note     = (row[5] || "").trim();
+      if (!filmId || !field) return;
+      result[`${filmId}__${field}`] = { newValue, note, by: by || "Team" };
+    });
+    return result;
+  } catch { return {}; }
+}
+
+function applyOverridesToFilms() {
   Object.entries(overrides).forEach(([key, override]) => {
     const [filmId, field] = key.split("__");
-    const film = allFilms.find(f=>f.id===filmId);
+    if (field === "Decision") return; // handled separately
+    const film = allFilms.find(f => f.id === filmId);
     if (!film) return;
     film[field] = override.newValue;
-    if (field==="category") {
-      film.size = /micro/i.test(override.newValue) ? "Micro" : "Small";
-      film.genre = override.newValue.replace(/^(micro|small)\s+short\s*/i,"").trim();
+    if (field === "category") {
+      film.size  = /micro/i.test(override.newValue) ? "Micro" : "Small";
+      film.genre = override.newValue.replace(/^(micro|small)\s+short\s*/i, "").trim();
     }
   });
 }
 
-// ─── VIMEO THUMBNAIL ─────────────────────────────────────────────────────────
 function extractVimeoThumb(url) {
   if (!url) return null;
   const match = url.match(/vimeo\.com\/(\d+)/);
-  if (!match) return null;
-  // Use Vimeo oEmbed thumbnail endpoint
-  return `https://vumbnail.com/${match[1]}.jpg`;
+  return match ? `https://vumbnail.com/${match[1]}.jpg` : null;
 }
 
 // ─── RENDER ──────────────────────────────────────────────────────────────────
@@ -702,14 +689,13 @@ function setPoolFilter(val, btn) {
 function renderPool() {
   const filtered = pool.filter(id => {
     const f = getFilm(id); if (!f) return false;
-    if (poolFilter==="all") return true;
-    if (poolFilter==="maybe") return (decisions[id]||"undecided")==="maybe";
+    if (poolFilter === "all") return true;
+    if (poolFilter === "maybe") return (decisions[id] || "undecided") === "maybe";
     return f.size === poolFilter;
   });
   const stats = getStats(pool);
   document.getElementById("poolStats").textContent =
     `${pool.length} films · ${stats.micro} micro · ${stats.small} small · ${fmtSecs(stats.secs)}`;
-
   const container = document.getElementById("poolList");
   if (!filtered.length) {
     container.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--slate);font-family:var(--font-display);font-size:1.01rem;letter-spacing:0.1em;text-transform:uppercase">No films here</div>`;
@@ -745,34 +731,21 @@ function wireCards(container) {
     });
   });
   container.querySelectorAll(".card-remove-btn").forEach(btn => {
-    btn.addEventListener("click", e => {
-      e.stopPropagation();
-      removeToPool(btn.dataset.id);
-    });
+    btn.addEventListener("click", e => { e.stopPropagation(); removeToPool(btn.dataset.id); });
   });
 }
 
 function filmCardHTML(id, zone, slotNum) {
   const f = getFilm(id); if (!f) return "";
-  const dec = decisions[id]||"undecided";
+  const dec = decisions[id] || "undecided";
   const isMaybe = dec === "maybe";
-  const sizeClass = `${f.size.toLowerCase()}${isMaybe?" maybe-film":""}`;
-  const sizeBadge = f.size === "Micro"
-    ? `<span class="size-badge size-micro">Micro</span>`
-    : `<span class="size-badge size-small">Small</span>`;
-
-  const thumbHtml = f.thumb
-    ? `<img class="card-thumb" src="${f.thumb}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-    : "";
-  const thumbPlaceholder = `<div class="card-thumb-placeholder" style="${f.thumb?'display:none':''}">No img</div>`;
-
-  const slotHtml = slotNum !== null ? `<span class="slot-number">${slotNum}</span>` : "";
-  const removeBtn = zone !== "pool" ? `<button class="card-remove-btn" data-id="${esc(id)}" title="Return to pool">↩</button>` : "";
-
+  const sizeClass = `${f.size.toLowerCase()}${isMaybe ? " maybe-film" : ""}`;
+  const thumbHtml = f.thumb ? `<img class="card-thumb" src="${f.thumb}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : "";
+  const thumbPlaceholder = `<div class="card-thumb-placeholder" style="${f.thumb ? 'display:none' : ''}">No img</div>`;
+  const slotHtml   = slotNum !== null ? `<span class="slot-number">${slotNum}</span>` : "";
+  const removeBtn  = zone !== "pool" ? `<button class="card-remove-btn" data-id="${esc(id)}" title="Return to pool">↩</button>` : "";
   return `<div class="film-card-ros ${sizeClass}" draggable="true" data-id="${esc(id)}" data-zone="${zone}">
-    ${removeBtn}
-    ${slotHtml}
-    ${thumbHtml}${thumbPlaceholder}
+    ${removeBtn}${slotHtml}${thumbHtml}${thumbPlaceholder}
     <div class="card-info">
       <div class="card-title-ros">${esc(f.title)}</div>
       <div class="card-meta-ros">${esc(f.director)}</div>
@@ -781,12 +754,13 @@ function filmCardHTML(id, zone, slotNum) {
     <div class="card-right">
       <span class="card-runtime">${f.dispMin}</span>
       <span style="font-family:var(--font-display);font-size:0.72rem;letter-spacing:0.05em;text-transform:uppercase;color:var(--slate)">${esc(f.genre)}</span>
-      ${isMaybe?`<span style="font-family:var(--font-body);font-size:0.65rem;color:rgba(1,22,50,0.35);font-style:italic">maybe</span>`:""}
+      ${isMaybe ? `<span style="font-family:var(--font-body);font-size:0.65rem;color:rgba(1,22,50,0.35);font-style:italic">maybe</span>` : ""}
     </div>
   </div>`;
 }
 
-const TARGET_SECS = 50 * 60; // 50 min target per act
+const TARGET_SECS       = 50 * 60;
+const TOTAL_TARGET_SECS = 110 * 60;
 
 function updateActStats(actId, list) {
   const stats = getStats(list);
@@ -794,52 +768,25 @@ function updateActStats(actId, list) {
   document.getElementById(`${actId}-micro`).textContent   = stats.micro;
   document.getElementById(`${actId}-small`).textContent   = stats.small;
   document.getElementById(`${actId}-runtime`).textContent = fmtSecs(stats.secs);
-
-  // Progress bar
-  const pct = Math.min((stats.secs / TARGET_SECS) * 100, 100);
-  const bar  = document.getElementById(`${actId}-bar`);
-  const lbl  = document.getElementById(`${actId}-progress-label`);
-  if (!bar||!lbl) return;
-  bar.style.width = `${pct}%`;
-  const remaining = TARGET_SECS - stats.secs;
-  if (stats.secs >= TARGET_SECS) {
-    const over = stats.secs - TARGET_SECS;
-    bar.className = "act-progress-fill over";
-    lbl.className = "act-progress-label over";
-    lbl.textContent = `✓ +${fmtSecs(over)} over`;
-  } else if (pct >= 90) {
-    bar.className = "act-progress-fill done";
-    lbl.className = "act-progress-label done";
-    lbl.textContent = `✓ ${fmtSecs(stats.secs)} / 50:00`;
-  } else {
-    bar.className = "act-progress-fill";
-    lbl.className = "act-progress-label under";
-    lbl.textContent = `${fmtSecs(stats.secs)} / 50:00`;
-  }
 }
 
-const TOTAL_TARGET_SECS = 110 * 60; // ~102 min total target
-
 function updateTotals() {
-  const all = [...act1, ...act2];
+  const all   = [...act1, ...act2];
   const stats = getStats(all);
   document.getElementById("totalFilms").textContent   = all.length;
   document.getElementById("totalRuntime").textContent = fmtSecs(stats.secs);
   document.getElementById("totalMicro").textContent   = stats.micro;
   document.getElementById("totalSmall").textContent   = stats.small;
-  // Total progress bar
   const bar = document.getElementById("totalBar");
   const lbl = document.getElementById("totalProgressLabel");
   if (bar && lbl) {
     const pct = Math.min((stats.secs / TOTAL_TARGET_SECS) * 100, 100);
     bar.style.width = `${pct}%`;
     if (stats.secs >= TOTAL_TARGET_SECS) {
-      bar.style.background = "#3dffc0";
-      lbl.style.color = "#3dffc0";
+      bar.style.background = "#3dffc0"; lbl.style.color = "#3dffc0";
       lbl.textContent = `✓ ${fmtSecs(stats.secs)} / ~110:00`;
     } else {
-      bar.style.background = "var(--denim)";
-      lbl.style.color = "var(--denim)";
+      bar.style.background = "var(--denim)"; lbl.style.color = "var(--denim)";
       lbl.textContent = `${fmtSecs(stats.secs)} / ~110:00`;
     }
   }
@@ -852,7 +799,7 @@ function getStats(list) {
   list.forEach(id => {
     const f = getFilm(id); if (!f) return;
     secs += f.secs;
-    if (f.size==="Micro") micro++; else small++;
+    if (f.size === "Micro") micro++; else small++;
   });
   return { secs, micro, small };
 }
@@ -865,55 +812,37 @@ function onDragStart(e) {
   e.dataTransfer.effectAllowed = "move";
   e.dataTransfer.setData("text/plain", dragFilmId);
 }
-
 function onDragEnd(e) {
   e.currentTarget.classList.remove("dragging");
-  document.querySelectorAll(".drag-over-top,.drag-over-bottom").forEach(el => {
-    el.classList.remove("drag-over-top","drag-over-bottom");
-  });
+  document.querySelectorAll(".drag-over-top,.drag-over-bottom").forEach(el => el.classList.remove("drag-over-top","drag-over-bottom"));
   dragFilmId = null; dragSource = null;
 }
-
 function onDragOver(e, zone) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = "move";
+  e.preventDefault(); e.dataTransfer.dropEffect = "move";
   document.getElementById(zone==="pool"?"poolList":zone)?.classList.add("drag-over");
 }
-
 function onDragLeave(e, zone) {
   document.getElementById(zone==="pool"?"poolList":zone)?.classList.remove("drag-over");
 }
-
 function onDrop(e, zone) {
   e.preventDefault();
   document.getElementById(zone==="pool"?"poolList":zone)?.classList.remove("drag-over");
   if (!dragFilmId) return;
   moveFilm(dragFilmId, dragSource, zone, null);
 }
-
 function onCardDragOver(e, card) {
   e.preventDefault(); e.stopPropagation();
   const rect = card.getBoundingClientRect();
-  const mid  = rect.top + rect.height/2;
   card.classList.remove("drag-over-top","drag-over-bottom");
-  card.classList.add(e.clientY < mid ? "drag-over-top" : "drag-over-bottom");
+  card.classList.add(e.clientY < rect.top + rect.height/2 ? "drag-over-top" : "drag-over-bottom");
 }
-
-function onCardDragLeave(card) {
-  card.classList.remove("drag-over-top","drag-over-bottom");
-}
-
+function onCardDragLeave(card) { card.classList.remove("drag-over-top","drag-over-bottom"); }
 function onCardDrop(e, card) {
   e.preventDefault(); e.stopPropagation();
-  if (!dragFilmId || dragFilmId === card.dataset.id) {
-    card.classList.remove("drag-over-top","drag-over-bottom");
-    return;
-  }
-  const targetZone = card.dataset.zone;
-  const targetId   = card.dataset.id;
-  const before     = card.classList.contains("drag-over-top");
+  if (!dragFilmId || dragFilmId === card.dataset.id) { card.classList.remove("drag-over-top","drag-over-bottom"); return; }
+  const before = card.classList.contains("drag-over-top");
   card.classList.remove("drag-over-top","drag-over-bottom");
-  moveFilmRelative(dragFilmId, dragSource, targetZone, targetId, before);
+  moveFilmRelative(dragFilmId, dragSource, card.dataset.zone, card.dataset.id, before);
 }
 
 function getList(zone) {
@@ -922,43 +851,28 @@ function getList(zone) {
   if (zone==="act2") return act2;
   return null;
 }
-
 function moveFilm(filmId, fromZone, toZone, insertAt) {
-  const from = getList(fromZone), to = getList(toZone);
-  if (!from||!to) return;
-  const idx = from.indexOf(filmId);
-  if (idx === -1) return;
-  from.splice(idx, 1);
-  if (insertAt !== null && insertAt <= to.length) to.splice(insertAt, 0, filmId);
-  else to.push(filmId);
-  renderAll();
-  saveToStorage();
+  const from=getList(fromZone), to=getList(toZone); if(!from||!to) return;
+  const idx=from.indexOf(filmId); if(idx===-1) return;
+  from.splice(idx,1);
+  if(insertAt!==null&&insertAt<=to.length) to.splice(insertAt,0,filmId); else to.push(filmId);
+  renderAll(); saveToStorage();
 }
-
 function moveFilmRelative(filmId, fromZone, toZone, targetId, before) {
-  const from = getList(fromZone), to = getList(toZone);
-  if (!from||!to) return;
-  const fromIdx = from.indexOf(filmId);
-  if (fromIdx === -1) return;
-  from.splice(fromIdx, 1);
-  // Recalculate target index after removal
-  let toIdx = to.indexOf(targetId);
-  if (toIdx === -1) { to.push(filmId); }
-  else { to.splice(before ? toIdx : toIdx+1, 0, filmId); }
-  renderAll();
-  saveToStorage();
+  const from=getList(fromZone), to=getList(toZone); if(!from||!to) return;
+  const fromIdx=from.indexOf(filmId); if(fromIdx===-1) return;
+  from.splice(fromIdx,1);
+  let toIdx=to.indexOf(targetId);
+  if(toIdx===-1) to.push(filmId);
+  else to.splice(before?toIdx:toIdx+1,0,filmId);
+  renderAll(); saveToStorage();
 }
-
 function removeToPool(filmId) {
-  [act1, act2].forEach(list => {
-    const idx = list.indexOf(filmId);
-    if (idx !== -1) { list.splice(idx, 1); pool.push(filmId); }
-  });
-  renderAll();
-  saveToStorage();
+  [act1,act2].forEach(list=>{const idx=list.indexOf(filmId);if(idx!==-1){list.splice(idx,1);pool.push(filmId);}});
+  renderAll(); saveToStorage();
 }
 
-// ─── STORAGE ─────────────────────────────────────────────────────────────────
+// ─── STORAGE (order only — decisions come from sheet) ────────────────────────
 function saveToStorage() {
   const state = {
     pool, act1, act2,
@@ -967,35 +881,32 @@ function saveToStorage() {
     ts: Date.now(),
   };
   try { localStorage.setItem("btssff-ros", JSON.stringify(state)); } catch {}
-  flashToast("Saved ✓");
+  flashToast("Order saved ✓");
 }
 
 function loadROSState() {
-  try { return JSON.parse(localStorage.getItem("btssff-ros")||"null"); } catch { return null; }
+  try { return JSON.parse(localStorage.getItem("btssff-ros") || "null"); } catch { return null; }
 }
 
 // ─── FILM DETAIL ─────────────────────────────────────────────────────────────
 function openDetail(filmId) {
-  const f = getFilm(filmId); if (!f) return;
-  const dec = decisions[filmId]||"undecided";
-  const scores = judgeScores[filmId]||{};
-  const judges = Object.keys(scores);
-
+  const f=getFilm(filmId); if(!f) return;
+  const dec=decisions[filmId]||"undecided";
+  const scores=judgeScores[filmId]||{};
+  const judges=Object.keys(scores);
   const decBadge = dec==="selected"
     ? `<span style="font-family:var(--font-display);font-size:1.01rem;letter-spacing:0.08em;text-transform:uppercase;background:#2a7a4b;color:white;padding:3px 10px;border-radius:var(--radius-sm)">✓ Selected</span>`
     : dec==="maybe"
     ? `<span style="font-family:var(--font-display);font-size:1.01rem;letter-spacing:0.08em;text-transform:uppercase;background:#b8860b;color:white;padding:3px 10px;border-radius:var(--radius-sm)">? Maybe</span>`
     : "";
-
-  const watch = f.vimeoLink
-    ? `<a href="${esc(f.vimeoLink)}" target="_blank" rel="noopener" style="font-family:var(--font-display);font-size:0.88rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);text-decoration:none;display:flex;align-items:center;gap:5px">▶ Watch film</a>${f.password?`<span style="font-family:var(--font-body);font-size:0.94rem;color:var(--slate);margin-left:auto">Password: <strong>${esc(f.password)}</strong></span>`:""}`
-    : `<span style="opacity:0.4;font-family:var(--font-display);font-size:0.88rem;letter-spacing:0.1em;text-transform:uppercase">No screening link</span>`;
-
-  const judgeHtml = judges.length
-    ? judges.map(j => {
-        const s = scores[j];
-        const avg = (s.production!==null&&s.entertainment!==null) ? ((s.production+s.entertainment)/2).toFixed(1) : null;
-        return `<div style="margin-bottom:0.75rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)">
+  const watch=f.vimeoLink
+    ?`<a href="${esc(f.vimeoLink)}" target="_blank" rel="noopener" style="font-family:var(--font-display);font-size:0.88rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);text-decoration:none">▶ Watch film</a>${f.password?`<span style="font-family:var(--font-body);font-size:0.94rem;color:var(--slate);margin-left:auto">Password: <strong>${esc(f.password)}</strong></span>`:""}`
+    :`<span style="opacity:0.4;font-family:var(--font-display);font-size:0.88rem;letter-spacing:0.1em;text-transform:uppercase">No screening link</span>`;
+  const judgeHtml=judges.length
+    ?judges.map(j=>{
+        const s=scores[j];
+        const avg=(s.production!==null&&s.entertainment!==null)?((s.production+s.entertainment)/2).toFixed(1):null;
+        return`<div style="margin-bottom:0.75rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
             <span style="font-family:var(--font-display);font-size:1.04rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy)">${esc(j)}</span>
             ${avg!==null?`<span style="font-family:var(--font-display);font-size:0.98rem;font-weight:700;color:var(--rose)">${avg}</span>`:""}
@@ -1007,9 +918,9 @@ function openDetail(filmId) {
           ${s.notes?`<div style="margin-top:5px;font-family:var(--font-body);font-size:0.98rem;color:var(--slate);background:#f8f9fa;padding:6px 8px;border-radius:var(--radius-sm);border-left:2px solid var(--denim);line-height:1.5;font-style:italic">${esc(s.notes)}</div>`:""}
         </div>`;
       }).join("")
-    : `<div style="color:rgba(1,22,50,0.3);font-style:italic;font-size:0.94rem">No scores yet</div>`;
+    :`<div style="color:rgba(1,22,50,0.3);font-style:italic;font-size:0.94rem">No scores yet</div>`;
 
-  document.getElementById("detailDrawer").innerHTML = `
+  document.getElementById("detailDrawer").innerHTML=`
     <div style="background:var(--navy);padding:1rem 1.25rem;display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;position:sticky;top:0;z-index:5">
       <div>
         <div style="font-family:var(--font-title);font-size:2.0rem;font-weight:500;color:var(--offwhite);line-height:1.2;margin-bottom:8px">${esc(f.title)}</div>
@@ -1018,225 +929,89 @@ function openDetail(filmId) {
       <button onclick="closeDetailBtn()" style="background:none;border:none;color:var(--denim);cursor:pointer;font-size:1.56rem;line-height:1;padding:0;flex-shrink:0">✕</button>
     </div>
     <div style="background:#eef3f6;padding:0.6rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem">${watch}</div>
-    <div style="background:#f0f4f6;padding:0.5rem 1.25rem;border-bottom:1px solid var(--border);display:flex;gap:1.5rem;align-items:center">
-      <div style="font-family:var(--font-display);font-size:0.94rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate)">Avg scores</div>
-      ${getOverall(filmId)!==null?`<span style="font-family:var(--font-display);font-weight:700;font-size:1.43rem;color:var(--rose)">${getOverall(filmId)?.toFixed(1)}</span>`:""}
-    </div>
     ${f.thumb?`<img src="${f.thumb}" alt="" style="width:100%;height:160px;object-fit:cover;border-bottom:1px solid var(--border)" onerror="this.style.display='none'">`: ""}
     <div style="padding:0.85rem 1.25rem;border-bottom:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:0.5rem 1rem">
-      ${metaItem("Director", f.director)}
-      ${metaItem("Location", f.location)}
-      ${metaItem("Category", f.catRaw)}
-      ${metaItem("Runtime",  f.dispMin)}
-      ${f.genre?metaItem("Additional genres", f.genre):""}
+      ${metaItem("Director",f.director)}${metaItem("Location",f.location)}${metaItem("Category",f.catRaw)}${metaItem("Runtime",f.dispMin)}${f.genre?metaItem("Genre",f.genre):""}
     </div>
     ${f.logLine?`<div style="padding:0.85rem 1.25rem;border-bottom:1px solid var(--border)"><div style="font-family:var(--font-display);font-size:0.98rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:5px">Log line</div><div style="font-size:1.17rem;font-weight:500;line-height:1.6;color:var(--navy)">${esc(f.logLine)}</div></div>`:""}
-    <div style="padding:0.85rem 1.25rem;border-bottom:1px solid var(--border)">
+    <div style="padding:0.85rem 1.25rem">
       <div style="font-family:var(--font-display);font-size:0.98rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:0.75rem">Judge scores &amp; notes</div>
       ${judgeHtml}
     </div>`;
-
   document.getElementById("detailOverlay").classList.add("open");
 }
 
-function metaItem(label, val) {
-  return `<div><div style="font-family:var(--font-display);font-size:0.88rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:2px">${label}</div><div style="font-family:var(--font-body);font-size:1.04rem;color:var(--navy)">${esc(val||"—")}</div></div>`;
-}
-
-function closeDetail(e) {
-  if (e.target === document.getElementById("detailOverlay")) closeDetailBtn();
-}
-function closeDetailBtn() {
-  document.getElementById("detailOverlay").classList.remove("open");
-}
-
-function getOverall(filmId) {
-  const scores = judgeScores[filmId]||{};
-  const vals = Object.values(scores).flatMap(s=>[s.production,s.entertainment]).filter(v=>v!==null&&v!==undefined);
-  return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
-}
+function metaItem(label,val){return`<div><div style="font-family:var(--font-display);font-size:0.88rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:2px">${label}</div><div style="font-family:var(--font-body);font-size:1.04rem;color:var(--navy)">${esc(val||"—")}</div></div>`;}
+function closeDetail(e){if(e.target===document.getElementById("detailOverlay"))closeDetailBtn();}
+function closeDetailBtn(){document.getElementById("detailOverlay").classList.remove("open");}
+function getOverall(filmId){const scores=judgeScores[filmId]||{};const vals=Object.values(scores).flatMap(s=>[s.production,s.entertainment]).filter(v=>v!==null&&v!==undefined);return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;}
 
 // ─── EXPORTS ─────────────────────────────────────────────────────────────────
 function exportRunSheet() {
-  const act1Title = document.getElementById("act1-title").value || "ACT 1";
-  const act2Title = document.getElementById("act2-title").value || "ACT 2";
-  const act1Stats = getStats(act1);
-  const act2Stats = getStats(act2);
-  const allStats  = getStats([...act1,...act2]);
-
-  const rows = [["#","Title","Director","Runtime","Size","Genre","Location","Decision"]];
-
-  // Act 1 header
+  const act1Title=document.getElementById("act1-title").value||"ACT 1";
+  const act2Title=document.getElementById("act2-title").value||"ACT 2";
+  const act1Stats=getStats(act1), act2Stats=getStats(act2), allStats=getStats([...act1,...act2]);
+  const rows=[["#","Title","Director","Runtime","Size","Genre","Location","Decision"]];
   rows.push([`— ${act1Title} — ${act1.length} films · ${act1Stats.micro} micro · ${act1Stats.small} small · Runtime: ${fmtSecs(act1Stats.secs)} —`]);
-  act1.forEach((id,i) => {
-    const f = getFilm(id); if(!f) return;
-    rows.push([i+1, f.title, f.director, f.dispMin, f.size, f.genre, f.location, decisions[id]||"selected"]);
-  });
-
+  act1.forEach((id,i)=>{const f=getFilm(id);if(!f)return;rows.push([i+1,f.title,f.director,f.dispMin,f.size,f.genre,f.location,decisions[id]||"selected"]);});
   rows.push(["","— INTERMISSION —"]);
-
-  // Act 2 header
   rows.push([`— ${act2Title} — ${act2.length} films · ${act2Stats.micro} micro · ${act2Stats.small} small · Runtime: ${fmtSecs(act2Stats.secs)} —`]);
-  act2.forEach((id,i) => {
-    const f = getFilm(id); if(!f) return;
-    rows.push([act1.length+i+1, f.title, f.director, f.dispMin, f.size, f.genre, f.location, decisions[id]||"selected"]);
-  });
-
-  rows.push([]);
-  rows.push(["— TOTALS —"]);
-  rows.push(["Total films in program", act1.length + act2.length]);
-  rows.push(["Total runtime", fmtSecs(allStats.secs)]);
-  rows.push(["Total Micro Shorts", allStats.micro]);
-  rows.push(["Total Small Shorts", allStats.small]);
-  rows.push([`${act1Title} films`, act1.length]);
-  rows.push([`${act1Title} runtime`, fmtSecs(act1Stats.secs)]);
-  rows.push([`${act2Title} films`, act2.length]);
-  rows.push([`${act2Title} runtime`, fmtSecs(act2Stats.secs)]);
-
-  rows.push([]);
-  rows.push(["— UNPLACED (Consider for Later Screening) —"]);
-  pool.forEach(id => {
-    const f = getFilm(id); if(!f) return;
-    rows.push(["", f.title, f.director, f.dispMin, f.size, f.genre, f.location]);
-  });
-
-  downloadCSV(rows, `btssff-runsheet-${dateStr()}.csv`);
+  act2.forEach((id,i)=>{const f=getFilm(id);if(!f)return;rows.push([act1.length+i+1,f.title,f.director,f.dispMin,f.size,f.genre,f.location,decisions[id]||"selected"]);});
+  rows.push([],["— TOTALS —"],["Total films",act1.length+act2.length],["Total runtime",fmtSecs(allStats.secs)],["Micro",allStats.micro],["Small",allStats.small]);
+  rows.push([],["— UNPLACED —"]);
+  pool.forEach(id=>{const f=getFilm(id);if(!f)return;rows.push(["",f.title,f.director,f.dispMin,f.size,f.genre,f.location]);});
+  downloadCSV(rows,`btssff-runsheet-${dateStr()}.csv`);
   flashToast("Run sheet exported ✓");
 }
 
 function exportWixCSV() {
-  const allProgram = [...act1, ...act2];
-  const rows = [["Film Title","Log Line","Director Credits","ROS Order","Location","Size","Thumbnail URL"]];
-  allProgram.forEach((id,i) => {
-    const f = getFilm(id); if(!f) return;
-    rows.push([f.title, f.logLine||"", f.director, i+1, f.location, f.size, f.thumb||""]);
-  });
-  downloadCSV(rows, `btssff-wix-upload-${dateStr()}.csv`);
+  const allProgram=[...act1,...act2];
+  const rows=[["Film Title","Log Line","Director Credits","ROS Order","Location","Size","Thumbnail URL"]];
+  allProgram.forEach((id,i)=>{const f=getFilm(id);if(!f)return;rows.push([f.title,f.logLine||"",f.director,i+1,f.location,f.size,f.thumb||""]);});
+  downloadCSV(rows,`btssff-wix-upload-${dateStr()}.csv`);
   flashToast("Wix CSV exported ✓");
 }
 
 async function exportUpdatedSheet() {
   flashToast("Building export…");
-
-  // Fetch the full raw sheet with ALL original columns
-  const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Films`);
-  const rawRows = parseCSV(await res.text());
-  if (rawRows.length < 2) { flashToast("Could not fetch sheet"); return; }
-
-  const headers = rawRows[0];
-
-  // Find key column indices
-  const hTrim = headers.map(x=>x.trim());
-  const trackingIdx  = hTrim.indexOf("Tracking Number");
-  const judgingIdx   = hTrim.indexOf("Judging Status");  // column AA — update in place
-  const catIdx       = hTrim.indexOf("Submission Categories");
-  const dirCreditIdx = hTrim.indexOf("Please list all person(s) that should get a director's credit on our programming and promotional listings, should your film be selected. ");
-
-  // Map overrides: filmId -> { field -> newValue }
-  const overrideMap = {};
-  Object.entries(overrides).forEach(([key, override]) => {
-    const [filmId, field] = key.split("__");
-    if (!overrideMap[filmId]) overrideMap[filmId] = {};
-    overrideMap[filmId][field] = override.newValue;
-  });
-
-  // ROS order map
-  const rosOrder = {};
-  act1.forEach((id,i) => rosOrder[id] = i+1);
-  act2.forEach((id,i) => rosOrder[id] = act1.length+i+1);
-
-  const inAct1 = new Set(act1);
-  const inAct2 = new Set(act2);
-  const inPool = new Set(pool);
-
-  // Add new columns to header
-  const newHeaders = [...headers, "ROS Order", "Act"];
-  const outputRows = [newHeaders];
-
-  rawRows.slice(1).forEach(row => {
-    const filmId = trackingIdx >= 0 ? (row[trackingIdx]||"").trim() : "";
-    const newRow = [...row];
-
-    // Apply overrides to relevant columns
-    if (filmId && overrideMap[filmId]) {
-      const ov = overrideMap[filmId];
-      if (ov.category    && catIdx >= 0)       newRow[catIdx]       = ov.category;
-      if (ov.director    && dirCreditIdx >= 0)  newRow[dirCreditIdx] = ov.director;
-      // duration, location etc stored in different cols — apply by matching header name
-      Object.entries(ov).forEach(([field, val]) => {
-        const fieldColMap = {
-          dispMin: "Duration",
-          location: "City", // best effort — city field
-          category: "Submission Categories",
-          director: "Please list all person(s) that should get a director's credit on our programming and promotional listings, should your film be selected. ",
-        };
-        const colName = fieldColMap[field];
-        if (colName) {
-          const idx = hTrim.indexOf(colName.trim());
-          if (idx >= 0) newRow[idx] = val;
-        }
-      });
-    }
-
-    // Judging Status
-    let judgingStatus = "Not Selected";
-    if (inAct1.has(filmId) || inAct2.has(filmId)) judgingStatus = "Selected";
-    else if (inPool.has(filmId)) judgingStatus = "Consider for Later Screening";
-
-    // Act
-    let act = "";
-    if (inAct1.has(filmId)) act = document.getElementById("act1-title").value || "Act 1";
-    else if (inAct2.has(filmId)) act = document.getElementById("act2-title").value || "Act 2";
-
-    // Update Judging Status column AA in place
-    if (judgingIdx >= 0) newRow[judgingIdx] = judgingStatus;
-    newRow.push(rosOrder[filmId] || "");
+  const res=await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Films`);
+  const rawRows=parseCSV(await res.text());
+  if(rawRows.length<2){flashToast("Could not fetch sheet");return;}
+  const headers=rawRows[0];
+  const hTrim=headers.map(x=>x.trim());
+  const trackingIdx=hTrim.indexOf("Tracking Number");
+  const judgingIdx=hTrim.indexOf("Judging Status");
+  const rosOrder={};
+  act1.forEach((id,i)=>rosOrder[id]=i+1);
+  act2.forEach((id,i)=>rosOrder[id]=act1.length+i+1);
+  const inAct1=new Set(act1),inAct2=new Set(act2);
+  const newHeaders=[...headers,"ROS Order","Act"];
+  const outputRows=[newHeaders];
+  rawRows.slice(1).forEach(row=>{
+    const filmId=trackingIdx>=0?(row[trackingIdx]||"").trim():"";
+    const newRow=[...row];
+    let judgingStatus="Not Selected";
+    if(inAct1.has(filmId)||inAct2.has(filmId)) judgingStatus="Selected";
+    else if(pool.includes(filmId)) judgingStatus="Consider for Later Screening";
+    if(judgingIdx>=0) newRow[judgingIdx]=judgingStatus;
+    let act="";
+    if(inAct1.has(filmId)) act=document.getElementById("act1-title").value||"Act 1";
+    else if(inAct2.has(filmId)) act=document.getElementById("act2-title").value||"Act 2";
+    newRow.push(rosOrder[filmId]||"");
     newRow.push(act);
-
     outputRows.push(newRow);
   });
-
-  downloadCSV(outputRows, `btssff-updated-sheet-${dateStr()}.csv`);
+  downloadCSV(outputRows,`btssff-updated-sheet-${dateStr()}.csv`);
   flashToast("Updated sheet exported ✓");
 }
 
 // ─── UTILS ───────────────────────────────────────────────────────────────────
-function getFilm(id) { return allFilms.find(f=>f.id===id); }
-
-function fmtSecs(secs) {
-  const h = Math.floor(secs/3600);
-  const m = Math.floor((secs%3600)/60);
-  const s = secs%60;
-  if (h>0) return `${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
-  return `${m}:${String(s).padStart(2,"0")}`;
-}
-
-function dateStr() { return new Date().toISOString().slice(0,10); }
-
-function downloadCSV(rows, filename) {
-  const csv = rows.map(r => r.map(v=>`"${String(v||"").replace(/"/g,'""')}"`).join(",")).join("\n");
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
-  a.download = filename;
-  a.click();
-}
-
-function flashToast(msg) {
-  const el=document.getElementById("saveToast");
-  el.textContent=msg; el.classList.add("show");
-  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),2000);
-}
-
-function parseCSV(text) {
-  const rows=[];let row=[],field="",inQ=false;
-  for(let i=0;i<text.length;i++){
-    const c=text[i],n=text[i+1];
-    if(inQ){if(c==='"'&&n==='"'){field+='"';i++;}else if(c==='"'){inQ=false;}else{field+=c;}}
-    else{if(c==='"'){inQ=true;}else if(c===','){row.push(field);field="";}else if(c==='\n'){row.push(field);rows.push(row);row=[];field="";}else if(c!=='\r'){field+=c;}}
-  }
-  if(field||row.length){row.push(field);rows.push(row);}
-  return rows;
-}
+function getFilm(id){return allFilms.find(f=>f.id===id);}
+function fmtSecs(secs){const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),s=secs%60;if(h>0)return`${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;return`${m}:${String(s).padStart(2,"0")}`;}
+function dateStr(){return new Date().toISOString().slice(0,10);}
+function downloadCSV(rows,filename){const csv=rows.map(r=>r.map(v=>`"${String(v||"").replace(/"/g,'""')}"`).join(",")).join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download=filename;a.click();}
+function flashToast(msg){const el=document.getElementById("saveToast");el.textContent=msg;el.classList.add("show");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),2000);}
+function parseCSV(text){const rows=[];let row=[],field="",inQ=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(inQ){if(c==='"'&&n==='"'){field+='"';i++;}else if(c==='"'){inQ=false;}else{field+=c;}}else{if(c==='"'){inQ=true;}else if(c===','){row.push(field);field="";}else if(c==='\n'){row.push(field);rows.push(row);row=[];field="";}else if(c!=='\r'){field+=c;}}}if(field||row.length){row.push(field);rows.push(row);}return rows;}
 function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 </script>
 </body>
