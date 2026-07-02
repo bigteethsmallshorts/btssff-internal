@@ -144,6 +144,49 @@
   .act-runtime { color: var(--rose) !important; }
   .act-runtime strong { color: white !important; }
 
+  /* ── Genre summary (top of each act) ── */
+  .genre-summary {
+    background: #f8f9fa;
+    border: 1px solid var(--border);
+    border-top: none;
+    padding: 0.6rem 1rem;
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .genre-summary.has-films { display: flex; }
+  .genre-summary-label {
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--slate);
+  }
+  .genre-summary-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .genre-summary-pills .genre-pill {
+    font-size: 0.72rem;
+    padding: 4px 10px;
+  }
+  .genre-summary-additional {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    color: var(--slate);
+    line-height: 1.5;
+  }
+  .genre-summary-additional strong {
+    font-family: var(--font-display);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--slate);
+    font-weight: 700;
+    margin-right: 4px;
+  }
+
   .act-dropzone {
     min-height: 140px;
     border: 2px dashed var(--border);
@@ -230,7 +273,7 @@
     font-family: var(--font-body); font-size: 0.8rem; color: var(--slate);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+  .card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; max-width: 150px; }
   .card-runtime { font-family: var(--font-display); font-size: 1.04rem; font-weight: 700; color: var(--navy); }
   .size-badge { font-family: var(--font-display); font-size: 0.98rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 5px; border-radius: 2px; font-weight: 700; }
   .size-micro { background: rgba(201,84,106,0.12); color: var(--rose); }
@@ -243,6 +286,43 @@
   }
   .film-card-ros:hover .card-remove-btn { display: block; }
   .card-remove-btn:hover { color: var(--rose); background: rgba(201,84,106,0.1); }
+
+  /* ── Genre pill (per-tile, on far right only) ── */
+  .genre-pill {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #ffffff;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-weight: 700;
+    white-space: nowrap;
+    line-height: 1.4;
+  }
+
+  /* ── Additional genres (editable, no background) ── */
+  .card-genre-additional {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    color: var(--slate);
+    text-align: right;
+    max-width: 148px;
+    outline: none;
+    border-bottom: 1px dashed transparent;
+    cursor: text;
+    line-height: 1.35;
+    padding: 1px 2px;
+    border-radius: 2px;
+  }
+  .card-genre-additional:hover  { border-bottom-color: var(--denim); }
+  .card-genre-additional:focus  { border-bottom-color: var(--rose); background: rgba(201,84,106,0.06); }
+  .card-genre-additional:empty::before {
+    content: attr(data-placeholder);
+    color: rgba(84,110,133,0.4);
+    font-style: italic;
+  }
 
   /* ── Totals bar ── */
   .totals-bar {
@@ -389,6 +469,7 @@
             <span class="act-stat act-runtime">Runtime: <strong id="act1-runtime">0:00</strong></span>
           </div>
         </div>
+        <div class="genre-summary" id="act1-genre-summary"></div>
         <div class="act-dropzone empty" id="act1"
              ondragover="onDragOver(event,'act1')"
              ondrop="onDrop(event,'act1')"
@@ -411,6 +492,7 @@
             <span class="act-stat act-runtime">Runtime: <strong id="act2-runtime">0:00</strong></span>
           </div>
         </div>
+        <div class="genre-summary" id="act2-genre-summary"></div>
         <div class="act-dropzone empty" id="act2"
              ondragover="onDragOver(event,'act2')"
              ondrop="onDrop(event,'act2')"
@@ -436,6 +518,79 @@ const SHEET_ID         = "1i-iCDCzVr_BuxHTu3pMVCvjEfpSLew7-Z3LkErpT-Uc";
 const SCORES_SHEET_ID  = "1TYGNvemzVl05R4wSxxiMZVcUx77UpG--gOJotq-cvIA";
 const OVERRIDES_SHEET_ID = "1h7cZNUpY-BBUO1hBhWPI05bmUuzUa2gFOwSrMXXrwY0";
 const TEAM_PASSWORD    = "team2026";
+
+// Same override-write path used on the Results page — a hidden Google Form
+// submission that appends a row to the Overrides sheet. This is what makes
+// edits here show up for everyone, not just this browser.
+const OVERRIDES_FORM_ID = "1FAIpQLSfIkl-HrVDXkBUS2abWZ5bSesxUHWdwX57vXxPbqVotHBZFTw";
+const OVERRIDES_FIELDS  = {
+  filmId:      "entry.980348820",
+  field:       "entry.1526638552",
+  newValue:    "entry.305740934",
+  correctedBy: "entry.1580550823",
+  note:        "entry.1404313224",
+};
+
+function submitOverrideToForm(filmId, field, newValue, note) {
+  const params = new URLSearchParams({
+    [OVERRIDES_FIELDS.filmId]:      filmId,
+    [OVERRIDES_FIELDS.field]:       field,
+    [OVERRIDES_FIELDS.newValue]:    newValue,
+    [OVERRIDES_FIELDS.correctedBy]: "Team",
+    [OVERRIDES_FIELDS.note]:        note || "",
+  });
+  let iframe = document.getElementById("override-submitter");
+  if (!iframe) {
+    iframe = document.createElement("iframe");
+    iframe.id = "override-submitter"; iframe.name = "override-submitter"; iframe.style.display = "none";
+    document.body.appendChild(iframe);
+  }
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = `https://docs.google.com/forms/d/e/${OVERRIDES_FORM_ID}/formResponse`;
+  form.target = "override-submitter";
+  params.forEach((val, key) => {
+    const input = document.createElement("input");
+    input.type = "hidden"; input.name = key; input.value = val;
+    form.appendChild(input);
+  });
+  document.body.appendChild(form); form.submit(); document.body.removeChild(form);
+}
+
+// ─── GENRE COLOR MAP ─────────────────────────────────────────────────────────
+// Edit these hex values any time to change a genre's badge color.
+const GENRE_COLORS = {
+  "drama":              "#B23A48",
+  "comedy":             "#2E6FA7",
+  "documentary":        "#1E7F5C",
+  "animation":          "#7B4FA0",
+  "experimental":       "#C97A2B",
+  "sci-fi":             "#1C8C99",
+  "science fiction":    "#1C8C99",
+  "horror":             "#5C1A1A",
+  "thriller":           "#5C1A1A",
+  "horror/thriller":    "#5C1A1A",
+};
+const GENRE_FALLBACK_COLOR = "#546E85"; // slate — used when a genre isn't in the map above
+
+function genreColor(genre) {
+  if (!genre) return GENRE_FALLBACK_COLOR;
+  const key = genre.trim().toLowerCase();
+  if (GENRE_COLORS[key]) return GENRE_COLORS[key];
+  // partial match, e.g. "Dark Comedy" -> comedy, "Sci-Fi/Fantasy" -> sci-fi
+  for (const k in GENRE_COLORS) { if (key.includes(k)) return GENRE_COLORS[k]; }
+  return GENRE_FALLBACK_COLOR;
+}
+
+// ─── ADDITIONAL GENRE EDITS ────────────────────────────────────────────────────
+// Writes go straight to the Overrides sheet via submitOverrideToForm() (same
+// path Results uses), so every device picks them up on the next sheet read.
+function saveGenreOverride(filmId, value) {
+  overrides[`${filmId}__additionalGenres`] = { newValue: value, note: "", by: "Team" };
+  const f = getFilm(filmId);
+  if (f) f.additionalGenres = value;
+  submitOverrideToForm(filmId, "additionalGenres", value, "");
+}
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let allFilms    = [];
@@ -581,6 +736,8 @@ async function fetchFilms() {
   if (rows.length < 2) return [];
   const h = rows[0].map(x => x.trim());
   const g = (row, col) => (row[h.indexOf(col.trim())] || "").trim();
+  // Fuzzy-match the "additional genres" column so we don't need the exact header text.
+  const addGenreIdx = h.findIndex(x => /additional/i.test(x) && /genre/i.test(x));
   return rows.slice(1).map((row, idx) => {
     const catRaw = g(row, "Submission Categories");
     const size   = /micro/i.test(catRaw) ? "Micro" : "Small";
@@ -599,10 +756,12 @@ async function fetchFilms() {
     else if (country) loc=country;
     else if (coo) loc=coo;
     const vimeoLink = g(row, "Submission Link");
+    const additionalGenres = addGenreIdx >= 0 ? (row[addGenreIdx] || "").trim() : "";
     return {
       id: g(row, "Tracking Number") || `f${idx}`,
       title: g(row, "Project Title") || "Untitled",
       director: dir, location: loc, size, genre, secs, dispMin, catRaw,
+      additionalGenres,
       logLine: g(row, 'Please include a one sentence "log line" of your film that will be included in the program if your film is selected.') || g(row, "Synopsis"),
       statement: g(row, "Submitter Statement") || g(row, "Please share any information about yourself and/or your film that you'd like the programming team to know."),
       vimeoLink, password: g(row, "Submission Password"),
@@ -742,6 +901,7 @@ function renderPool() {
 }
 
 function renderAct(actId, list) {
+  renderGenreSummary(actId, list);
   const zone = document.getElementById(actId);
   if (!list.length) {
     zone.classList.add("empty");
@@ -754,6 +914,43 @@ function renderAct(actId, list) {
   updateActStats(actId, list);
 }
 
+// Genre breakdown + additional-genre roundup at the top of each act
+function renderGenreSummary(actId, list) {
+  const el = document.getElementById(`${actId}-genre-summary`);
+  if (!el) return;
+  if (!list.length) {
+    el.classList.remove("has-films");
+    el.innerHTML = "";
+    return;
+  }
+  el.classList.add("has-films");
+
+  const counts = {};
+  const additionalSet = new Set();
+  list.forEach(id => {
+    const f = getFilm(id); if (!f) return;
+    const g = (f.genre || "Unspecified").trim() || "Unspecified";
+    counts[g] = (counts[g] || 0) + 1;
+    if (f.additionalGenres) {
+      f.additionalGenres.split(",").map(s => s.trim()).filter(Boolean).forEach(g2 => additionalSet.add(g2));
+    }
+  });
+
+  const pillsHtml = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([g, c]) => `<span class="genre-pill" style="background:${genreColor(g)}">${esc(g)} · ${c}</span>`)
+    .join("");
+
+  const additionalHtml = additionalSet.size
+    ? `<div class="genre-summary-additional"><strong>Additional genres:</strong>${esc([...additionalSet].sort().join(", "))}</div>`
+    : "";
+
+  el.innerHTML = `
+    <div class="genre-summary-label">Genre breakdown</div>
+    <div class="genre-summary-pills">${pillsHtml}</div>
+    ${additionalHtml}`;
+}
+
 function wireCards(container) {
   container.querySelectorAll(".film-card-ros").forEach(card => {
     card.addEventListener("dragstart", onDragStart);
@@ -763,11 +960,33 @@ function wireCards(container) {
     card.addEventListener("drop",      e => onCardDrop(e, card));
     card.addEventListener("click",     e => {
       if (e.target.classList.contains("card-remove-btn")) return;
+      if (e.target.classList.contains("card-genre-additional")) return;
       openDetail(card.dataset.id);
     });
   });
   container.querySelectorAll(".card-remove-btn").forEach(btn => {
     btn.addEventListener("click", e => { e.stopPropagation(); removeToPool(btn.dataset.id); });
+  });
+  // Editable "additional genres" field on each card
+  container.querySelectorAll(".card-genre-additional").forEach(el => {
+    const card = el.closest(".film-card-ros");
+    el.addEventListener("click", e => e.stopPropagation());
+    el.addEventListener("mousedown", e => { e.stopPropagation(); if (card) card.draggable = false; });
+    el.addEventListener("blur", e => {
+      if (card) card.draggable = true;
+      const filmId = el.dataset.id;
+      const val = el.textContent.replace(/\u200b/g, "").trim();
+      const f = getFilm(filmId);
+      const prevVal = f ? (f.additionalGenres || "") : "";
+      if (val === prevVal) return; // unchanged — don't write a no-op row to the sheet
+      saveGenreOverride(filmId, val);
+      renderGenreSummary("act1", act1);
+      renderGenreSummary("act2", act2);
+      flashToast("Additional genres saved ✓ — syncing to sheet");
+    });
+    el.addEventListener("keydown", e => {
+      if (e.key === "Enter") { e.preventDefault(); el.blur(); }
+    });
   });
 }
 
@@ -780,6 +999,7 @@ function filmCardHTML(id, zone, slotNum) {
   const thumbPlaceholder = `<div class="card-thumb-placeholder" style="${f.thumb ? 'display:none' : ''}">No img</div>`;
   const slotHtml   = slotNum !== null ? `<span class="slot-number">${slotNum}</span>` : "";
   const removeBtn  = zone !== "pool" ? `<button class="card-remove-btn" data-id="${esc(id)}" title="Return to pool">↩</button>` : "";
+  const additionalGenresText = f.additionalGenres ? esc(f.additionalGenres) : "";
   return `<div class="film-card-ros ${sizeClass}" draggable="true" data-id="${esc(id)}" data-zone="${zone}">
     ${removeBtn}${slotHtml}${thumbHtml}${thumbPlaceholder}
     <div class="card-info">
@@ -789,7 +1009,8 @@ function filmCardHTML(id, zone, slotNum) {
     </div>
     <div class="card-right">
       <span class="card-runtime">${f.dispMin}</span>
-      <span style="font-family:var(--font-display);font-size:0.72rem;letter-spacing:0.05em;text-transform:uppercase;color:var(--slate)">${esc(f.genre)}</span>
+      <span class="genre-pill" style="background:${genreColor(f.genre)}">${esc(f.genre || "—")}</span>
+      <span class="card-genre-additional" contenteditable="true" data-id="${esc(id)}" data-placeholder="+ add genres" spellcheck="false" title="Click to edit additional genres">${additionalGenresText}</span>
       ${isMaybe ? `<span style="font-family:var(--font-body);font-size:0.65rem;color:rgba(1,22,50,0.35);font-style:italic">maybe</span>` : ""}
     </div>
   </div>`;
@@ -967,7 +1188,7 @@ function openDetail(filmId) {
     <div style="background:#eef3f6;padding:0.6rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem">${watch}</div>
     ${f.thumb?`<img src="${f.thumb}" alt="" style="width:100%;height:160px;object-fit:cover;border-bottom:1px solid var(--border)" onerror="this.style.display='none'">`: ""}
     <div style="padding:0.85rem 1.25rem;border-bottom:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:0.5rem 1rem">
-      ${metaItem("Director",f.director)}${metaItem("Location",f.location)}${metaItem("Category",f.catRaw)}${metaItem("Runtime",f.dispMin)}${f.genre?metaItem("Genre",f.genre):""}
+      ${metaItem("Director",f.director)}${metaItem("Location",f.location)}${metaItem("Category",f.catRaw)}${metaItem("Runtime",f.dispMin)}${f.genre?metaItem("Genre",f.genre):""}${f.additionalGenres?metaItem("Additional genres",f.additionalGenres):""}
     </div>
     ${f.logLine?`<div style="padding:0.85rem 1.25rem;border-bottom:1px solid var(--border)"><div style="font-family:var(--font-display);font-size:0.98rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate);margin-bottom:5px">Log line</div><div style="font-size:1.17rem;font-weight:500;line-height:1.6;color:var(--navy)">${esc(f.logLine)}</div></div>`:""}
     <div style="padding:0.85rem 1.25rem">
@@ -987,15 +1208,15 @@ function exportRunSheet() {
   const act1Title=document.getElementById("act1-title").value||"ACT 1";
   const act2Title=document.getElementById("act2-title").value||"ACT 2";
   const act1Stats=getStats(act1), act2Stats=getStats(act2), allStats=getStats([...act1,...act2]);
-  const rows=[["#","Title","Director","Runtime","Size","Genre","Location","Decision"]];
+  const rows=[["#","Title","Director","Runtime","Size","Genre","Additional Genres","Location","Decision"]];
   rows.push([`— ${act1Title} — ${act1.length} films · ${act1Stats.micro} micro · ${act1Stats.small} small · Runtime: ${fmtSecs(act1Stats.secs)} —`]);
-  act1.forEach((id,i)=>{const f=getFilm(id);if(!f)return;rows.push([i+1,f.title,f.director,f.dispMin,f.size,f.genre,f.location,decisions[id]||"selected"]);});
+  act1.forEach((id,i)=>{const f=getFilm(id);if(!f)return;rows.push([i+1,f.title,f.director,f.dispMin,f.size,f.genre,f.additionalGenres||"",f.location,decisions[id]||"selected"]);});
   rows.push(["","— INTERMISSION —"]);
   rows.push([`— ${act2Title} — ${act2.length} films · ${act2Stats.micro} micro · ${act2Stats.small} small · Runtime: ${fmtSecs(act2Stats.secs)} —`]);
-  act2.forEach((id,i)=>{const f=getFilm(id);if(!f)return;rows.push([act1.length+i+1,f.title,f.director,f.dispMin,f.size,f.genre,f.location,decisions[id]||"selected"]);});
+  act2.forEach((id,i)=>{const f=getFilm(id);if(!f)return;rows.push([act1.length+i+1,f.title,f.director,f.dispMin,f.size,f.genre,f.additionalGenres||"",f.location,decisions[id]||"selected"]);});
   rows.push([],["— TOTALS —"],["Total films",act1.length+act2.length],["Total runtime",fmtSecs(allStats.secs)],["Micro",allStats.micro],["Small",allStats.small]);
   rows.push([],["— UNPLACED —"]);
-  pool.forEach(id=>{const f=getFilm(id);if(!f)return;rows.push(["",f.title,f.director,f.dispMin,f.size,f.genre,f.location]);});
+  pool.forEach(id=>{const f=getFilm(id);if(!f)return;rows.push(["",f.title,f.director,f.dispMin,f.size,f.genre,f.additionalGenres||"",f.location]);});
   downloadCSV(rows,`btssff-runsheet-${dateStr()}.csv`);
   flashToast("Run sheet exported ✓");
 }
@@ -1021,7 +1242,7 @@ async function exportUpdatedSheet() {
   act1.forEach((id,i)=>rosOrder[id]=i+1);
   act2.forEach((id,i)=>rosOrder[id]=act1.length+i+1);
   const inAct1=new Set(act1),inAct2=new Set(act2);
-  const newHeaders=[...headers,"ROS Order","Act"];
+  const newHeaders=[...headers,"ROS Order","Act","Additional Genres"];
   const outputRows=[newHeaders];
   rawRows.slice(1).forEach(row=>{
     const filmId=trackingIdx>=0?(row[trackingIdx]||"").trim():"";
@@ -1035,6 +1256,8 @@ async function exportUpdatedSheet() {
     else if(inAct2.has(filmId)) act=document.getElementById("act2-title").value||"Act 2";
     newRow.push(rosOrder[filmId]||"");
     newRow.push(act);
+    const film=getFilm(filmId);
+    newRow.push(film?(film.additionalGenres||""):"");
     outputRows.push(newRow);
   });
   downloadCSV(outputRows,`btssff-updated-sheet-${dateStr()}.csv`);
