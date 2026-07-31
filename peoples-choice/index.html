@@ -499,9 +499,9 @@ function parseCSV(text){
   if(!lines.length) return {micros:[],smalls:[]};
   // find headers
   const headers = parseCSVLine(lines[0]);
-  const titleIdx = headers.findIndex(h=>/project.?title/i.test(h));
-  const catIdx   = headers.findIndex(h=>/submission.?categor/i.test(h));
-  const rosIdx   = headers.findIndex(h=>/^ros$/i.test(h.trim()));
+  const titleIdx = headers.findIndex(h=>/film.?title|project.?title/i.test(h.trim()));
+  const catIdx   = headers.findIndex(h=>/micro.?small|submission.?categor/i.test(h.trim()));
+  const rosIdx   = headers.findIndex(h=>/run.?of.?show|^ros$/i.test(h.trim()));
 
   const micros=[], smalls=[];
   for(let i=1;i<lines.length;i++){
