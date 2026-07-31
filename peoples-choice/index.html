@@ -140,9 +140,10 @@ body { background: var(--navy); color: var(--offwhite); font-family: 'DM Sans','
 }
 
 /* MICRO: 2 columns */
-.micro-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px; margin-bottom:8px; }
-/* SMALL: 5 columns */
-.small-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin-bottom:8px; }
+/* MICRO: 3 columns of 5 rows, films flow top-to-bottom per column */
+.micro-grid { display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(5,auto); grid-auto-flow:column; gap:4px; margin-bottom:8px; }
+/* SMALL: 5 columns of 5 rows, films flow top-to-bottom per column */
+.small-grid { display:grid; grid-template-columns:repeat(5,1fr); grid-template-rows:repeat(5,auto); grid-auto-flow:column; gap:4px; margin-bottom:8px; }
 
 .film-card {
   display:flex; flex-direction:column; background:var(--surface);
