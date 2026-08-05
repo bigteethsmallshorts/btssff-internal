@@ -769,9 +769,15 @@ function addNote(filmId, text) {
   // Update notes section in place
   const notesEl = document.getElementById(`notes-${filmId}`);
   if (notesEl) {
-    notesEl.innerHTML = notes[filmId].map(n => `<div class="delib-note">
-      <div class="delib-note-author">${esc(n.author)}</div>
-      <div class="delib-note-text">${esc(n.text)}</div>
+    notesEl.innerHTML = notes[filmId].map((n, idx) => `<div class="delib-note" id="note-${filmId}-${idx}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div class="delib-note-author">${esc(n.author)}</div>
+        ${n.author === jurorName ? `<div style="display:flex;gap:4px">
+          <button onclick="editNote('${filmId}',${idx})" style="font-size:0.65rem;padding:3px 8px;background:none;border:1px solid var(--denim);color:var(--denim);border-radius:var(--radius-sm);cursor:pointer">Edit</button>
+          <button onclick="deleteNote('${filmId}',${idx})" style="font-size:0.65rem;padding:3px 8px;background:none;border:1px solid var(--rose);color:var(--rose);border-radius:var(--radius-sm);cursor:pointer">Delete</button>
+        </div>` : ''}
+      </div>
+      <div class="delib-note-text" id="note-text-${filmId}-${idx}">${esc(n.text)}</div>
       <div class="delib-note-time">${n.time}</div>
     </div>`).join("");
   }
@@ -781,6 +787,36 @@ function addNote(filmId, text) {
 
 function submitNotesToForm() {
   submitFieldToForm(JURY_NOTES_FIELD, JSON.stringify(notes));
+}
+
+function editNote(filmId, noteIdx) {
+  const note = notes[filmId][noteIdx];
+  if (note.author !== jurorName) return; // Only allow editing own notes
+  
+  const newText = prompt("Edit your note:", note.text);
+  if (newText && newText.trim()) {
+    notes[filmId][noteIdx].text = newText.trim();
+    notes[filmId][noteIdx].time = new Date().toLocaleString();
+    saveState();
+    submitNotesToForm();
+    // Re-render the card
+    renderFilmCard(filmId);
+    flashToast("Note updated ✓");
+  }
+}
+
+function deleteNote(filmId, noteIdx) {
+  const note = notes[filmId][noteIdx];
+  if (note.author !== jurorName) return; // Only allow deleting own notes
+  
+  if (confirm("Delete this note? This cannot be undone.")) {
+    notes[filmId].splice(noteIdx, 1);
+    saveState();
+    submitNotesToForm();
+    // Re-render the card
+    renderFilmCard(filmId);
+    flashToast("Note deleted ✓");
+  }
 }
 
 function copyPw(pw, el) {
@@ -1208,7 +1244,19 @@ function filmCardHTML(filmId, type) {
 
       <div class="deliberation">
         <div class="delib-header">Deliberation notes</div>
-        <div class="delib-notes" id="notes-${filmId}">${notesHtml}</div>
+        <div class="delib-notes" id="notes-${filmId}">${filmNotes.length
+    ? filmNotes.map((n, idx)=>`<div class="delib-note" id="note-${filmId}-${idx}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div class="delib-note-author">${esc(n.author)}</div>
+          ${n.author === jurorName ? `<div style="display:flex;gap:4px">
+            <button onclick="editNote('${filmId}',${idx})" style="font-size:0.65rem;padding:3px 8px;background:none;border:1px solid var(--denim);color:var(--denim);border-radius:var(--radius-sm);cursor:pointer">Edit</button>
+            <button onclick="deleteNote('${filmId}',${idx})" style="font-size:0.65rem;padding:3px 8px;background:none;border:1px solid var(--rose);color:var(--rose);border-radius:var(--radius-sm);cursor:pointer">Delete</button>
+          </div>` : ''}
+        </div>
+        <div class="delib-note-text" id="note-text-${filmId}-${idx}">${esc(n.text)}</div>
+        <div class="delib-note-time">${n.time}</div>
+      </div>`).join("")
+    : `<div style="font-family:var(--font-body);font-size:0.9rem;color:var(--slate);font-style:italic;margin-bottom:0.75rem">No notes yet — be the first to weigh in.</div>`}</div>
         <div class="delib-input-wrap">
           <textarea class="delib-input" id="note-input-${filmId}" placeholder="Add your thoughts on this film…" rows="2"></textarea>
           <button class="btn btn-navy note-submit-btn" data-id="${filmId}" style="align-self:flex-end;font-size:0.72rem;padding:10px 14px">Post</button>
