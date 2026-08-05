@@ -1327,7 +1327,7 @@ function publishForJurors() {
   console.log("Payload size:", json.length, "chars");
 
   // Split into multiple cells if needed
-  const CELL_LIMIT = 45000;
+  const CELL_LIMIT = 30000;
   if (json.length > CELL_LIMIT) {
     // Split across multiple cells
     const chunks = [];
