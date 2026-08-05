@@ -1323,7 +1323,7 @@ function publishForJurors() {
     )
   };
 
-  const json = JSON.stringify(payload);
+  const json = JSON.stringify(payload, null, 0).replace(/\s+/g, '');
   console.log("Payload size:", json.length, "chars");
 
   // Split into multiple cells if needed
