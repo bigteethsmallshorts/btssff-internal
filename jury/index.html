@@ -458,7 +458,7 @@ function checkGate() {
     document.getElementById("uploadScreen").style.display = "none";
     document.getElementById("appScreen").style.display = "block";
     document.getElementById("contendersGrid").innerHTML = '<div class="loading-spinner">Loading films…</div>';
-    loadFromSheet().then(data => {
+    loadFromGitHub().then(data => {
       if (data) {
         films = data.films;
         contenders = data.contenders;
@@ -494,6 +494,10 @@ function checkGate() {
           } catch {}
         }
         render();
+        // Start periodic sync for notes/votes from other jurors
+        if (!isAdmin) {
+          setInterval(syncNotesAndVotes, 5000); // Sync every 5 seconds
+        }
         // Jurors don't get upload/export buttons
       } else {
         document.getElementById("contendersGrid").innerHTML =
@@ -969,6 +973,63 @@ function wireCard(filmId) {
 }
 
 // ─── RENDER ───────────────────────────────────────────────────────────────────
+// Periodic sync of notes/votes from other jurors
+async function syncNotesAndVotes() {
+  try {
+    const res = await fetch(JURY_SYNC_SCRIPT);
+    if (!res.ok) return;
+    const data = await res.json();
+    
+    let hasChanges = false;
+    
+    // Merge notes
+    if (data.notes) {
+      Object.entries(data.notes).forEach(([filmId, noteList]) => {
+        if (!notes[filmId]) notes[filmId] = [];
+        noteList.forEach(note => {
+          const exists = notes[filmId].some(n=>n.author===note.author&&n.text===note.text);
+          if (!exists) {
+            notes[filmId].push(note);
+            hasChanges = true;
+          }
+        });
+      });
+    }
+    
+    // Merge votes
+    if (data.votes) {
+      Object.entries(data.votes).forEach(([juror, jurorVotes]) => {
+        if (juror !== jurorName && !votes[juror]) {
+          votes[juror] = jurorVotes;
+          hasChanges = true;
+        }
+      });
+    }
+    
+    // Merge completions
+    if (data.completions) {
+      const completed = getCompletedJurors();
+      Object.entries(data.completions).forEach(([juror, timestamp]) => {
+        if (!completed[juror]) {
+          completed[juror] = timestamp;
+          hasChanges = true;
+          localStorage.setItem("btssff-jury-completed", JSON.stringify(completed));
+        }
+      });
+    }
+    
+    if (hasChanges) {
+      renderSummary();
+      updateAdminSummary();
+      // Re-render visible cards to show new notes/votes
+      const cat = contenders[activeTab]||[];
+      cat.forEach(c => renderFilmCard(c.id));
+    }
+  } catch (e) {
+    // Silent fail — don't spam errors
+  }
+}
+
 function render() {
   renderTabs();
   renderSummary();
@@ -1323,25 +1384,48 @@ function publishForJurors() {
     )
   };
 
-  const json = JSON.stringify(payload, null, 0).replace(/\s+/g, '');
-  console.log("Payload size:", json.length, "chars");
+  const json = JSON.stringify(payload);
+  
+  // Download as file
+  const blob = new Blob([json], {type: "application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `jury-data-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  
+  // Show instructions
+  showGitHubUploadModal();
+}
 
-  // Split into multiple cells if needed
-  const CELL_LIMIT = 30000;
-  if (json.length > CELL_LIMIT) {
-    // Split across multiple cells
-    const chunks = [];
-    for (let i = 0; i < json.length; i += CELL_LIMIT) {
-      chunks.push(json.slice(i, i + CELL_LIMIT));
-    }
-    showPasteModalChunks(chunks, json.length);
-  } else {
-    navigator.clipboard.writeText(json).then(() => {
-      showPasteModal(null, json.length);
-    }).catch(() => {
-      showPasteModal(json, json.length);
-    });
-  }
+function showGitHubUploadModal() {
+  const existing = document.getElementById("pasteModal");
+  if (existing) existing.remove();
+
+  const modal = document.createElement("div");
+  modal.id = "pasteModal";
+  modal.style.cssText = "position:fixed;inset:0;background:rgba(1,22,50,0.85);z-index:500;display:flex;align-items:center;justify-content:center;padding:2rem";
+  modal.innerHTML = `
+    <div style="background:white;border-radius:var(--radius-lg);padding:2rem;max-width:560px;width:100%">
+      <div style="font-family:var(--font-display);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);margin-bottom:0.5rem">Publish for jurors — 2 steps</div>
+      <div style="font-family:var(--font-body);font-size:0.88rem;color:var(--navy);line-height:1.7;margin-bottom:1.25rem">
+        <strong>Step 1:</strong> A JSON file just downloaded. <br>
+        <strong>Step 2:</strong> Upload it to GitHub at <code style="background:#f0f0f0;padding:2px 6px;border-radius:3px">jury-data.json</code> in the root of the <code style="background:#f0f0f0;padding:2px 6px;border-radius:3px">btssff-internal</code> folder, replacing the old one.
+      </div>
+      <div style="background:#f0f0f0;border-radius:var(--radius-sm);padding:1rem;margin-bottom:1rem;font-family:monospace;font-size:0.75rem;color:var(--navy);word-break:break-all">
+        bigteethsmallshorts/btssff-internal/blob/main/jury-data.json
+      </div>
+      <div style="display:flex;gap:0.75rem">
+        <a href="https://github.com/bigteethsmallshorts/btssff-internal/blob/main/jury-data.json" target="_blank"
+           style="flex:1;text-align:center;font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:var(--navy);color:white;padding:10px;border-radius:var(--radius-sm);text-decoration:none">
+          Open GitHub →
+        </a>
+        <button onclick="document.getElementById('pasteModal').remove()"
+          style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid var(--border);padding:10px 16px;border-radius:var(--radius-sm);cursor:pointer;color:var(--slate)">
+          Done
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
 }
 
 function showPasteModal(fallbackText, charCount) {
@@ -1376,89 +1460,37 @@ function showPasteModal(fallbackText, charCount) {
   document.body.appendChild(modal);
 }
 
-async function loadFromSheet() {
+const JURY_SYNC_SCRIPT = "https://script.googleapis.com/macros/s/AKfycbzj6FIHDGQ9F7PTwZgW8VoIumTCFN3POAA4YLeDyOWZlkAMjwS-1pCzLFM0s5be8MI_9Q/exec";
+
+async function loadFromGitHub() {
   try {
-    const url = `https://docs.google.com/spreadsheets/d/${JURY_DATA_SHEET_ID}/gviz/tq?tqx=out:csv&nocache=${Date.now()}`;
-    const res = await fetch(url);
-    if (!res.ok) { console.error("Sheet fetch failed:", res.status); return null; }
-    const text = await res.text();
-    const rows = parseCSV(text);
-    if (rows.length < 2) { console.error("Sheet has no data rows"); return null; }
-
-    let filmData = null;
-    const latestNotes = {};
-    const latestVotes = {};
-    const completions = {};
-
-    // Each form submission is one row. Col A=timestamp, B=JuryData, C=NotesData, D=VotesData, E=CompletionStatus
-    // A row has film data if col B starts with {
-    // A row has notes if col C starts with {
-    // A row has votes if col D starts with {
-    // A row has completion if col E starts with {
-    for (let i = 1; i < rows.length; i++) {
-      const row = rows[i];
-
-      // Col B — film data (may be split across B+C+D if large)
-      let colB = (row[1]||"").trim();
-      // Google Sheets escapes internal quotes as "" — just unescape those
-      colB = colB.replace(/""/g, '"');
-      if (colB.startsWith("{") && !filmData) {
-        // Try to parse, concatenating adjacent cells if needed
-        let combined = colB;
-        let j = 2;
-        while (j < row.length) {
-          let next = (row[j]||"").trim();
-          next = next.replace(/""/g, '"');
-          // Stop concatenating when we hit a cell that looks like a separate JSON object
-          if (next.startsWith('{"juror"') || next.startsWith('{"filmId"')) break;
-          combined += next;
-          j++;
-        }
-        try { filmData = JSON.parse(combined); } catch(e) { console.error("Film data parse error:", e.message); }
+    // Fetch films from GitHub
+    const filmUrl = `https://raw.githubusercontent.com/bigteethsmallshorts/btssff-internal/main/jury-data.json?nocache=${Date.now()}`;
+    const filmRes = await fetch(filmUrl);
+    if (!filmRes.ok) { console.error("GitHub fetch failed:", filmRes.status); return null; }
+    const filmData = await filmRes.json();
+    
+    if (!filmData || !filmData.films) { console.error("No films in published data"); return null; }
+    
+    // Fetch notes/votes from Apps Script
+    let sheetNotes = {};
+    let sheetVotes = {};
+    let sheetCompletions = {};
+    
+    try {
+      const syncRes = await fetch(JURY_SYNC_SCRIPT);
+      if (syncRes.ok) {
+        const syncData = await syncRes.json();
+        sheetNotes = syncData.notes || {};
+        sheetVotes = syncData.votes || {};
+        sheetCompletions = syncData.completions || {};
       }
-
-      // Col C — notes data
-      let colC = (row[2]||"").trim();
-      colC = colC.replace(/""/g, '"');
-      if (colC.startsWith("{")) {
-        try {
-          const parsed = JSON.parse(colC);
-          Object.entries(parsed).forEach(([filmId, noteList]) => {
-            if (!latestNotes[filmId]) latestNotes[filmId] = [];
-            noteList.forEach(note => {
-              const exists = latestNotes[filmId].some(n=>n.author===note.author&&n.text===note.text);
-              if (!exists) latestNotes[filmId].push(note);
-            });
-          });
-        } catch {}
-      }
-
-      // Col D — votes data
-      let colD = (row[3]||"").trim();
-      colD = colD.replace(/""/g, '"');
-      if (colD.startsWith("{")) {
-        try {
-          const parsed = JSON.parse(colD);
-          if (parsed.juror && parsed.allVotes) {
-            latestVotes[parsed.juror] = parsed.allVotes;
-          }
-        } catch {}
-      }
-
-      // Col E — completion status
-      let colE = (row[4]||"").trim();
-      colE = colE.replace(/""/g, '"');
-      if (colE.startsWith("{")) {
-        try {
-          const parsed = JSON.parse(colE);
-          if (parsed.juror) completions[parsed.juror] = parsed.completedAt;
-        } catch {}
-      }
+    } catch (e) {
+      console.warn("Could not fetch notes/votes from sync script:", e.message);
     }
-
-    if (!filmData) { console.error("No film data found in sheet"); return null; }
-    return { ...filmData, sheetNotes: latestNotes, sheetVotes: latestVotes, sheetCompletions: completions };
-  } catch(e) { console.error("loadFromSheet error:", e); return null; }
+    
+    return { ...filmData, sheetNotes, sheetVotes, sheetCompletions };
+  } catch(e) { console.error("loadFromGitHub error:", e); return null; }
 }
 
 function showPasteModalChunks(chunks, totalChars) {
