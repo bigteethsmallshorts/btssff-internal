@@ -1400,16 +1400,15 @@ async function loadFromSheet() {
 
       // Col B — film data (may be split across B+C+D if large)
       let colB = (row[1]||"").trim();
-      // Google Sheets escapes quotes as "" — unescape them
-      colB = colB.replace(/^"/, "").replace(/"$/, "").replace(/""/g, '"');
+      // Google Sheets escapes internal quotes as "" — just unescape those
+      colB = colB.replace(/""/g, '"');
       if (colB.startsWith("{") && !filmData) {
         // Try to parse, concatenating adjacent cells if needed
         let combined = colB;
         let j = 2;
         while (j < row.length) {
           let next = (row[j]||"").trim();
-          // Unescape this cell too
-          next = next.replace(/^"/, "").replace(/"$/, "").replace(/""/g, '"');
+          next = next.replace(/""/g, '"');
           // Stop concatenating when we hit a cell that looks like a separate JSON object
           if (next.startsWith('{"juror"') || next.startsWith('{"filmId"')) break;
           combined += next;
@@ -1420,7 +1419,7 @@ async function loadFromSheet() {
 
       // Col C — notes data
       let colC = (row[2]||"").trim();
-      colC = colC.replace(/^"/, "").replace(/"$/, "").replace(/""/g, '"');
+      colC = colC.replace(/""/g, '"');
       if (colC.startsWith("{")) {
         try {
           const parsed = JSON.parse(colC);
@@ -1436,7 +1435,7 @@ async function loadFromSheet() {
 
       // Col D — votes data
       let colD = (row[3]||"").trim();
-      colD = colD.replace(/^"/, "").replace(/"$/, "").replace(/""/g, '"');
+      colD = colD.replace(/""/g, '"');
       if (colD.startsWith("{")) {
         try {
           const parsed = JSON.parse(colD);
@@ -1448,7 +1447,7 @@ async function loadFromSheet() {
 
       // Col E — completion status
       let colE = (row[4]||"").trim();
-      colE = colE.replace(/^"/, "").replace(/"$/, "").replace(/""/g, '"');
+      colE = colE.replace(/""/g, '"');
       if (colE.startsWith("{")) {
         try {
           const parsed = JSON.parse(colE);
