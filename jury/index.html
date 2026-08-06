@@ -396,6 +396,7 @@ const JURY_DATA_FIELD        = "entry.338083048";
 const JURY_NOTES_FIELD       = "entry.1146716923";
 const JURY_VOTES_FIELD       = "entry.1791110471";
 const JURY_COMPLETE_FIELD    = "entry.1213956775";
+const JURY_AWARDS_FIELD      = "entry.1213956777"; // Audience Choice awards
 const JURY_DATA_SHEET_ID   = "1HN1noc_KPfYpII8sjjjpZwocGOW8qibvHIT8eaTZZ2o";
 const ADMIN_PASSWORD = "juryadmin2026";
 const TOP_N          = 5; // top N per category
@@ -840,6 +841,8 @@ function toggleAudienceWinner(filmId) {
   audienceWinners[filmId] = !audienceWinners[filmId];
   if (!audienceWinners[filmId]) delete audienceWinners[filmId];
   saveState();
+  // Submit to form so it syncs to all jurors
+  submitFieldToForm(JURY_AWARDS_FIELD, JSON.stringify(audienceWinners));
   rerenderAllCards();
   flashToast(audienceWinners[filmId] ? "🎟 Marked as Audience Choice!" : "Audience Choice mark removed");
 }
@@ -1076,14 +1079,27 @@ async function syncNotesAndVotes() {
           }
         } catch {}
       }
+      
+      // Column G (index 6) is Awards Data - Audience Choice
+      let colG = (row[6] || "").trim();
+      colG = colG.replace(/""/g, '"');
+      if (colG.startsWith("{")) {
+        try {
+          const parsed = JSON.parse(colG);
+          if (JSON.stringify(audienceWinners) !== JSON.stringify(parsed)) {
+            audienceWinners = parsed;
+            hasChanges = true;
+          }
+        } catch {}
+      }
     }
     
+    // Only re-render cards that actually changed
     if (hasChanges) {
       renderSummary();
       updateAdminSummary();
-      // Re-render visible cards to show new notes/votes
-      const cat = contenders[activeTab] || [];
-      cat.forEach(c => renderFilmCard(c.id));
+      // Don't re-render ALL cards - only update summaries
+      // Cards will stay open so judges can keep typing notes
     }
   } catch (e) {
     // Silent fail — don't spam errors
