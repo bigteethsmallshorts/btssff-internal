@@ -1095,8 +1095,8 @@ async function syncNotesAndVotes() {
     }
     
     if (hasChanges) {
-      // renderSummary();
-      // updateAdminSummary();
+      renderSummary();
+      updateAdminSummary();
     }
   } catch (e) {
     // Silent fail — don't spam errors
