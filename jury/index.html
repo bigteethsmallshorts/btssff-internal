@@ -396,7 +396,7 @@ const JURY_DATA_FIELD        = "entry.338083048";
 const JURY_NOTES_FIELD       = "entry.1146716923";
 const JURY_VOTES_FIELD       = "entry.1791110471";
 const JURY_COMPLETE_FIELD    = "entry.1213956775";
-const JURY_AWARDS_FIELD      = "entry.1213956777"; // Audience Choice awards
+const JURY_AWARDS_FIELD      = "entry.1213956777";
 const JURY_DATA_SHEET_ID   = "1HN1noc_KPfYpII8sjjjpZwocGOW8qibvHIT8eaTZZ2o";
 const ADMIN_PASSWORD = "juryadmin2026";
 const TOP_N          = 5; // top N per category
@@ -495,8 +495,10 @@ function checkGate() {
           } catch {}
         }
         render();
-        // Start periodic sync for notes/votes from sheet (all users)
-        setInterval(syncNotesAndVotes, 5000); // Sync every 5 seconds
+        // Start periodic sync for notes/votes from other jurors
+        if (!isAdmin) {
+          setInterval(syncNotesAndVotes, 5000); // Sync every 5 seconds
+        }
         // Jurors don't get upload/export buttons
       } else {
         document.getElementById("contendersGrid").innerHTML =
@@ -841,7 +843,6 @@ function toggleAudienceWinner(filmId) {
   audienceWinners[filmId] = !audienceWinners[filmId];
   if (!audienceWinners[filmId]) delete audienceWinners[filmId];
   saveState();
-  // Submit to form so it syncs to all jurors
   submitFieldToForm(JURY_AWARDS_FIELD, JSON.stringify(audienceWinners));
   rerenderAllCards();
   flashToast(audienceWinners[filmId] ? "🎟 Marked as Audience Choice!" : "Audience Choice mark removed");
@@ -1054,8 +1055,7 @@ async function syncNotesAndVotes() {
         try {
           const parsed = JSON.parse(colD);
           if (parsed.juror && parsed.allVotes) {
-            // ALWAYS update votes from sheet - this is the source of truth
-            if (JSON.stringify(votes[parsed.juror]) !== JSON.stringify(parsed.allVotes)) {
+            if (!votes[parsed.juror]) {
               votes[parsed.juror] = parsed.allVotes;
               hasChanges = true;
             }
@@ -1094,12 +1094,9 @@ async function syncNotesAndVotes() {
       }
     }
     
-    // Only re-render cards that actually changed
     if (hasChanges) {
       renderSummary();
       updateAdminSummary();
-      // Don't re-render ALL cards - only update summaries
-      // Cards will stay open so judges can keep typing notes
     }
   } catch (e) {
     // Silent fail — don't spam errors
