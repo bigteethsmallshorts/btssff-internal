@@ -430,6 +430,8 @@ function checkGate() {
     document.getElementById("gatePassInput").value = "";
     return;
   }
+  syncNotesAndVotes();
+}
   jurorName = rawName.charAt(0).toUpperCase() + rawName.slice(1).toLowerCase();
   isAdmin   = (pass === ADMIN_PASSWORD);
   document.getElementById("gate").style.display = "none";
