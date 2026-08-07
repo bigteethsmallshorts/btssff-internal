@@ -459,7 +459,7 @@ function checkGate() {
     document.getElementById("uploadScreen").style.display = "none";
     document.getElementById("appScreen").style.display = "block";
     document.getElementById("contendersGrid").innerHTML = '<div class="loading-spinner">Loading films…</div>';
-    loadFromGitHub().then(data => {
+       loadFromGitHub().then(async data => {
       if (data) {
         films = data.films;
         contenders = data.contenders;
@@ -494,6 +494,7 @@ function checkGate() {
             localStorage.setItem("btssff-jury-completed", JSON.stringify(merged));
           } catch {}
         }
+        await syncNotesAndVotes();
         render();
 
         // Jurors don't get upload/export buttons
@@ -592,7 +593,7 @@ function showUpload() {
   ratingsLoaded = false; submissionsLoaded = false;
   showUploadScreen();
 }
-function showApp() {
+async function showApp() {
   document.getElementById("uploadScreen").style.display = "none";
   document.getElementById("appScreen").style.display = "block";
   document.getElementById("uploadNewBtn").style.display = "";
@@ -601,6 +602,7 @@ function showApp() {
     document.getElementById("publishBtn").style.display = "";
     document.getElementById("adminDangerBtns").style.display = "flex";
   }
+  await syncNotesAndVotes();
   render();
 }
 
