@@ -1023,11 +1023,17 @@ async function syncNotesAndVotes() {
     if (rows.length < 2) return;
     
     let hasChanges = false;
-    
+
+    // Rebuilt fresh from the sheet each sync (not merged onto the existing
+    // local copy) so that notes/awards removed from the sheet actually
+    // disappear locally instead of lingering forever in localStorage.
+    const freshNotes = {};
+    let freshAudienceWinners = {};
+
     // Skip header row
     for (let i = 1; i < rows.length; i++) {
       const row = rows[i];
-      
+
       // Column C (index 2) is Notes Data
       let colC = (row[2] || "").trim();
       colC = colC.replace(/""/g, '"');
@@ -1035,18 +1041,15 @@ async function syncNotesAndVotes() {
         try {
           const parsed = JSON.parse(colC);
           Object.entries(parsed).forEach(([filmId, noteList]) => {
-            if (!notes[filmId]) notes[filmId] = [];
+            if (!freshNotes[filmId]) freshNotes[filmId] = [];
             noteList.forEach(note => {
-              const exists = notes[filmId].some(n => n.author === note.author && n.text === note.text);
-              if (!exists) {
-                notes[filmId].push(note);
-                hasChanges = true;
-              }
+              const exists = freshNotes[filmId].some(n => n.author === note.author && n.text === note.text);
+              if (!exists) freshNotes[filmId].push(note);
             });
           });
         } catch {}
       }
-      
+
       // Column D (index 3) is Votes Data
       let colD = (row[3] || "").trim();
       colD = colD.replace(/""/g, '"');
@@ -1084,21 +1087,25 @@ async function syncNotesAndVotes() {
       let colG = (row[6] || "").trim();
       colG = colG.replace(/""/g, '"');
       if (colG.startsWith("{")) {
-        try {
-          const parsed = JSON.parse(colG);
-          if (JSON.stringify(audienceWinners) !== JSON.stringify(parsed)) {
-            audienceWinners = parsed;
-            hasChanges = true;
-          }
-        } catch {}
+        try { freshAudienceWinners = JSON.parse(colG); } catch {}
       }
     }
-    
-if (hasChanges) {
-  renderSummary();
-  updateAdminSummary();
-  const cat = contenders[activeTab] || [];
-  cat.forEach(c => renderFilmCard(c.id));
+
+    if (JSON.stringify(notes) !== JSON.stringify(freshNotes)) {
+      notes = freshNotes;
+      hasChanges = true;
+    }
+    if (JSON.stringify(audienceWinners) !== JSON.stringify(freshAudienceWinners)) {
+      audienceWinners = freshAudienceWinners;
+      hasChanges = true;
+    }
+
+    if (hasChanges) {
+      saveState();
+      renderSummary();
+      updateAdminSummary();
+      const cat = contenders[activeTab] || [];
+      cat.forEach(c => renderFilmCard(c.id));
     }
   } catch (e) {
     // Silent fail — don't spam errors
