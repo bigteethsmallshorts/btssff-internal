@@ -483,7 +483,7 @@ function checkGate() {
               votes[jurorName] = jurorAllVotes;
             }
           });
-          try { localStorage.setItem("btssff-jury-votes", JSON.stringify(votes)); } catch {}
+  
         }
         // Merge completions
         if (data.sheetCompletions) {
@@ -734,7 +734,7 @@ function loadState() {
 }
 function saveState() {
   try { localStorage.setItem("btssff-jury-notes",    JSON.stringify(notes));          } catch {}
-  try { localStorage.setItem("btssff-jury-votes",    JSON.stringify(votes));          } catch {}
+
   try { localStorage.setItem("btssff-jury-winners",  JSON.stringify(winners));        } catch {}
   try { localStorage.setItem("btssff-jury-audience", JSON.stringify(audienceWinners));} catch {}
 }
