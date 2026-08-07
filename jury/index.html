@@ -1094,9 +1094,11 @@ async function syncNotesAndVotes() {
       }
     }
     
-    if (hasChanges) {
-      renderSummary();
-      updateAdminSummary();
+if (hasChanges) {
+  renderSummary();
+  updateAdminSummary();
+  const cat = contenders[activeTab] || [];
+  cat.forEach(c => renderFilmCard(c.id));
     }
   } catch (e) {
     // Silent fail — don't spam errors
