@@ -215,6 +215,17 @@
   .save-toast.show { opacity:1;transform:translateY(0); }
 
   .loading-spinner { text-align:center;padding:4rem;color:var(--slate);font-family:var(--font-display);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase; }
+
+/* Print / Save as PDF: when Final Results is open, print only that, full length */
+@media print {
+  body:has(#resultsModal) > *:not(#resultsModal) { display: none !important; }
+  #resultsModal { position: static !important; overflow: visible !important; padding: 0 !important; }
+  #resultsModal .no-print { display: none !important; }
+  #resultsModal .results-grid { grid-template-columns: 1fr !important; }
+  #resultsModal .result-card { break-inside: avoid; }
+  #resultsModal, #resultsModal * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html, body { height: auto !important; overflow: visible !important; }
+}
 </style>
 </head>
 <body ondragover="event.preventDefault()" ondrop="event.preventDefault()">
@@ -1397,7 +1408,7 @@ function revealResults() {
         ? `<span style="font-family:var(--font-display);font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;background:#d4f0e0;color:#1a5c35;padding:2px 7px;border-radius:var(--radius-sm)">Top contender</span>`
         : `<span style="font-family:var(--font-display);font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;background:#fef3cd;color:#7a5700;padding:2px 7px;border-radius:var(--radius-sm)">Wildcard</span>`;
 
-      return `<div style="background:white;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:0.75rem;overflow:hidden;${winners[t.id]?'border-left:4px solid #c9a227':audienceWinners[t.id]?'border-left:4px solid #5a2d82':t.pts>0?'border-left:4px solid var(--rose)':''}">
+      return `<div class="result-card" style="background:white;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:0.75rem;overflow:hidden;${winners[t.id]?'border-left:4px solid #c9a227':audienceWinners[t.id]?'border-left:4px solid #5a2d82':t.pts>0?'border-left:4px solid var(--rose)':''}">
         <div style="background:${winners[t.id]?'#1c1600':audienceWinners[t.id]?'#1a0f2e':'var(--navy)'};padding:0.75rem 1rem;display:flex;align-items:center;gap:0.75rem">
           ${ptsBadge}
           <div style="flex:1;min-width:0">
@@ -1430,9 +1441,12 @@ function revealResults() {
           <div style="font-family:var(--font-display);font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--slate);margin-bottom:4px">BTSSFF · Jury Deliberation Results</div>
           <h1 style="font-family:var(--font-display);font-size:1.6rem;letter-spacing:-0.01em;color:var(--navy)">Final Results</h1>
         </div>
+        <div class="no-print" style="display:flex;gap:0.5rem">
+        <button onclick="window.print()" style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:var(--navy);color:white;border:none;padding:8px 16px;border-radius:var(--radius-sm);cursor:pointer">⬇ Save as PDF</button>
         <button onclick="document.getElementById('resultsModal').remove()" style="font-family:var(--font-display);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:1px solid var(--border);padding:8px 16px;border-radius:var(--radius-sm);cursor:pointer;color:var(--slate)">← Back</button>
+        </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start">
+      <div class="results-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start">
         <div>
           <h2 style="font-family:var(--font-display);font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:3px solid var(--rose)">Micro Shorts</h2>
           ${buildCategory("Micro")}
