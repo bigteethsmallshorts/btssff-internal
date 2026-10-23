@@ -559,7 +559,7 @@ async function silentRefresh(){
         applyOverrides();
       })
     ]);
-    judgeScores = newScores;
+    judgeScores = currentSeasonOnly(newScores);
     try{ localStorage.setItem("btssff-decisions", JSON.stringify(decisions)); }catch{}
     buildJudgeFilterBar();
     render();
@@ -581,6 +581,7 @@ async function loadAll(){
   try{
     loadDecisions();
     [allFilms, judgeScores]=await Promise.all([fetchFilms(),fetchScores(),fetchOverrides().then(o=>{overrides=o;})]);
+    judgeScores=currentSeasonOnly(judgeScores);
     applyOverrides();
     try{ localStorage.setItem("btssff-decisions", JSON.stringify(decisions)); }catch{}
     activeJudges = null;
@@ -655,6 +656,15 @@ async function fetchScores(){
     });
     return result;
   }catch{return{};}
+}
+
+// Drop scores for films that aren't in the current Films sheet (e.g. last season's
+// rows still sitting in the Score Collector) so coverage can't exceed 100%.
+function currentSeasonOnly(scores){
+  const ids=new Set(allFilms.map(f=>f.id));
+  const kept={};
+  Object.entries(scores).forEach(([filmId,judges])=>{ if(ids.has(filmId)) kept[filmId]=judges; });
+  return kept;
 }
 
 async function fetchOverrides(){
