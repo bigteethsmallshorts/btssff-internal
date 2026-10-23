@@ -1020,9 +1020,11 @@ async function syncNotesAndVotes() {
     const text = await res.text();
     const rows = parseCSV(text);
     
-    if (rows.length < 2) return;
+    // Header-only (just cleared for a new season) still syncs, so old notes/votes drop out
+    if (!rows.length) return;
     
     let hasChanges = false;
+    const freshCompleted = {};
 
     // Rebuilt fresh from the sheet each sync (not merged onto the existing
     // local copy) so that notes/awards removed from the sheet actually
@@ -1072,14 +1074,7 @@ async function syncNotesAndVotes() {
       if (colE.startsWith("{")) {
         try {
           const parsed = JSON.parse(colE);
-          if (parsed.juror) {
-            const completed = getCompletedJurors();
-            if (!completed[parsed.juror]) {
-              completed[parsed.juror] = parsed.completedAt;
-              hasChanges = true;
-              localStorage.setItem("btssff-jury-completed", JSON.stringify(completed));
-            }
-          }
+          if (parsed.juror) freshCompleted[parsed.juror] = parsed.completedAt;
         } catch {}
       }
       
@@ -1091,6 +1086,12 @@ async function syncNotesAndVotes() {
       }
     }
 
+    // Same for "done voting": rebuilt from the sheet so clearing the sheet for a
+    // new season also clears last season's jurors from every browser.
+    if (JSON.stringify(getCompletedJurors()) !== JSON.stringify(freshCompleted)) {
+      try { localStorage.setItem("btssff-jury-completed", JSON.stringify(freshCompleted)); } catch {}
+      hasChanges = true;
+    }
     if (JSON.stringify(notes) !== JSON.stringify(freshNotes)) {
       notes = freshNotes;
       hasChanges = true;
