@@ -1573,7 +1573,10 @@ function showPasteModal(fallbackText, charCount) {
 async function loadFromGitHub() {
   try {
     // Fetch films from GitHub
-    const filmUrl = `https://raw.githubusercontent.com/bigteethsmallshorts/btssff-internal/main/jury-data.json?nocache=${Date.now()}`;
+    // ?archive=2026-08 loads a past fest from archive/jury-data-2026-08.json
+    const archive = (new URLSearchParams(location.search).get("archive")||"").replace(/[^\w-]/g,"");
+    const filePath = archive ? `archive/jury-data-${archive}.json` : "jury-data.json";
+    const filmUrl = `https://raw.githubusercontent.com/bigteethsmallshorts/btssff-internal/main/${filePath}?nocache=${Date.now()}`;
     const filmRes = await fetch(filmUrl);
     if (!filmRes.ok) { console.error("GitHub fetch failed:", filmRes.status); return null; }
     const filmData = await filmRes.json();
