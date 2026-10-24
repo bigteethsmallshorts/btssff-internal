@@ -429,6 +429,9 @@ let audienceWinners = {}; // { filmId: true } — admin-selected Audience Choice
 let votes  = {};  // { jurorName: { rank1: filmId, rank2: filmId, rank3: filmId } }
 // votes[jurorName].rank1/rank2/rank3 = filmId
 
+// ?archive=2026-08 shows a past fest from archive/jury-data-2026-08.json (read-only use)
+const ARCHIVE = (new URLSearchParams(location.search).get("archive")||"").replace(/[^\w-]/g,"");
+
 // ─── GATE ─────────────────────────────────────────────────────────────────────
 function checkGate() {
   const rawName = document.getElementById("gateNameInput").value.trim();
@@ -448,7 +451,7 @@ function checkGate() {
   document.getElementById("jurorBadge").textContent = `Juror: ${jurorName}${isAdmin?" · Admin":""}`;
   loadState();
   // Check if we have cached data
-  if (isAdmin) {
+  if (isAdmin && !ARCHIVE) {
     // Admin: check for cached CSV data
     const cached = localStorage.getItem("btssff-jury-csvdata");
     if (cached) {
@@ -465,7 +468,8 @@ function checkGate() {
   } else {
     // Juror: load from published sheet
     document.getElementById("gate").style.display = "none";
-    document.getElementById("jurorBadge").textContent = `Juror: ${jurorName}`;
+    document.getElementById("jurorBadge").textContent = ARCHIVE ? `Archive ${ARCHIVE} · ${jurorName}` : `Juror: ${jurorName}`;
+    if (ARCHIVE && isAdmin) document.getElementById("adminBar").style.display = "flex";
     // Show loading state
     document.getElementById("uploadScreen").style.display = "none";
     document.getElementById("appScreen").style.display = "block";
@@ -1573,9 +1577,7 @@ function showPasteModal(fallbackText, charCount) {
 async function loadFromGitHub() {
   try {
     // Fetch films from GitHub
-    // ?archive=2026-08 loads a past fest from archive/jury-data-2026-08.json
-    const archive = (new URLSearchParams(location.search).get("archive")||"").replace(/[^\w-]/g,"");
-    const filePath = archive ? `archive/jury-data-${archive}.json` : "jury-data.json";
+    const filePath = ARCHIVE ? `archive/jury-data-${ARCHIVE}.json` : "jury-data.json";
     const filmUrl = `https://raw.githubusercontent.com/bigteethsmallshorts/btssff-internal/main/${filePath}?nocache=${Date.now()}`;
     const filmRes = await fetch(filmUrl);
     if (!filmRes.ok) { console.error("GitHub fetch failed:", filmRes.status); return null; }
